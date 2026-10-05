@@ -1,0 +1,19 @@
+{
+  "title": "The Gettysburg Address",
+  "author": "Abraham Lincoln",
+  "reader": "John Greenman",
+  "source": "LibriVox / Internet Archive",
+  "source_url": "https://archive.org/download/gettysburg_johng_librivox/gettysburg_address_64kb.mp3",
+  "license": "Public Domain",
+  "language": "en",
+  "audio_raw": "gettysburg_address.mp3",
+  "audio_processed": "gettysburg_address_16k.wav",
+  "transcript_file": "gettysburg_address.txt",
+  "audio_metadata": {
+    "sample_rate": 16000,
+    "num_samples": 2526146,
+    "duration_seconds": 157.8841,
+    "peak_amplitude": 0.9737,
+    "mean_rms_energy": 0.052023
+  }
+}

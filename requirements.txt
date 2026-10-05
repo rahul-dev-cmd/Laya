@@ -1,0 +1,19 @@
+# Core Speech & Audio Analytics Requirements
+# Python 3.10 / 3.11 compatible
+
+# Audio I/O & Digital Signal Processing (16 kHz, 10ms hop, 25ms window)
+numpy>=1.24.0,<2.1.0
+scipy>=1.11.0,<1.15.0
+soundfile>=0.12.1
+librosa>=0.10.1
+
+# Deep Learning & Forced Alignment
+torch>=2.2.0
+torchaudio>=2.2.0
+transformers>=4.40.0
+faster-whisper>=1.0.0
+whisperx>=3.1.0
+scikit-learn==1.5.2
+
+# Testing & Quality Assurance
+pytest>=8.0.0

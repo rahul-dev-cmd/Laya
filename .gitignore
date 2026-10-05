@@ -1,0 +1,51 @@
+# Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Audio Data (CRITICAL: Never commit audio files)
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.m4a
+*.aac
+*.wma
+*.aiff
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/corrupted/*
+!data/corrupted/.gitkeep
+data/held_out/*
+!data/held_out/.gitkeep
+
+# Environment variables & secrets (CRITICAL: Never commit keys or secrets)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Model checkpoints & cache
+checkpoints/
+models/
+.cache/
+hf_cache/
+
+# IDE / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
