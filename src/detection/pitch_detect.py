@@ -1,21 +1,28 @@
 #!/usr/bin/env python3
 """Pitch / intonation flaw detection module for Second Take.
 
-This module implements temporal anomaly detection for pitch dynamic range compression
+This module implements two-stage temporal anomaly detection for pitch dynamic range compression
 (monotone / flat delivery):
-1. Computes cleaned F0 contour (via Parselmouth / Praat) converted to semitones relative to
-   the speaker's median F0.
-2. Computes the standard deviation of F0 in 3-second sliding windows (100 ms hop).
-3. Establishes the baseline distribution (mean and standard deviation of window F0 SD)
-   over the original, uncorrupted librivox_01 clip.
-4. Computes z-scores for each window against the baseline, flags windows with z <= -2.0
-   (flat delivery), and merges adjacent flagged windows into contiguous temporal regions.
-5. Scores detected regions against ground-truth label JSONs, reporting both:
-   - Window-level IoU: IoU of the raw merged window span.
-   - Refined IoU: IoU after pause-based acoustic phrase selection.
-   Label JSONs are never read during detection; only during scoring.
-6. Evaluates all 5 tiers, control clip, and 6 mid-phrase flaw test clips (not bounded by pauses).
-7. Prints comprehensive summary tables and saves pitch_ladder_results.json.
+1. Stage 1 (Window-level detection):
+   - Computes cleaned F0 contour (via Parselmouth / Praat) converted to semitones relative to
+     the speaker's median F0.
+   - Computes the standard deviation of F0 in 3-second sliding windows (100 ms hop).
+   - Establishes the baseline distribution (mean and standard deviation of window F0 SD)
+     over the original, uncorrupted librivox_01 clip.
+   - Flags windows with z <= -2.0 (flat delivery) and contrastive drop relative to baseline delivery,
+     merging overlapping flagged windows into candidate regions.
+2. Stage 2 (Per-word pitch spread edge placement):
+   - For each aligned word of the corrupted audio, computes its voiced F0 range in semitones (max - min).
+   - Z-scores each word's range deviation against the same word's baseline range from the original clip:
+     z_word = (test_range - baseline_range) / baseline_std.
+   - Inside and around each flagged region, finds the runs of consecutive words whose pitch range is
+     clearly compressed (z_word <= -1.5).
+   - Uses the first and last run edges as the refined start and end timestamps.
+   - Does NOT use pauses and does NOT read the label JSON during detection.
+3. Scoring & Evaluation:
+   - Evaluates both Window-level IoU (raw merged windows) and Refined IoU (per-word edge placement).
+   - Reports start error, end error, and counts control-like (no-flaw) flagged windows across the clip.
+   - Updates dataset/corrupted/pitch_ladder_results.json and prints comprehensive summary tables.
 """
 
 import argparse
@@ -45,10 +52,11 @@ from src.features.extract import compute_f0_contour
 
 # Reproducibility seed & sliding window parameters
 RANDOM_SEED: int = 42
-WINDOW_DURATION: float = 3.0    # 3.0 s sliding window
-HOP_DURATION: float = 0.1       # 100 ms step between sliding windows
-Z_SCORE_THRESHOLD: float = -2.0 # Anomaly criterion: z <= -2.0 (flat intonation)
-MIN_VOICED_FRAMES: int = 30     # At least 300 ms voiced speech in a 3s window
+WINDOW_DURATION: float = 3.0       # 3.0 s sliding window
+HOP_DURATION: float = 0.1          # 100 ms step between sliding windows
+Z_SCORE_THRESHOLD: float = -2.0    # Window anomaly criterion: z <= -2.0 (flat intonation)
+WORD_Z_THRESHOLD: float = -1.5     # Word pitch spread compression criterion: z <= -1.5
+MIN_VOICED_FRAMES: int = 30        # At least 300 ms voiced speech in a 3s window
 
 PITCH_LADDER_SPEC = [
     {"wav": "librivox_01_pitch_tier1.wav", "json": "librivox_01_pitch_tier1.json", "k": 0.85, "tier": 1},
@@ -176,8 +184,37 @@ def compute_sliding_window_f0_sd(
     return windows
 
 
+def compute_word_f0_ranges(
+    f0_semitones: np.ndarray,
+    frame_times: np.ndarray,
+    words: List[Dict[str, Any]],
+) -> np.ndarray:
+    """Compute F0 range in semitones (max - min) for each aligned word.
+    
+    Args:
+        f0_semitones: 1D array of F0 in semitones.
+        frame_times: 1D array of frame center timestamps.
+        words: List of aligned word dicts.
+        
+    Returns:
+        1D numpy array of word F0 ranges in semitones (0.0 if < 2 voiced frames).
+    """
+    ranges = []
+    for w in words:
+        s = float(w["start"])
+        e = float(w["end"])
+        mask = (frame_times >= s) & (frame_times <= e)
+        v = f0_semitones[mask][~np.isnan(f0_semitones[mask])]
+        if len(v) >= 2:
+            ranges.append(float(np.max(v) - np.min(v)))
+        else:
+            ranges.append(0.0)
+    return np.array(ranges, dtype=np.float64)
+
+
 def compute_pitch_baseline(
     baseline_wav_path: Union[str, Path],
+    alignment_words: Optional[List[Dict[str, Any]]] = None,
     window_duration: float = WINDOW_DURATION,
     hop_duration: float = HOP_DURATION,
 ) -> Dict[str, Any]:
@@ -185,11 +222,13 @@ def compute_pitch_baseline(
     
     Args:
         baseline_wav_path: Path to dataset/sources/librivox_01.wav.
+        alignment_words: Optional list of aligned words for baseline word ranges.
         window_duration: Window size (default: 3.0s).
         hop_duration: Hop size (default: 0.1s).
         
     Returns:
-        Baseline dictionary with mean, std, speaker_median_f0, and per-window baseline SDs.
+        Baseline dictionary with mean, std, speaker_median_f0, per-window baseline SDs,
+        and per-word baseline F0 ranges.
     """
     frame_times, f0_st, speaker_med, dur = compute_f0_semitones(baseline_wav_path)
     windows = compute_sliding_window_f0_sd(
@@ -203,6 +242,10 @@ def compute_pitch_baseline(
     baseline_mean = float(np.mean(valid_sds))
     baseline_std = float(np.std(valid_sds))
     
+    base_word_ranges = None
+    if alignment_words:
+        base_word_ranges = compute_word_f0_ranges(f0_st, frame_times, alignment_words)
+    
     return {
         "wav_path": str(baseline_wav_path),
         "duration": dur,
@@ -212,7 +255,24 @@ def compute_pitch_baseline(
         "windows": windows,
         "frame_times": frame_times,
         "f0_semitones": f0_st,
+        "word_ranges": base_word_ranges,
     }
+
+
+def find_consecutive_runs(indices: List[int]) -> List[List[int]]:
+    """Group sorted list of integer indices into runs of strictly consecutive values."""
+    if not indices:
+        return []
+    runs = []
+    curr = [indices[0]]
+    for idx in indices[1:]:
+        if idx == curr[-1] + 1:
+            curr.append(idx)
+        else:
+            runs.append(curr)
+            curr = [idx]
+    runs.append(curr)
+    return runs
 
 
 def detect_pitch_flaw_regions(
@@ -220,25 +280,32 @@ def detect_pitch_flaw_regions(
     baseline_stats: Dict[str, Any],
     alignment_words: Optional[List[Dict[str, Any]]] = None,
     z_threshold: float = Z_SCORE_THRESHOLD,
+    word_z_threshold: float = WORD_Z_THRESHOLD,
     window_duration: float = WINDOW_DURATION,
     hop_duration: float = HOP_DURATION,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]], float]:
-    """Detect flat intonation flaw regions without reading ground-truth label JSON.
+    """Two-stage pitch anomaly detector: window flagging followed by per-word edge placement.
     
-    Detection pipeline:
+    Stage 1 (Window flagging):
     1. Computes cleaned F0 in semitones relative to speaker's baseline median F0.
     2. Slides 3.0s windows (100ms hop) and computes local F0 standard deviation.
-    3. Computes z-score against baseline distribution: z = (SD - mean) / std.
-    4. Flags windows where z <= -2.0 that exhibit contrastive compression relative
-       to the baseline delivery of that passage.
-    5. Merges adjacent flagged windows into contiguous temporal regions and grounds
-       phrase boundaries.
+    3. Flags windows where z <= -2.0 that exhibit contrastive compression relative
+       to baseline delivery of that passage.
+    4. Merges overlapping / adjacent flagged windows into candidate flaw regions.
+    
+    Stage 2 (Per-word pitch spread edge placement):
+    1. Computes F0 range in semitones for each aligned word of the corrupted audio.
+    2. Z-scores each word against its own baseline range: z = (test_range - base_range) / baseline_std.
+    3. Inside and around each flagged region, finds runs of consecutive words with z <= -1.5.
+    4. Places refined start at the first run's start, and refined end at the last run's end.
+    5. Does NOT use pauses and does NOT read the label JSON.
        
     Args:
         test_wav_path: Path to corrupted or control WAV file.
         baseline_stats: Precomputed baseline stats from original clip.
-        alignment_words: Optional list of aligned words for phrase grounding.
-        z_threshold: Anomaly cutoff (default: -2.0).
+        alignment_words: List of aligned words for Stage 2 per-word edge placement.
+        z_threshold: Window anomaly cutoff (default: -2.0).
+        word_z_threshold: Per-word range compression cutoff (default: -1.5).
         window_duration: Window size (default: 3.0s).
         hop_duration: Hop size (default: 0.1s).
         
@@ -250,20 +317,18 @@ def detect_pitch_flaw_regions(
     spk_med = baseline_stats["speaker_median_f0"]
     b_wins = baseline_stats["windows"]
     b_sds = [w["f0_sd"] for w in b_wins]
+    base_word_ranges = baseline_stats.get("word_ranges")
     
     # 1. Compute test F0 contour
-    frame_times, test_f0_st, _, dur = compute_f0_semitones(test_wav_path, speaker_median_f0=spk_med)
+    c_times, test_f0_st, _, dur = compute_f0_semitones(test_wav_path, speaker_median_f0=spk_med)
     
-    # 2. Compute 3.0s sliding window F0 standard deviations
+    # 2. Stage 1: 3.0s sliding window F0 standard deviations
     test_wins = compute_sliding_window_f0_sd(
-        test_f0_st, frame_times, dur, window_duration=window_duration, hop_duration=hop_duration
+        test_f0_st, c_times, dur, window_duration=window_duration, hop_duration=hop_duration
     )
-    
-    mids = np.array([w["mid"] for w in alignment_words], dtype=np.float64) if alignment_words else None
     
     flagged_windows: List[Dict[str, Any]] = []
     
-    # 3. Evaluate z-scores and contrastive flattening
     for idx, w in enumerate(test_wins):
         tsd = w["f0_sd"]
         if np.isnan(tsd):
@@ -275,36 +340,32 @@ def detect_pitch_flaw_regions(
         if z <= z_threshold:
             osd = b_sds[idx] if idx < len(b_sds) else np.nan
             # Contrastive check against baseline delivery:
-            # The test window must be significantly flatter than baseline delivery
             # (at least 15% reduction in SD and >= 0.4 semitones drop)
             if not np.isnan(osd) and (tsd <= osd * 0.85) and ((osd - tsd) >= 0.4):
-                w_idxs = []
-                if mids is not None:
-                    w_idxs = np.where((mids >= w["start"]) & (mids <= w["end"]))[0].tolist()
-                flagged_windows.append({
-                    "start": w["start"],
-                    "end": w["end"],
-                    "z_score": z,
-                    "f0_sd": tsd,
-                    "baseline_sd": osd,
-                    "word_indices": w_idxs,
-                })
+                flagged_windows.append(w)
 
     if not flagged_windows:
         return [], test_wins, [], 0.0
 
-    # 4. Merge adjacent flagged windows (gap <= 0.35s)
+    # Merge overlapping flagged windows: w['start'] <= curr_end + 0.35
     merged_groups: List[List[Dict[str, Any]]] = []
-    current_group: List[Dict[str, Any]] = [flagged_windows[0]]
+    curr = [flagged_windows[0]]
+    curr_end = flagged_windows[0]["end"]
 
     for w in flagged_windows[1:]:
-        prev = current_group[-1]
-        if w["start"] <= prev["start"] + hop_duration * 3.5:
-            current_group.append(w)
+        if w["start"] <= curr_end + 0.35:
+            curr.append(w)
+            curr_end = max(curr_end, w["end"])
         else:
-            merged_groups.append(current_group)
-            current_group = [w]
-    merged_groups.append(current_group)
+            merged_groups.append(curr)
+            curr = [w]
+            curr_end = w["end"]
+    merged_groups.append(curr)
+
+    # Compute test word F0 ranges if alignment is provided
+    test_word_ranges = None
+    if alignment_words and base_word_ranges is not None:
+        test_word_ranges = compute_word_f0_ranges(test_f0_st, c_times, alignment_words)
 
     detected_regions: List[Dict[str, Any]] = []
 
@@ -315,42 +376,33 @@ def detect_pitch_flaw_regions(
         
         # Raw merged window bounds
         raw_start = round(grp[0]["start"], 3)
-        raw_end = round(grp[-1]["end"], 3)
+        raw_end = round(max(w["end"] for w in grp), 3)
         
-        all_w_idxs = sorted(list(set(idx for w in grp for idx in w["word_indices"])))
-        
-        if alignment_words and all_w_idxs:
-            # Partition words by major acoustic pauses (> 0.30s) to identify phrase unit
-            pauses = [all_w_idxs[0]]
-            for k in range(all_w_idxs[0] + 1, all_w_idxs[-1] + 1):
-                if alignment_words[k]["start"] - alignment_words[k - 1]["end"] > 0.30:
-                    pauses.append(k)
-            pauses.append(all_w_idxs[-1] + 1)
+        # Stage 2: per-word pitch spread edge placement
+        if alignment_words and test_word_ranges is not None:
+            # Search words overlapping or around flagged window region (within 0.5s margin)
+            search_words = [
+                i for i, w in enumerate(alignment_words)
+                if float(w["end"]) >= raw_start - 0.5 and float(w["start"]) <= raw_end + 0.5
+            ]
             
-            # Identify the phrase unit exhibiting greatest drop in F0 SD
-            orig_f0_st = baseline_stats["f0_semitones"]
-            best_drop = -1.0
-            best_phrase = (all_w_idxs[0], all_w_idxs[-1])
-            
-            for b_i in range(len(pauses) - 1):
-                ps = pauses[b_i]
-                pe = pauses[b_i + 1] - 1
-                if pe >= ps:
-                    p_mask = (frame_times >= alignment_words[ps]["start"]) & (frame_times <= alignment_words[pe]["end"])
-                    p_mask_orig = (baseline_stats["frame_times"] >= alignment_words[ps]["start"]) & (baseline_stats["frame_times"] <= alignment_words[pe]["end"])
-                    vt = test_f0_st[p_mask][~np.isnan(test_f0_st[p_mask])]
-                    vo = orig_f0_st[p_mask_orig][~np.isnan(orig_f0_st[p_mask_orig])]
-                    if len(vt) > 0 and len(vo) > 0:
-                        drop = np.std(vo) - np.std(vt)
-                        if drop > best_drop:
-                            best_drop = drop
-                            best_phrase = (ps, pe)
-                            
-            ps, pe = best_phrase
-            region_start = round(alignment_words[ps]["start"], 3)
-            region_end = round(alignment_words[pe]["end"], 3)
+            comp_indices = []
+            for i in search_words:
+                diff = test_word_ranges[i] - base_word_ranges[i]
+                z_w = diff / b_std
+                if z_w <= word_z_threshold:
+                    comp_indices.append(i)
+                    
+            runs = find_consecutive_runs(comp_indices)
+            if runs:
+                first_run = runs[0]
+                last_run = runs[-1]
+                region_start = round(float(alignment_words[first_run[0]]["start"]), 3)
+                region_end = round(float(alignment_words[last_run[-1]]["end"]), 3)
+            else:
+                region_start = raw_start
+                region_end = raw_end
         else:
-            # Acoustic window span
             region_start = raw_start
             region_end = raw_end
             
@@ -404,7 +456,7 @@ def score_against_label_json(
     
     Computes both:
     - window_iou: IoU of the raw merged window span.
-    - refined_iou: IoU after pause-based acoustic phrase selection.
+    - refined_iou: IoU after per-word pitch spread edge placement.
     
     Args:
         detected_regions: List of detected region dictionaries.
@@ -505,8 +557,8 @@ def evaluate_pitch_ladder(
     print("ESTABLISHING PITCH BASELINE (librivox_01.wav)")
     print("=" * 110)
     
-    baseline_stats = compute_pitch_baseline(baseline_wav)
     words = load_alignment_csv(alignment_csv) if alignment_csv.exists() else []
+    baseline_stats = compute_pitch_baseline(baseline_wav, alignment_words=words)
     
     b_mean = baseline_stats["mean_f0_sd"]
     b_std = baseline_stats["std_f0_sd"]
@@ -524,6 +576,7 @@ def evaluate_pitch_ladder(
             "baseline_mean_f0_sd_semitones": b_mean,
             "baseline_std_f0_sd_semitones": b_std,
             "z_threshold": Z_SCORE_THRESHOLD,
+            "word_z_threshold": WORD_Z_THRESHOLD,
         },
         "ladder_summary": [],
         "detailed_results": {},
@@ -639,8 +692,8 @@ def evaluate_midphrase_tests(
     baseline_wav = sources_dir / "librivox_01.wav"
     alignment_csv = sources_dir / "librivox_01_alignment.csv"
     
-    baseline_stats = compute_pitch_baseline(baseline_wav)
     words = load_alignment_csv(alignment_csv) if alignment_csv.exists() else []
+    baseline_stats = compute_pitch_baseline(baseline_wav, alignment_words=words)
 
     table_rows: List[Dict[str, Any]] = []
 
