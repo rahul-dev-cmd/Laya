@@ -1,0 +1,448 @@
+{
+  "baseline": {
+    "source_clip": "librivox_01.wav",
+    "original_duration_seconds": 95.0,
+    "window_duration_seconds": 3.0,
+    "hop_duration_seconds": 0.1,
+    "mean_rate_wps": 3.1802,
+    "std_rate_wps": 0.6003,
+    "z_threshold": 2.0
+  },
+  "ladder_summary": [
+    {
+      "file": "librivox_01_rate_tier1.wav",
+      "factor": 1.05,
+      "detected": "no",
+      "peak_z": 1.921,
+      "start_error": null,
+      "end_error": null,
+      "iou": 0.0
+    },
+    {
+      "file": "librivox_01_rate_tier2.wav",
+      "factor": 1.1,
+      "detected": "yes",
+      "peak_z": 2.476,
+      "start_error": 0.846,
+      "end_error": 0.6239,
+      "iou": 0.6727
+    },
+    {
+      "file": "librivox_01_rate_tier3.wav",
+      "factor": 1.25,
+      "detected": "yes",
+      "peak_z": 3.587,
+      "start_error": 0.037,
+      "end_error": 0.035,
+      "iou": 0.9819
+    },
+    {
+      "file": "librivox_01_rate_tier4.wav",
+      "factor": 1.6,
+      "detected": "yes",
+      "peak_z": 4.697,
+      "start_error": 0.004,
+      "end_error": 0.0375,
+      "iou": 0.9867
+    },
+    {
+      "file": "librivox_01_rate_tier5.wav",
+      "factor": 2.0,
+      "detected": "yes",
+      "peak_z": 5.253,
+      "start_error": 0.014,
+      "end_error": 0.036,
+      "iou": 0.9802
+    },
+    {
+      "file": "librivox_01_rate_slow_tier1.wav",
+      "factor": 0.95,
+      "detected": "no",
+      "peak_z": -1.411,
+      "start_error": null,
+      "end_error": null,
+      "iou": 0.0
+    },
+    {
+      "file": "librivox_01_rate_slow_tier2.wav",
+      "factor": 0.8,
+      "detected": "no",
+      "peak_z": -1.966,
+      "start_error": null,
+      "end_error": null,
+      "iou": 0.0
+    },
+    {
+      "file": "librivox_01_rate_slow_tier3.wav",
+      "factor": 0.6,
+      "detected": "yes",
+      "peak_z": -2.521,
+      "start_error": 3.308,
+      "end_error": 0.0253,
+      "iou": 0.5951
+    },
+    {
+      "file": "librivox_01_control.wav",
+      "factor": 1.0,
+      "detected": "no",
+      "peak_z": 1.921,
+      "start_error": null,
+      "end_error": null,
+      "iou": 0.0
+    }
+  ],
+  "detailed_results": {
+    "librivox_01_rate_tier1.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_rate_tier1.wav",
+      "duration_seconds": 94.745,
+      "detected_regions": [],
+      "scoring": {
+        "injected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 58.6048,
+          "duration_seconds": 4.7048
+        },
+        "detected_regions": [],
+        "timestamp_error_start": null,
+        "timestamp_error_end": null,
+        "iou": 0.0,
+        "status": "MISSED (No regions detected)"
+      }
+    },
+    "librivox_01_rate_tier2.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_rate_tier2.wav",
+      "duration_seconds": 94.531,
+      "detected_regions": [
+        {
+          "start_seconds": 54.746,
+          "end_seconds": 57.767,
+          "duration_seconds": 3.021,
+          "z_score": 2.476,
+          "mean_z_score": 2.476,
+          "direction": "fast",
+          "peak_rate_wps": 4.67,
+          "window_span_seconds": [
+            54.8,
+            57.8
+          ]
+        }
+      ],
+      "scoring": {
+        "injected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 58.3909,
+          "duration_seconds": 4.4909
+        },
+        "best_detected_region": {
+          "start_seconds": 54.746,
+          "end_seconds": 57.767,
+          "duration_seconds": 3.021,
+          "z_score": 2.476,
+          "mean_z_score": 2.476,
+          "direction": "fast",
+          "peak_rate_wps": 4.67,
+          "window_span_seconds": [
+            54.8,
+            57.8
+          ]
+        },
+        "detected_regions": [
+          {
+            "start_seconds": 54.746,
+            "end_seconds": 57.767,
+            "duration_seconds": 3.021,
+            "z_score": 2.476,
+            "mean_z_score": 2.476,
+            "direction": "fast",
+            "peak_rate_wps": 4.67,
+            "window_span_seconds": [
+              54.8,
+              57.8
+            ]
+          }
+        ],
+        "timestamp_error_start": 0.846,
+        "timestamp_error_end": 0.6239,
+        "iou": 0.6727,
+        "status": "DETECTED"
+      }
+    },
+    "librivox_01_rate_tier3.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_rate_tier3.wav",
+      "duration_seconds": 93.992,
+      "detected_regions": [
+        {
+          "start_seconds": 53.937,
+          "end_seconds": 57.887,
+          "duration_seconds": 3.95,
+          "z_score": 3.587,
+          "mean_z_score": 2.981,
+          "direction": "fast",
+          "peak_rate_wps": 5.33,
+          "window_span_seconds": [
+            53.9,
+            57.9
+          ]
+        }
+      ],
+      "scoring": {
+        "injected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 57.852,
+          "duration_seconds": 3.952
+        },
+        "best_detected_region": {
+          "start_seconds": 53.937,
+          "end_seconds": 57.887,
+          "duration_seconds": 3.95,
+          "z_score": 3.587,
+          "mean_z_score": 2.981,
+          "direction": "fast",
+          "peak_rate_wps": 5.33,
+          "window_span_seconds": [
+            53.9,
+            57.9
+          ]
+        },
+        "detected_regions": [
+          {
+            "start_seconds": 53.937,
+            "end_seconds": 57.887,
+            "duration_seconds": 3.95,
+            "z_score": 3.587,
+            "mean_z_score": 2.981,
+            "direction": "fast",
+            "peak_rate_wps": 5.33,
+            "window_span_seconds": [
+              53.9,
+              57.9
+            ]
+          }
+        ],
+        "timestamp_error_start": 0.037,
+        "timestamp_error_end": 0.035,
+        "iou": 0.9819,
+        "status": "DETECTED"
+      }
+    },
+    "librivox_01_rate_tier4.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_rate_tier4.wav",
+      "duration_seconds": 93.127,
+      "detected_regions": [
+        {
+          "start_seconds": 53.904,
+          "end_seconds": 57.025,
+          "duration_seconds": 3.121,
+          "z_score": 4.697,
+          "mean_z_score": 3.32,
+          "direction": "fast",
+          "peak_rate_wps": 6.0,
+          "window_span_seconds": [
+            52.3,
+            57.7
+          ]
+        }
+      ],
+      "scoring": {
+        "injected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 56.9875,
+          "duration_seconds": 3.0875
+        },
+        "best_detected_region": {
+          "start_seconds": 53.904,
+          "end_seconds": 57.025,
+          "duration_seconds": 3.121,
+          "z_score": 4.697,
+          "mean_z_score": 3.32,
+          "direction": "fast",
+          "peak_rate_wps": 6.0,
+          "window_span_seconds": [
+            52.3,
+            57.7
+          ]
+        },
+        "detected_regions": [
+          {
+            "start_seconds": 53.904,
+            "end_seconds": 57.025,
+            "duration_seconds": 3.121,
+            "z_score": 4.697,
+            "mean_z_score": 3.32,
+            "direction": "fast",
+            "peak_rate_wps": 6.0,
+            "window_span_seconds": [
+              52.3,
+              57.7
+            ]
+          }
+        ],
+        "timestamp_error_start": 0.004,
+        "timestamp_error_end": 0.0375,
+        "iou": 0.9867,
+        "status": "DETECTED"
+      }
+    },
+    "librivox_01_rate_tier5.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_rate_tier5.wav",
+      "duration_seconds": 92.51,
+      "detected_regions": [
+        {
+          "start_seconds": 53.886,
+          "end_seconds": 56.406,
+          "duration_seconds": 2.52,
+          "z_score": 5.253,
+          "mean_z_score": 3.777,
+          "direction": "fast",
+          "peak_rate_wps": 6.33,
+          "window_span_seconds": [
+            51.6,
+            58.0
+          ]
+        }
+      ],
+      "scoring": {
+        "injected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 56.37,
+          "duration_seconds": 2.47
+        },
+        "best_detected_region": {
+          "start_seconds": 53.886,
+          "end_seconds": 56.406,
+          "duration_seconds": 2.52,
+          "z_score": 5.253,
+          "mean_z_score": 3.777,
+          "direction": "fast",
+          "peak_rate_wps": 6.33,
+          "window_span_seconds": [
+            51.6,
+            58.0
+          ]
+        },
+        "detected_regions": [
+          {
+            "start_seconds": 53.886,
+            "end_seconds": 56.406,
+            "duration_seconds": 2.52,
+            "z_score": 5.253,
+            "mean_z_score": 3.777,
+            "direction": "fast",
+            "peak_rate_wps": 6.33,
+            "window_span_seconds": [
+              51.6,
+              58.0
+            ]
+          }
+        ],
+        "timestamp_error_start": 0.014,
+        "timestamp_error_end": 0.036,
+        "iou": 0.9802,
+        "status": "DETECTED"
+      }
+    },
+    "librivox_01_rate_slow_tier1.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_rate_slow_tier1.wav",
+      "duration_seconds": 95.24,
+      "detected_regions": [],
+      "scoring": {
+        "injected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 59.1,
+          "duration_seconds": 5.2
+        },
+        "detected_regions": [],
+        "timestamp_error_start": null,
+        "timestamp_error_end": null,
+        "iou": 0.0,
+        "status": "MISSED (No regions detected)"
+      }
+    },
+    "librivox_01_rate_slow_tier2.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_rate_slow_tier2.wav",
+      "duration_seconds": 96.215,
+      "detected_regions": [],
+      "scoring": {
+        "injected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 60.075,
+          "duration_seconds": 6.175
+        },
+        "detected_regions": [],
+        "timestamp_error_start": null,
+        "timestamp_error_end": null,
+        "iou": 0.0,
+        "status": "MISSED (No regions detected)"
+      }
+    },
+    "librivox_01_rate_slow_tier3.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_rate_slow_tier3.wav",
+      "duration_seconds": 98.273,
+      "detected_regions": [
+        {
+          "start_seconds": 57.208,
+          "end_seconds": 62.108,
+          "duration_seconds": 4.9,
+          "z_score": -2.521,
+          "mean_z_score": -2.521,
+          "direction": "slow",
+          "peak_rate_wps": 1.67,
+          "window_span_seconds": [
+            57.0,
+            63.3
+          ]
+        }
+      ],
+      "scoring": {
+        "injected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 62.1333,
+          "duration_seconds": 8.2333
+        },
+        "best_detected_region": {
+          "start_seconds": 57.208,
+          "end_seconds": 62.108,
+          "duration_seconds": 4.9,
+          "z_score": -2.521,
+          "mean_z_score": -2.521,
+          "direction": "slow",
+          "peak_rate_wps": 1.67,
+          "window_span_seconds": [
+            57.0,
+            63.3
+          ]
+        },
+        "detected_regions": [
+          {
+            "start_seconds": 57.208,
+            "end_seconds": 62.108,
+            "duration_seconds": 4.9,
+            "z_score": -2.521,
+            "mean_z_score": -2.521,
+            "direction": "slow",
+            "peak_rate_wps": 1.67,
+            "window_span_seconds": [
+              57.0,
+              63.3
+            ]
+          }
+        ],
+        "timestamp_error_start": 3.308,
+        "timestamp_error_end": 0.0253,
+        "iou": 0.5951,
+        "status": "DETECTED"
+      }
+    },
+    "librivox_01_control.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_control.wav",
+      "duration_seconds": 94.98,
+      "detected_regions": [],
+      "scoring": {
+        "injected_region": null,
+        "detected_regions": [],
+        "false_positives": 0,
+        "status": "PASS (No false-positive regions flagged)"
+      }
+    }
+  }
+}

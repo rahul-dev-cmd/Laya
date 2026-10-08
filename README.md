@@ -146,9 +146,43 @@ Output is saved to `data/processed/gettysburg_address_16k_aligned.json` with str
 
 ---
 
+## ⚡ Rate Flaw Ladder Mapping Table (`librivox_01`)
+
+The speech rate / tempo flaw ladder evaluates local articulation rate perturbations across 5 speed-up tiers and 3 slow-down tiers, anchored to words 174–191 (*"However this may be it is certain that he soon became domesticated in the family of Colonel Syme"*) in `librivox_01.wav` (`53.90s` to `58.84s`):
+
+| File Name | Tier Name | Direction | Factor | Description | Flaw Region (Corrupted Timeline) | Flaw Duration | Time Shift |
+| :--- | :---: | :---: | :---: | :--- | :---: | :---: | :---: |
+| `librivox_01_rate_tier1.wav` | Tier 1 | Speed-up | **1.05** | Subtle speed-up (+5%) | `[53.900s, 58.605s]` | 4.705 s | -0.235 s |
+| `librivox_01_rate_tier2.wav` | Tier 2 | Speed-up | **1.10** | Mild speed-up (+10%) | `[53.900s, 58.391s]` | 4.491 s | -0.449 s |
+| `librivox_01_rate_tier3.wav` | Tier 3 | Speed-up | **1.25** | Moderate speed-up (+25%) | `[53.900s, 57.852s]` | 3.952 s | -0.988 s |
+| `librivox_01_rate_tier4.wav` | Tier 4 | Speed-up | **1.60** | Strong speed-up (+60%) | `[53.900s, 56.988s]` | 3.088 s | -1.853 s |
+| `librivox_01_rate_tier5.wav` | Tier 5 | Speed-up | **2.00** | Extreme speed-up (+100%) | `[53.900s, 56.370s]` | 2.470 s | -2.470 s |
+| `librivox_01_rate_slow_tier1.wav` | Slow Tier 1 | Slow-down | **0.95** | Subtle slow-down (-5%) | `[53.900s, 59.100s]` | 5.200 s | +0.260 s |
+| `librivox_01_rate_slow_tier2.wav` | Slow Tier 2 | Slow-down | **0.80** | Moderate slow-down (-20%) | `[53.900s, 60.075s]` | 6.175 s | +1.235 s |
+| `librivox_01_rate_slow_tier3.wav` | Slow Tier 3 | Slow-down | **0.60** | Strong slow-down (-40%) | `[53.900s, 62.133s]` | 8.233 s | +3.293 s |
+| `librivox_01_control.wav` | Control | Neutral | **1.00** | Resynthesized control | *None* | — | 0.000 s |
+
+*Note: Existing `librivox_01_rate_t3.wav` (factor 1.25) and `librivox_01_rate_t5.wav` (factor 1.60) are preserved without modification.*
+
+### Rate Ladder Detection Summary (`rate_ladder_results.json`)
+
+| File | Factor | Detected | Peak $z$ | Start Error | End Error | IoU |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| `librivox_01_rate_tier1.wav` | 1.05 | no | $+1.921$ | N/A | N/A | 0.0000 |
+| `librivox_01_rate_tier2.wav` | 1.10 | yes | $+2.476$ | 0.8460s | 0.6239s | 0.6727 |
+| `librivox_01_rate_tier3.wav` | 1.25 | yes | $+3.587$ | 0.0370s | 0.0350s | 0.9819 |
+| `librivox_01_rate_tier4.wav` | 1.60 | yes | $+4.697$ | 0.0040s | 0.0375s | 0.9867 |
+| `librivox_01_rate_tier5.wav` | 2.00 | yes | $+5.253$ | 0.0140s | 0.0360s | 0.9802 |
+| `librivox_01_rate_slow_tier1.wav` | 0.95 | no | $-1.411$ | N/A | N/A | 0.0000 |
+| `librivox_01_rate_slow_tier2.wav` | 0.80 | no | $-1.966$ | N/A | N/A | 0.0000 |
+| `librivox_01_rate_slow_tier3.wav` | 0.60 | yes | $-2.521$ | 3.3080s | 0.0253s | 0.5951 |
+| `librivox_01_control.wav` | 1.00 | no | $+1.921$ | N/A | N/A | 0.0000 |
+
+---
+
 ## 🗺️ Project Roadmap
-- [x] **Phase 1 (Current)**: Repo skeleton, reproducible environment, audio preprocessing, and WhisperX word alignment on LibriVox sample speech.
-- [ ] **Phase 2**: Acoustic feature extraction (F0 semitones, energy z-scores, MFCCs, HNR, pauses).
-- [ ] **Phase 3**: Corruption engine (4 flaw types × 5 severity tiers).
-- [ ] **Phase 4**: Temporal flaw grounding ($|z| \ge 2$) & template explanations.
+- [x] **Phase 1**: Repo skeleton, reproducible environment, audio preprocessing, and WhisperX word alignment.
+- [x] **Phase 2**: Forced alignment and temporal rate-flaw grounding module.
+- [x] **Phase 3**: Full 8-point speech tempo flaw ladder generation (5 speed-up + 3 slow-down).
+- [ ] **Phase 4**: Acoustic feature extraction (F0 semitones, energy z-scores, MFCCs, HNR, pauses).
 - [ ] **Phase 5**: Interactive Contrastive Dashboard (Next.js + WaveSurfer.js).

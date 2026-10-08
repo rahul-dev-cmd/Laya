@@ -1,0 +1,59 @@
+{
+  "source_clip": "librivox_01.wav",
+  "source_audio_path": "dataset/sources/librivox_01.wav",
+  "flaw_type": "rate",
+  "direction": "speed_up",
+  "tier": 3,
+  "factor": 1.25,
+  "words": [
+    "However",
+    "this",
+    "may",
+    "be",
+    "it",
+    "is",
+    "certain",
+    "that",
+    "he",
+    "soon",
+    "became",
+    "domesticated",
+    "in",
+    "the",
+    "family",
+    "of",
+    "Colonel",
+    "Syme"
+  ],
+  "phrase_text": "However this may be it is certain that he soon became domesticated in the family of Colonel Syme",
+  "phrase_word_count": 18,
+  "original_region": {
+    "start_seconds": 53.9,
+    "end_seconds": 58.84,
+    "duration_seconds": 4.94
+  },
+  "flaw_region": {
+    "start_seconds": 53.9,
+    "end_seconds": 57.852,
+    "duration_seconds": 3.952
+  },
+  "corrupted_timeline": {
+    "flaw_start_seconds": 53.9,
+    "flaw_end_seconds": 57.852,
+    "time_shift_seconds": -0.988,
+    "subsequent_audio_shifted_earlier_by_seconds": 0.988,
+    "subsequent_audio_shifted_later_by_seconds": 0.0
+  },
+  "crossfade_details": {
+    "crossfade_ms": 10.0,
+    "crossfade_samples": 160,
+    "exact_sample_flaw_start_seconds": 53.89,
+    "exact_sample_flaw_end_seconds": 57.842
+  },
+  "audio_info": {
+    "sample_rate": 16000,
+    "original_duration_seconds": 95.0,
+    "corrupted_duration_seconds": 93.992,
+    "control_duration_seconds": 94.98
+  }
+}
