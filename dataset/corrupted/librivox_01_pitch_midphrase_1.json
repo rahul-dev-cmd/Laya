@@ -1,0 +1,49 @@
+{
+  "source_clip": "librivox_01.wav",
+  "source_audio_path": "dataset/sources/librivox_01.wav",
+  "flaw_type": "pitch",
+  "description": "Pitch dynamic range compression (flat / monotone intonation flaw)",
+  "tier": "midphrase_1",
+  "k": 0.25,
+  "is_monotone": false,
+  "phrase_median_f0_hz": 191.13,
+  "words": [
+    "of",
+    "Winston",
+    "of",
+    "the",
+    "Yorkshire",
+    "England",
+    "emigrated",
+    "from",
+    "Wales",
+    "to",
+    "the"
+  ],
+  "phrase_text": "of Winston of the Yorkshire England emigrated from Wales to the",
+  "phrase_word_count": 11,
+  "original_region": {
+    "start_seconds": 5.32,
+    "end_seconds": 8.62,
+    "duration_seconds": 3.3
+  },
+  "flaw_region": {
+    "start_seconds": 5.32,
+    "end_seconds": 8.62,
+    "duration_seconds": 3.3
+  },
+  "corrupted_timeline": {
+    "flaw_start_seconds": 5.32,
+    "flaw_end_seconds": 8.62,
+    "time_shift_seconds": 0.0
+  },
+  "crossfade_details": {
+    "crossfade_ms": 10.0,
+    "crossfade_samples": 160
+  },
+  "audio_info": {
+    "sample_rate": 16000,
+    "original_duration_seconds": 95.0,
+    "corrupted_duration_seconds": 94.98
+  }
+}

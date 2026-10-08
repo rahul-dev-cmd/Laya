@@ -1,0 +1,402 @@
+{
+  "baseline": {
+    "source_clip": "librivox_01.wav",
+    "original_duration_seconds": 95.0,
+    "window_duration_seconds": 3.0,
+    "hop_duration_seconds": 0.1,
+    "speaker_median_f0_hz": 178.01,
+    "baseline_mean_f0_sd_semitones": 2.9295,
+    "baseline_std_f0_sd_semitones": 0.646,
+    "z_threshold": -2.0
+  },
+  "ladder_summary": [
+    {
+      "file": "librivox_01_pitch_tier1.wav",
+      "k": 0.85,
+      "detected": "no",
+      "peak_z": -0.403,
+      "window_iou": 0.0,
+      "refined_iou": 0.0,
+      "start_error": null,
+      "end_error": null,
+      "no_flaw_flagged_windows": 0
+    },
+    {
+      "file": "librivox_01_pitch_tier2.wav",
+      "k": 0.65,
+      "detected": "yes",
+      "peak_z": -3.052,
+      "window_iou": 0.5429,
+      "refined_iou": 0.6397,
+      "start_error": 1.78,
+      "end_error": 0.0,
+      "no_flaw_flagged_windows": 0
+    },
+    {
+      "file": "librivox_01_pitch_tier3.wav",
+      "k": 0.45,
+      "detected": "yes",
+      "peak_z": -3.593,
+      "window_iou": 0.76,
+      "refined_iou": 1.0,
+      "start_error": 0.0,
+      "end_error": 0.0,
+      "no_flaw_flagged_windows": 0
+    },
+    {
+      "file": "librivox_01_pitch_tier4.wav",
+      "k": 0.25,
+      "detected": "yes",
+      "peak_z": -3.95,
+      "window_iou": 0.6416,
+      "refined_iou": 1.0,
+      "start_error": 0.0,
+      "end_error": 0.0,
+      "no_flaw_flagged_windows": 0
+    },
+    {
+      "file": "librivox_01_pitch_tier5.wav",
+      "k": 0.0,
+      "detected": "yes",
+      "peak_z": -4.478,
+      "window_iou": 0.6416,
+      "refined_iou": 1.0,
+      "start_error": 0.0,
+      "end_error": 0.0,
+      "no_flaw_flagged_windows": 0
+    },
+    {
+      "file": "librivox_01_pitch_control.wav",
+      "k": 1.0,
+      "detected": "no",
+      "peak_z": 0.195,
+      "window_iou": 0.0,
+      "refined_iou": 0.0,
+      "start_error": null,
+      "end_error": null,
+      "no_flaw_flagged_windows": 0
+    }
+  ],
+  "detailed_results": {
+    "librivox_01_pitch_tier1.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_pitch_tier1.wav",
+      "k": 0.85,
+      "detected_regions": [],
+      "scoring": {
+        "injected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 58.84,
+          "duration_seconds": 4.94
+        },
+        "detected_regions": [],
+        "timestamp_error_start": null,
+        "timestamp_error_end": null,
+        "window_iou": 0.0,
+        "refined_iou": 0.0,
+        "iou": 0.0,
+        "no_flaw_flagged_windows": 0,
+        "status": "MISSED (No regions detected)"
+      }
+    },
+    "librivox_01_pitch_tier2.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_pitch_tier2.wav",
+      "k": 0.65,
+      "detected_regions": [
+        {
+          "start_seconds": 53.9,
+          "end_seconds": 55.44,
+          "duration_seconds": 1.54,
+          "z_score": -2.054,
+          "mean_z_score": -2.039,
+          "flagged_window_count": 2,
+          "window_span_seconds": [
+            52.4,
+            55.5
+          ]
+        },
+        {
+          "start_seconds": 55.68,
+          "end_seconds": 58.84,
+          "duration_seconds": 3.16,
+          "z_score": -3.052,
+          "mean_z_score": -2.316,
+          "flagged_window_count": 8,
+          "window_span_seconds": [
+            55.8,
+            59.5
+          ]
+        }
+      ],
+      "scoring": {
+        "injected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 58.84,
+          "duration_seconds": 4.94
+        },
+        "best_detected_region": {
+          "start_seconds": 55.68,
+          "end_seconds": 58.84,
+          "duration_seconds": 3.16,
+          "z_score": -3.052,
+          "mean_z_score": -2.316,
+          "flagged_window_count": 8,
+          "window_span_seconds": [
+            55.8,
+            59.5
+          ]
+        },
+        "detected_regions": [
+          {
+            "start_seconds": 53.9,
+            "end_seconds": 55.44,
+            "duration_seconds": 1.54,
+            "z_score": -2.054,
+            "mean_z_score": -2.039,
+            "flagged_window_count": 2,
+            "window_span_seconds": [
+              52.4,
+              55.5
+            ]
+          },
+          {
+            "start_seconds": 55.68,
+            "end_seconds": 58.84,
+            "duration_seconds": 3.16,
+            "z_score": -3.052,
+            "mean_z_score": -2.316,
+            "flagged_window_count": 8,
+            "window_span_seconds": [
+              55.8,
+              59.5
+            ]
+          }
+        ],
+        "timestamp_error_start": 1.78,
+        "timestamp_error_end": 0.0,
+        "window_iou": 0.5429,
+        "refined_iou": 0.6397,
+        "iou": 0.6397,
+        "no_flaw_flagged_windows": 0,
+        "status": "DETECTED"
+      }
+    },
+    "librivox_01_pitch_tier3.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_pitch_tier3.wav",
+      "k": 0.45,
+      "detected_regions": [
+        {
+          "start_seconds": 53.9,
+          "end_seconds": 55.68,
+          "duration_seconds": 1.78,
+          "z_score": -2.397,
+          "mean_z_score": -2.329,
+          "flagged_window_count": 5,
+          "window_span_seconds": [
+            52.2,
+            55.6
+          ]
+        },
+        {
+          "start_seconds": 53.9,
+          "end_seconds": 58.84,
+          "duration_seconds": 4.94,
+          "z_score": -3.593,
+          "mean_z_score": -2.455,
+          "flagged_window_count": 36,
+          "window_span_seconds": [
+            53.3,
+            59.8
+          ]
+        }
+      ],
+      "scoring": {
+        "injected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 58.84,
+          "duration_seconds": 4.94
+        },
+        "best_detected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 58.84,
+          "duration_seconds": 4.94,
+          "z_score": -3.593,
+          "mean_z_score": -2.455,
+          "flagged_window_count": 36,
+          "window_span_seconds": [
+            53.3,
+            59.8
+          ]
+        },
+        "detected_regions": [
+          {
+            "start_seconds": 53.9,
+            "end_seconds": 55.68,
+            "duration_seconds": 1.78,
+            "z_score": -2.397,
+            "mean_z_score": -2.329,
+            "flagged_window_count": 5,
+            "window_span_seconds": [
+              52.2,
+              55.6
+            ]
+          },
+          {
+            "start_seconds": 53.9,
+            "end_seconds": 58.84,
+            "duration_seconds": 4.94,
+            "z_score": -3.593,
+            "mean_z_score": -2.455,
+            "flagged_window_count": 36,
+            "window_span_seconds": [
+              53.3,
+              59.8
+            ]
+          }
+        ],
+        "timestamp_error_start": 0.0,
+        "timestamp_error_end": 0.0,
+        "window_iou": 0.76,
+        "refined_iou": 1.0,
+        "iou": 1.0,
+        "no_flaw_flagged_windows": 0,
+        "status": "DETECTED"
+      }
+    },
+    "librivox_01_pitch_tier4.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_pitch_tier4.wav",
+      "k": 0.25,
+      "detected_regions": [
+        {
+          "start_seconds": 53.9,
+          "end_seconds": 58.84,
+          "duration_seconds": 4.94,
+          "z_score": -3.95,
+          "mean_z_score": -3.142,
+          "flagged_window_count": 48,
+          "window_span_seconds": [
+            52.2,
+            59.9
+          ]
+        }
+      ],
+      "scoring": {
+        "injected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 58.84,
+          "duration_seconds": 4.94
+        },
+        "best_detected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 58.84,
+          "duration_seconds": 4.94,
+          "z_score": -3.95,
+          "mean_z_score": -3.142,
+          "flagged_window_count": 48,
+          "window_span_seconds": [
+            52.2,
+            59.9
+          ]
+        },
+        "detected_regions": [
+          {
+            "start_seconds": 53.9,
+            "end_seconds": 58.84,
+            "duration_seconds": 4.94,
+            "z_score": -3.95,
+            "mean_z_score": -3.142,
+            "flagged_window_count": 48,
+            "window_span_seconds": [
+              52.2,
+              59.9
+            ]
+          }
+        ],
+        "timestamp_error_start": 0.0,
+        "timestamp_error_end": 0.0,
+        "window_iou": 0.6416,
+        "refined_iou": 1.0,
+        "iou": 1.0,
+        "no_flaw_flagged_windows": 0,
+        "status": "DETECTED"
+      }
+    },
+    "librivox_01_pitch_tier5.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_pitch_tier5.wav",
+      "k": 0.0,
+      "detected_regions": [
+        {
+          "start_seconds": 53.9,
+          "end_seconds": 58.84,
+          "duration_seconds": 4.94,
+          "z_score": -4.478,
+          "mean_z_score": -4.019,
+          "flagged_window_count": 48,
+          "window_span_seconds": [
+            52.2,
+            59.9
+          ]
+        }
+      ],
+      "scoring": {
+        "injected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 58.84,
+          "duration_seconds": 4.94
+        },
+        "best_detected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 58.84,
+          "duration_seconds": 4.94,
+          "z_score": -4.478,
+          "mean_z_score": -4.019,
+          "flagged_window_count": 48,
+          "window_span_seconds": [
+            52.2,
+            59.9
+          ]
+        },
+        "detected_regions": [
+          {
+            "start_seconds": 53.9,
+            "end_seconds": 58.84,
+            "duration_seconds": 4.94,
+            "z_score": -4.478,
+            "mean_z_score": -4.019,
+            "flagged_window_count": 48,
+            "window_span_seconds": [
+              52.2,
+              59.9
+            ]
+          }
+        ],
+        "timestamp_error_start": 0.0,
+        "timestamp_error_end": 0.0,
+        "window_iou": 0.6416,
+        "refined_iou": 1.0,
+        "iou": 1.0,
+        "no_flaw_flagged_windows": 0,
+        "status": "DETECTED"
+      }
+    },
+    "librivox_01_pitch_control.wav": {
+      "audio_file": "dataset/corrupted/librivox_01_pitch_control.wav",
+      "k": 1.0,
+      "detected_regions": [],
+      "scoring": {
+        "injected_region": {
+          "start_seconds": 53.9,
+          "end_seconds": 58.84,
+          "duration_seconds": 4.94
+        },
+        "detected_regions": [],
+        "timestamp_error_start": null,
+        "timestamp_error_end": null,
+        "window_iou": 0.0,
+        "refined_iou": 0.0,
+        "iou": 0.0,
+        "no_flaw_flagged_windows": 0,
+        "status": "MISSED (No regions detected)"
+      }
+    }
+  }
+}

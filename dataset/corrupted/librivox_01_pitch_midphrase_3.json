@@ -1,0 +1,50 @@
+{
+  "source_clip": "librivox_01.wav",
+  "source_audio_path": "dataset/sources/librivox_01.wav",
+  "flaw_type": "pitch",
+  "description": "Pitch dynamic range compression (flat / monotone intonation flaw)",
+  "tier": "midphrase_3",
+  "k": 0.25,
+  "is_monotone": false,
+  "phrase_median_f0_hz": 176.83,
+  "words": [
+    "John",
+    "Syme",
+    "It",
+    "is",
+    "very",
+    "probable",
+    "that",
+    "the",
+    "families",
+    "were",
+    "at",
+    "this"
+  ],
+  "phrase_text": "John Syme It is very probable that the families were at this",
+  "phrase_word_count": 12,
+  "original_region": {
+    "start_seconds": 44.62,
+    "end_seconds": 47.92,
+    "duration_seconds": 3.3
+  },
+  "flaw_region": {
+    "start_seconds": 44.62,
+    "end_seconds": 47.92,
+    "duration_seconds": 3.3
+  },
+  "corrupted_timeline": {
+    "flaw_start_seconds": 44.62,
+    "flaw_end_seconds": 47.92,
+    "time_shift_seconds": 0.0
+  },
+  "crossfade_details": {
+    "crossfade_ms": 10.0,
+    "crossfade_samples": 160
+  },
+  "audio_info": {
+    "sample_rate": 16000,
+    "original_duration_seconds": 95.0,
+    "corrupted_duration_seconds": 94.98
+  }
+}

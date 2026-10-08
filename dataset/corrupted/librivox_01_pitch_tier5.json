@@ -1,0 +1,56 @@
+{
+  "source_clip": "librivox_01.wav",
+  "source_audio_path": "dataset/sources/librivox_01.wav",
+  "flaw_type": "pitch",
+  "description": "Pitch dynamic range compression (flat / monotone intonation flaw)",
+  "tier": 5,
+  "k": 0.0,
+  "is_monotone": true,
+  "phrase_median_f0_hz": 171.57,
+  "words": [
+    "However",
+    "this",
+    "may",
+    "be",
+    "it",
+    "is",
+    "certain",
+    "that",
+    "he",
+    "soon",
+    "became",
+    "domesticated",
+    "in",
+    "the",
+    "family",
+    "of",
+    "Colonel",
+    "Syme"
+  ],
+  "phrase_text": "However this may be it is certain that he soon became domesticated in the family of Colonel Syme",
+  "phrase_word_count": 18,
+  "original_region": {
+    "start_seconds": 53.9,
+    "end_seconds": 58.84,
+    "duration_seconds": 4.94
+  },
+  "flaw_region": {
+    "start_seconds": 53.9,
+    "end_seconds": 58.84,
+    "duration_seconds": 4.94
+  },
+  "corrupted_timeline": {
+    "flaw_start_seconds": 53.9,
+    "flaw_end_seconds": 58.84,
+    "time_shift_seconds": 0.0
+  },
+  "crossfade_details": {
+    "crossfade_ms": 10.0,
+    "crossfade_samples": 160
+  },
+  "audio_info": {
+    "sample_rate": 16000,
+    "original_duration_seconds": 95.0,
+    "corrupted_duration_seconds": 94.98
+  }
+}
