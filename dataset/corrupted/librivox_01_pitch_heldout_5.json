@@ -1,0 +1,52 @@
+{
+  "source_clip": "librivox_01.wav",
+  "source_audio_path": "dataset/sources/librivox_01.wav",
+  "flaw_type": "pitch",
+  "description": "Pitch dynamic range compression (flat / monotone intonation flaw)",
+  "tier": "heldout_5",
+  "k": 0.25,
+  "is_monotone": false,
+  "phrase_median_f0_hz": 185.2,
+  "words": [
+    "will",
+    "be",
+    "found",
+    "in",
+    "the",
+    "Livre",
+    "des",
+    "Conquerants",
+    "of",
+    "William",
+    "the",
+    "Conqueror",
+    "and",
+    "in"
+  ],
+  "phrase_text": "will be found in the Livre des Conquerants of William the Conqueror and in",
+  "phrase_word_count": 14,
+  "original_region": {
+    "start_seconds": 74.04,
+    "end_seconds": 77.46,
+    "duration_seconds": 3.42
+  },
+  "flaw_region": {
+    "start_seconds": 74.04,
+    "end_seconds": 77.46,
+    "duration_seconds": 3.42
+  },
+  "corrupted_timeline": {
+    "flaw_start_seconds": 74.04,
+    "flaw_end_seconds": 77.46,
+    "time_shift_seconds": 0.0
+  },
+  "crossfade_details": {
+    "crossfade_ms": 10.0,
+    "crossfade_samples": 160
+  },
+  "audio_info": {
+    "sample_rate": 16000,
+    "original_duration_seconds": 95.0,
+    "corrupted_duration_seconds": 94.98
+  }
+}

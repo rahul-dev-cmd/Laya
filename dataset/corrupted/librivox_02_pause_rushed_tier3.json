@@ -1,0 +1,48 @@
+{
+  "source_clip": "librivox_02.wav",
+  "source_audio_path": "C:/Users/Rahul Dev/Desktop/Laya/dataset/sources/librivox_02.wav",
+  "flaw_type": "pause",
+  "direction": "rushed",
+  "tier": 3,
+  "multiplier": 0.4,
+  "target_boundary": {
+    "word_before_index": 158,
+    "word_before": "hand",
+    "word_after_index": 159,
+    "word_after": "I",
+    "original_pause_seconds": 0.66,
+    "corrupted_pause_seconds": 0.264
+  },
+  "original_region": {
+    "start_seconds": 62.58,
+    "end_seconds": 63.24,
+    "duration_seconds": 0.66
+  },
+  "flaw_region": {
+    "start_seconds": 62.58,
+    "end_seconds": 62.844,
+    "duration_seconds": 0.264
+  },
+  "corrupted_timeline": {
+    "flaw_start_seconds": 62.58,
+    "flaw_end_seconds": 62.844,
+    "time_shift_seconds": -0.396
+  },
+  "chosen_3_to_4s_region": {
+    "start_word_index": 156,
+    "end_word_index": 164,
+    "phrase_text": "subject in hand I wished to reply to some",
+    "corrupted_start_seconds": 61.54,
+    "corrupted_end_seconds": 64.684,
+    "duration_seconds": 3.144
+  },
+  "crossfade_details": {
+    "crossfade_ms": 10.0,
+    "crossfade_samples": 160
+  },
+  "audio_info": {
+    "sample_rate": 16000,
+    "original_duration_seconds": 91.0,
+    "corrupted_duration_seconds": 90.594
+  }
+}

@@ -1,0 +1,81 @@
+DIFF REPORT: CLIP 01 (librivox_01.wav, 95.0 s cut from raw_01.mp3 with -ss 00:00:21 -t 95)
+Source Book: "Patrick Henry; life, correspondence and speeches", Chapter 1 (William Wirt Henry, 1891)
+LibriVox Audio: Chapter 1 (read by Tatiana Chichilla)
+Passage Coverage: 00:00.00 - 00:94.58 (95.0 s WAV file)
+
+====================================================================================================
+DISCREPANCIES BETWEEN WHISPER OUTPUT AND SOURCE PASSAGE
+====================================================================================================
+
+1. [00:01.82 - 00:02.56]
+   - Whisper: 18th
+   - Source:  eighteenth
+   - Detail:  Number formatting. The speaker pronounced "eighteenth", which Whisper converted to numeral digits "18th".
+
+2. [00:06.24 - 00:06.32]
+   - Whisper: the (in "of the Yorkshire")
+   - Source:  [omitted] (in "of Yorkshire")
+   - Detail:  Extraneous word insertion. Whisper inserted "the" between "of" and "Yorkshire". In isolated listening, the reader speaks "of Yorkshire".
+
+3. [00:20.54 - 00:20.62]
+   - Whisper: they (in "and they resided")
+   - Source:  [omitted] (in "and resided")
+   - Detail:  Spoken addition by narrator. The reader vocalized "and they resided in the county of Hanover", adding the pronoun "they" which is absent in the printed source text ("and resided in the County of Hanover").
+
+4. [00:27.80 - 00:28.28]
+   - Whisper: They're
+   - Source:  There
+   - Detail:  Homophone substitution. The reader pronounced "There also emigrated...", which Whisper mistranscribed as the contraction "They're".
+
+5. [00:29.48 - 00:30.00]
+   - Whisper: sometime
+   - Source:  some time
+   - Detail:  Orthographic spacing. Spoken identically. The 19th-century source text uses the two-word form "some time", while Whisper normalized to the single compound "sometime".
+
+6. [00:38.14 - 00:38.74]
+   - Whisper: Dinwitti,
+   - Source:  Dinwiddie,
+   - Detail:  Proper noun phonetic error. The reader pronounced the historical name "Robert Dinwiddie" (colonial Governor of Virginia), which Whisper phonetically transcribed with unvoiced consonants as "Dinwitti,".
+
+7. [01:10.56 - 01:11.06]
+   - Whisper: Henry's
+   - Source:  Henrys
+   - Detail:  Apostrophe / punctuation discrepancy. The source text uses the plural family name "Henrys" ("Although the recent Henrys are of Scotch extraction"), while Whisper inserted a possessive apostrophe "Henry's".
+
+8. [01:14.78 - 01:15.66]
+   - Whisper: leave with the concurals
+   - Source:  Livre des Conquerants
+   - Detail:  Foreign phrase (French) phonetic misrecognition. The narrator attempted the historical French title *Livre des Conquérants*:
+              - [01:14.78 - 01:14.94] Whisper "leave"       vs Source "Livre"
+              - [01:14.94 - 01:15.16] Whisper "with the"    vs Source "des"
+              - [01:15.16 - 01:15.66] Whisper "concurals"   vs Source "Conquerants"
+
+9. [01:18.14 - 01:18.72]
+   - Whisper: Henry's,
+   - Source:  Henrys,
+   - Detail:  Apostrophe / punctuation discrepancy. Plural family name "Henrys," transcribed by Whisper with a possessive apostrophe as "Henry's,".
+
+10. [01:21.76 - 01:22.18]
+    - Whisper: Henry's
+    - Source:  Henrys
+    - Detail:  Apostrophe / punctuation discrepancy. Plural family name "Henrys" transcribed by Whisper as "Henry's".
+
+11. [01:22.54 - 01:22.76]
+    - Whisper: conquest
+    - Source:  Conquest
+    - Detail:  Capitalization difference. The source text capitalizes the historical event ("the Conquest"), while Whisper outputted lowercase "conquest".
+
+12. [01:27.00 - 01:27.96]
+    - Whisper: 1153
+    - Source:  1153
+    - Detail:  [CHECK] Historical text / OCR variant. The narrator clearly spoke "eleven fifty-three" ("1153"). The original uncorrected page scan of some printings had a broken numeral resembling "1158" in djvu OCR, but the author's text and subsequent citation ("Great Rolls of the Pipe, 1153") confirms 1153, matching the spoken audio and Whisper's transcription.
+
+13. [01:33.42 - 01:34.22]
+    - Whisper: Philius
+    - Source:  filius
+    - Detail:  Foreign Latin word capitalization and spelling. The Latin word *filius* ("son of") was transcribed by Whisper with a capital 'Ph-' as "Philius".
+
+14. [01:34.22 - 01:34.58]
+    - Whisper: on receipt.
+    - Source:  Henrici.
+    - Detail:  Proper noun (Latin genitive) phonetic misrecognition. The narrator pronounced the Latin name *Henrici* (/hɛnˈriːsiː/), which Whisper misrecognized as the English phrase "on receipt.".

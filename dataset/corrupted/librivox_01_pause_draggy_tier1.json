@@ -1,0 +1,48 @@
+{
+  "source_clip": "librivox_01.wav",
+  "source_audio_path": "C:/Users/Rahul Dev/Desktop/Laya/dataset/sources/librivox_01.wav",
+  "flaw_type": "pause",
+  "direction": "draggy",
+  "tier": 1,
+  "multiplier": 1.15,
+  "target_boundary": {
+    "word_before_index": 86,
+    "word_before": "county",
+    "word_after_index": 87,
+    "word_after": "There",
+    "original_pause_seconds": 0.66,
+    "corrupted_pause_seconds": 0.759
+  },
+  "original_region": {
+    "start_seconds": 27.14,
+    "end_seconds": 27.8,
+    "duration_seconds": 0.66
+  },
+  "flaw_region": {
+    "start_seconds": 27.14,
+    "end_seconds": 27.899,
+    "duration_seconds": 0.759
+  },
+  "corrupted_timeline": {
+    "flaw_start_seconds": 27.14,
+    "flaw_end_seconds": 27.899,
+    "time_shift_seconds": 0.099
+  },
+  "chosen_3_to_4s_region": {
+    "start_word_index": 84,
+    "end_word_index": 91,
+    "phrase_text": "the same county There also emigrated to Virginia",
+    "corrupted_start_seconds": 26.56,
+    "corrupted_end_seconds": 29.579,
+    "duration_seconds": 3.019
+  },
+  "crossfade_details": {
+    "crossfade_ms": 10.0,
+    "crossfade_samples": 160
+  },
+  "audio_info": {
+    "sample_rate": 16000,
+    "original_duration_seconds": 95.0,
+    "corrupted_duration_seconds": 95.089
+  }
+}

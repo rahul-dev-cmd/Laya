@@ -1,0 +1,54 @@
+DIFF REPORT: CLIP 02 (librivox_02.wav, 91.0 s cut from raw_02.mp3 with -ss 00:00:25.5 -t 91)
+Source Book: "The German Classics", Vol. 10 - "Speeches of Prince Bismarck: Practical Christianity" (Translated by Edmund von Mach, 1914)
+LibriVox Audio: Track 02, "Practical Christianity, First Half" (read by Alister)
+Passage Coverage: 00:00.00 - 00:90.30 (91.0 s WAV file)
+
+====================================================================================================
+DISCREPANCIES BETWEEN WHISPER OUTPUT AND SOURCE PASSAGE
+====================================================================================================
+
+1. [00:00.00 - 00:00.84]
+   - Whisper: Prince Bismarck
+   - Source:  Prince Bismarck
+   - Detail:  With the new cut (-ss 00:00:25.5), "Prince Bismarck" is now fully and cleanly vocalized at the beginning (Prince: 00:00.00 - 00:00.20; Bismarck: 00:00.20 - 00:00.84), completely resolving the earlier truncation and matching the source text.
+
+2. [00:05.04 - 00:05.50]
+   - Whisper: as been (or has been)
+   - Source:  as had been
+   - Detail:  [CHECK] Auxiliary verb omission / elision. In the sentence "...with such restrictive laws as had been passed against the Socialists...", the source contains the past perfect auxiliary "had". Whisper transcribed "as been passed", omitting "had" due to rapid speech / weak stress on the auxiliary.
+
+3. [00:16.84 - 00:17.48]
+   - Whisper: working man
+   - Source:  workingman
+   - Detail:  Orthographic compounding. Spoken identically. The source text formats the term as a single closed compound noun "workingman", whereas Whisper separated it into two words "working man".
+
+4. [00:22.62 - 00:23.02]
+   - Whisper: criticised,
+   - Source:  criticized,
+   - Detail:  Spelling convention. Spoken identically. Edmund von Mach's American English translation uses the "-ize" suffix ("criticized,"), while Whisper generated the British English "-ise" variant ("criticised,").
+
+5. [00:24.74 - 00:25.02]
+   - Whisper: Eugene
+   - Source:  Eugen
+   - Detail:  Proper noun anglicization. The source text gives the German name "Eugen Richter" (the leader of the German Progress Party). Whisper anglicized the spelling to "Eugene".
+
+6. [00:40.90 - 00:41.46]
+   - Whisper: Bundestrat
+   - Source:  Bundesrat
+   - Detail:  Phonetic / orthographic insertion. The source refers to the historical German upper chamber "Bundesrat" ("...Bismarck urged the Bundesrat to reject it..."). Whisper inserted an extraneous 't', producing "Bundestrat" (likely an erroneous conflation with Bundestag or Reichstag).
+
+7. [01:03.68 - 01:03.92]
+   - Whisper: wished
+   - Source:  wish
+   - Detail:  Verb tense discrepancy. In the opening line of Bismarck's speech ("Before turning to the subject in hand, I wish to reply..."), the printed source has the present tense "I wish". The speaker clearly vocalized "I wish", but Whisper appended an erroneous past-tense suffix, transcribing "I wished".
+
+8. [01:29.12 - 01:30.30]
+   - Whisper: tired of it.
+   - Source:  tired of it.
+   - Detail:  With the 91.0 s cut (-t 91), the sentence completion "...and quickly gets tired of it." is now completely vocalized and transcribed (tired: 01:29.12 - 01:29.62; of: 01:29.62 - 01:30.04; it: 01:30.04 - 01:30.30), followed by 0.70 s of clean silence before the cut at 01:31.00.
+
+====================================================================================================
+EDITORIAL NOTE ON BRACKETED PASSAGE
+====================================================================================================
+- In the published volume of "The German Classics", the opening background summary (00:00.00 - 00:57.62) was authored by translator Edmund von Mach and set in square brackets: "[Prince Bismarck was trying to fight the revolutionary parties... brought about its acceptance.]", followed by Bismarck's spoken address beginning at 00:59.78 ("BEFORE turning to the subject in hand...").
+- Because the LibriVox reader vocalized this background note as the continuous beginning of the track, the text is retained in librivox_02.txt to preserve the verbatim spoken audio (first spoken word to last spoken word), with the enclosing square brackets removed in accordance with instructions.

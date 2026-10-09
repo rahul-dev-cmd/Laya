@@ -1,0 +1,4842 @@
+{
+  "baseline_clip01": {
+    "alignment_csv": "C:\\Users\\Rahul Dev\\Desktop\\Laya\\dataset\\sources\\librivox_01_alignment.csv",
+    "total_words": 298,
+    "words": [
+      {
+        "index": 0,
+        "word": "Within",
+        "start": 0.0,
+        "end": 0.78
+      },
+      {
+        "index": 1,
+        "word": "the",
+        "start": 0.78,
+        "end": 0.98
+      },
+      {
+        "index": 2,
+        "word": "first",
+        "start": 0.98,
+        "end": 1.18
+      },
+      {
+        "index": 3,
+        "word": "quarter",
+        "start": 1.18,
+        "end": 1.6
+      },
+      {
+        "index": 4,
+        "word": "of",
+        "start": 1.6,
+        "end": 1.72
+      },
+      {
+        "index": 5,
+        "word": "the",
+        "start": 1.72,
+        "end": 1.82
+      },
+      {
+        "index": 6,
+        "word": "eighteenth",
+        "start": 1.82,
+        "end": 2.56
+      },
+      {
+        "index": 7,
+        "word": "century",
+        "start": 2.56,
+        "end": 2.81
+      },
+      {
+        "index": 8,
+        "word": "three",
+        "start": 3.08,
+        "end": 3.22
+      },
+      {
+        "index": 9,
+        "word": "brothers",
+        "start": 3.22,
+        "end": 3.62
+      },
+      {
+        "index": 10,
+        "word": "of",
+        "start": 3.62,
+        "end": 3.86
+      },
+      {
+        "index": 11,
+        "word": "the",
+        "start": 3.86,
+        "end": 3.98
+      },
+      {
+        "index": 12,
+        "word": "ancient",
+        "start": 3.98,
+        "end": 4.24
+      },
+      {
+        "index": 13,
+        "word": "and",
+        "start": 4.24,
+        "end": 4.48
+      },
+      {
+        "index": 14,
+        "word": "honorable",
+        "start": 4.48,
+        "end": 4.82
+      },
+      {
+        "index": 15,
+        "word": "family",
+        "start": 4.82,
+        "end": 5.32
+      },
+      {
+        "index": 16,
+        "word": "of",
+        "start": 5.32,
+        "end": 5.52
+      },
+      {
+        "index": 17,
+        "word": "Winston",
+        "start": 5.52,
+        "end": 5.72
+      },
+      {
+        "index": 18,
+        "word": "of",
+        "start": 6.2,
+        "end": 6.24
+      },
+      {
+        "index": 19,
+        "word": "the",
+        "start": 6.24,
+        "end": 6.32
+      },
+      {
+        "index": 20,
+        "word": "Yorkshire",
+        "start": 6.32,
+        "end": 6.42
+      },
+      {
+        "index": 21,
+        "word": "England",
+        "start": 6.9,
+        "end": 7.04
+      },
+      {
+        "index": 22,
+        "word": "emigrated",
+        "start": 7.54,
+        "end": 7.78
+      },
+      {
+        "index": 23,
+        "word": "from",
+        "start": 7.78,
+        "end": 8.1
+      },
+      {
+        "index": 24,
+        "word": "Wales",
+        "start": 8.1,
+        "end": 8.28
+      },
+      {
+        "index": 25,
+        "word": "to",
+        "start": 8.28,
+        "end": 8.56
+      },
+      {
+        "index": 26,
+        "word": "the",
+        "start": 8.56,
+        "end": 8.62
+      },
+      {
+        "index": 27,
+        "word": "Colony",
+        "start": 8.62,
+        "end": 8.94
+      },
+      {
+        "index": 28,
+        "word": "of",
+        "start": 8.94,
+        "end": 9.08
+      },
+      {
+        "index": 29,
+        "word": "Virginia",
+        "start": 9.08,
+        "end": 9.3
+      },
+      {
+        "index": 30,
+        "word": "They",
+        "start": 10.0,
+        "end": 10.08
+      },
+      {
+        "index": 31,
+        "word": "were",
+        "start": 10.08,
+        "end": 10.18
+      },
+      {
+        "index": 32,
+        "word": "named",
+        "start": 10.18,
+        "end": 10.32
+      },
+      {
+        "index": 33,
+        "word": "William",
+        "start": 10.32,
+        "end": 10.58
+      },
+      {
+        "index": 34,
+        "word": "Isaac",
+        "start": 11.04,
+        "end": 11.18
+      },
+      {
+        "index": 35,
+        "word": "and",
+        "start": 11.52,
+        "end": 11.56
+      },
+      {
+        "index": 36,
+        "word": "James",
+        "start": 11.56,
+        "end": 11.76
+      },
+      {
+        "index": 37,
+        "word": "and",
+        "start": 12.42,
+        "end": 12.54
+      },
+      {
+        "index": 38,
+        "word": "from",
+        "start": 12.54,
+        "end": 12.7
+      },
+      {
+        "index": 39,
+        "word": "them",
+        "start": 12.7,
+        "end": 12.88
+      },
+      {
+        "index": 40,
+        "word": "have",
+        "start": 12.88,
+        "end": 13.0
+      },
+      {
+        "index": 41,
+        "word": "descended",
+        "start": 13.0,
+        "end": 13.34
+      },
+      {
+        "index": 42,
+        "word": "a",
+        "start": 13.34,
+        "end": 13.52
+      },
+      {
+        "index": 43,
+        "word": "numerous",
+        "start": 13.52,
+        "end": 13.72
+      },
+      {
+        "index": 44,
+        "word": "posterity",
+        "start": 13.72,
+        "end": 14.64
+      },
+      {
+        "index": 45,
+        "word": "which",
+        "start": 14.8,
+        "end": 14.84
+      },
+      {
+        "index": 46,
+        "word": "has",
+        "start": 14.84,
+        "end": 14.98
+      },
+      {
+        "index": 47,
+        "word": "embraced",
+        "start": 14.98,
+        "end": 15.24
+      },
+      {
+        "index": 48,
+        "word": "many",
+        "start": 15.24,
+        "end": 15.56
+      },
+      {
+        "index": 49,
+        "word": "of",
+        "start": 15.56,
+        "end": 15.74
+      },
+      {
+        "index": 50,
+        "word": "the",
+        "start": 15.74,
+        "end": 15.82
+      },
+      {
+        "index": 51,
+        "word": "most",
+        "start": 15.82,
+        "end": 16.0
+      },
+      {
+        "index": 52,
+        "word": "distinguished",
+        "start": 16.0,
+        "end": 16.4
+      },
+      {
+        "index": 53,
+        "word": "of",
+        "start": 16.4,
+        "end": 16.8
+      },
+      {
+        "index": 54,
+        "word": "American",
+        "start": 16.8,
+        "end": 16.98
+      },
+      {
+        "index": 55,
+        "word": "citizens",
+        "start": 16.98,
+        "end": 17.48
+      },
+      {
+        "index": 56,
+        "word": "Isaac",
+        "start": 18.3,
+        "end": 18.52
+      },
+      {
+        "index": 57,
+        "word": "Winston",
+        "start": 18.52,
+        "end": 18.82
+      },
+      {
+        "index": 58,
+        "word": "married",
+        "start": 18.82,
+        "end": 19.24
+      },
+      {
+        "index": 59,
+        "word": "Mary",
+        "start": 19.24,
+        "end": 19.54
+      },
+      {
+        "index": 60,
+        "word": "Dabney",
+        "start": 19.54,
+        "end": 20.04
+      },
+      {
+        "index": 61,
+        "word": "and",
+        "start": 20.34,
+        "end": 20.54
+      },
+      {
+        "index": 62,
+        "word": "they",
+        "start": 20.54,
+        "end": 20.62
+      },
+      {
+        "index": 63,
+        "word": "resided",
+        "start": 20.62,
+        "end": 20.84
+      },
+      {
+        "index": 64,
+        "word": "in",
+        "start": 20.84,
+        "end": 21.12
+      },
+      {
+        "index": 65,
+        "word": "the",
+        "start": 21.12,
+        "end": 21.2
+      },
+      {
+        "index": 66,
+        "word": "County",
+        "start": 21.2,
+        "end": 21.5
+      },
+      {
+        "index": 67,
+        "word": "of",
+        "start": 21.5,
+        "end": 21.64
+      },
+      {
+        "index": 68,
+        "word": "Hanover",
+        "start": 21.64,
+        "end": 22.02
+      },
+      {
+        "index": 69,
+        "word": "Among",
+        "start": 22.66,
+        "end": 22.82
+      },
+      {
+        "index": 70,
+        "word": "their",
+        "start": 22.82,
+        "end": 23.02
+      },
+      {
+        "index": 71,
+        "word": "children",
+        "start": 23.02,
+        "end": 23.26
+      },
+      {
+        "index": 72,
+        "word": "was",
+        "start": 23.26,
+        "end": 23.48
+      },
+      {
+        "index": 73,
+        "word": "a",
+        "start": 23.48,
+        "end": 23.54
+      },
+      {
+        "index": 74,
+        "word": "daughter",
+        "start": 23.54,
+        "end": 23.82
+      },
+      {
+        "index": 75,
+        "word": "Sarah",
+        "start": 24.0,
+        "end": 24.16
+      },
+      {
+        "index": 76,
+        "word": "who",
+        "start": 24.58,
+        "end": 24.74
+      },
+      {
+        "index": 77,
+        "word": "married",
+        "start": 24.74,
+        "end": 24.94
+      },
+      {
+        "index": 78,
+        "word": "Colonel",
+        "start": 24.94,
+        "end": 25.2
+      },
+      {
+        "index": 79,
+        "word": "John",
+        "start": 25.2,
+        "end": 25.54
+      },
+      {
+        "index": 80,
+        "word": "Syme",
+        "start": 25.54,
+        "end": 26.0
+      },
+      {
+        "index": 81,
+        "word": "and",
+        "start": 26.0,
+        "end": 26.16
+      },
+      {
+        "index": 82,
+        "word": "lived",
+        "start": 26.16,
+        "end": 26.34
+      },
+      {
+        "index": 83,
+        "word": "in",
+        "start": 26.34,
+        "end": 26.56
+      },
+      {
+        "index": 84,
+        "word": "the",
+        "start": 26.56,
+        "end": 26.64
+      },
+      {
+        "index": 85,
+        "word": "same",
+        "start": 26.64,
+        "end": 26.82
+      },
+      {
+        "index": 86,
+        "word": "county",
+        "start": 26.82,
+        "end": 27.14
+      },
+      {
+        "index": 87,
+        "word": "There",
+        "start": 27.8,
+        "end": 28.28
+      },
+      {
+        "index": 88,
+        "word": "also",
+        "start": 28.28,
+        "end": 28.52
+      },
+      {
+        "index": 89,
+        "word": "emigrated",
+        "start": 28.52,
+        "end": 28.96
+      },
+      {
+        "index": 90,
+        "word": "to",
+        "start": 28.96,
+        "end": 29.2
+      },
+      {
+        "index": 91,
+        "word": "Virginia",
+        "start": 29.2,
+        "end": 29.48
+      },
+      {
+        "index": 92,
+        "word": "some",
+        "start": 29.48,
+        "end": 29.74
+      },
+      {
+        "index": 93,
+        "word": "time",
+        "start": 29.74,
+        "end": 30.0
+      },
+      {
+        "index": 94,
+        "word": "prior",
+        "start": 30.0,
+        "end": 30.4
+      },
+      {
+        "index": 95,
+        "word": "to",
+        "start": 30.4,
+        "end": 30.68
+      },
+      {
+        "index": 96,
+        "word": "seventeen",
+        "start": 30.68,
+        "end": 31.112
+      },
+      {
+        "index": 97,
+        "word": "thirty",
+        "start": 31.112,
+        "end": 31.4
+      },
+      {
+        "index": 98,
+        "word": "John",
+        "start": 31.86,
+        "end": 32.08
+      },
+      {
+        "index": 99,
+        "word": "Henry",
+        "start": 32.08,
+        "end": 32.32
+      },
+      {
+        "index": 100,
+        "word": "the",
+        "start": 32.64,
+        "end": 32.74
+      },
+      {
+        "index": 101,
+        "word": "son",
+        "start": 32.74,
+        "end": 32.92
+      },
+      {
+        "index": 102,
+        "word": "of",
+        "start": 32.92,
+        "end": 33.04
+      },
+      {
+        "index": 103,
+        "word": "Alexander",
+        "start": 33.04,
+        "end": 33.42
+      },
+      {
+        "index": 104,
+        "word": "Henry",
+        "start": 33.42,
+        "end": 33.9
+      },
+      {
+        "index": 105,
+        "word": "and",
+        "start": 33.9,
+        "end": 34.08
+      },
+      {
+        "index": 106,
+        "word": "Jean",
+        "start": 34.08,
+        "end": 34.24
+      },
+      {
+        "index": 107,
+        "word": "Robertson",
+        "start": 34.24,
+        "end": 34.62
+      },
+      {
+        "index": 108,
+        "word": "of",
+        "start": 35.22,
+        "end": 35.32
+      },
+      {
+        "index": 109,
+        "word": "Aberdeen",
+        "start": 35.32,
+        "end": 35.62
+      },
+      {
+        "index": 110,
+        "word": "Scotland",
+        "start": 36.0,
+        "end": 36.08
+      },
+      {
+        "index": 111,
+        "word": "John",
+        "start": 36.86,
+        "end": 37.04
+      },
+      {
+        "index": 112,
+        "word": "Henry",
+        "start": 37.04,
+        "end": 37.26
+      },
+      {
+        "index": 113,
+        "word": "was",
+        "start": 37.26,
+        "end": 37.5
+      },
+      {
+        "index": 114,
+        "word": "a",
+        "start": 37.5,
+        "end": 37.62
+      },
+      {
+        "index": 115,
+        "word": "friend",
+        "start": 37.62,
+        "end": 37.78
+      },
+      {
+        "index": 116,
+        "word": "of",
+        "start": 37.78,
+        "end": 37.94
+      },
+      {
+        "index": 117,
+        "word": "Robert",
+        "start": 37.94,
+        "end": 38.14
+      },
+      {
+        "index": 118,
+        "word": "Dinwiddie",
+        "start": 38.14,
+        "end": 38.74
+      },
+      {
+        "index": 119,
+        "word": "who",
+        "start": 38.9,
+        "end": 39.04
+      },
+      {
+        "index": 120,
+        "word": "became",
+        "start": 39.04,
+        "end": 39.24
+      },
+      {
+        "index": 121,
+        "word": "Governor",
+        "start": 39.24,
+        "end": 39.62
+      },
+      {
+        "index": 122,
+        "word": "of",
+        "start": 39.62,
+        "end": 39.82
+      },
+      {
+        "index": 123,
+        "word": "Virginia",
+        "start": 39.82,
+        "end": 40.12
+      },
+      {
+        "index": 124,
+        "word": "in",
+        "start": 40.12,
+        "end": 40.38
+      },
+      {
+        "index": 125,
+        "word": "seventeen",
+        "start": 40.38,
+        "end": 40.835
+      },
+      {
+        "index": 126,
+        "word": "fifty-two",
+        "start": 40.835,
+        "end": 41.24
+      },
+      {
+        "index": 127,
+        "word": "and",
+        "start": 41.92,
+        "end": 41.98
+      },
+      {
+        "index": 128,
+        "word": "it",
+        "start": 41.98,
+        "end": 42.08
+      },
+      {
+        "index": 129,
+        "word": "is",
+        "start": 42.08,
+        "end": 42.18
+      },
+      {
+        "index": 130,
+        "word": "said",
+        "start": 42.18,
+        "end": 42.4
+      },
+      {
+        "index": 131,
+        "word": "brought",
+        "start": 42.4,
+        "end": 42.68
+      },
+      {
+        "index": 132,
+        "word": "a",
+        "start": 42.68,
+        "end": 42.92
+      },
+      {
+        "index": 133,
+        "word": "letter",
+        "start": 42.92,
+        "end": 43.1
+      },
+      {
+        "index": 134,
+        "word": "of",
+        "start": 43.1,
+        "end": 43.32
+      },
+      {
+        "index": 135,
+        "word": "introduction",
+        "start": 43.32,
+        "end": 43.5
+      },
+      {
+        "index": 136,
+        "word": "from",
+        "start": 43.5,
+        "end": 44.08
+      },
+      {
+        "index": 137,
+        "word": "him",
+        "start": 44.08,
+        "end": 44.26
+      },
+      {
+        "index": 138,
+        "word": "to",
+        "start": 44.26,
+        "end": 44.44
+      },
+      {
+        "index": 139,
+        "word": "Colonel",
+        "start": 44.44,
+        "end": 44.62
+      },
+      {
+        "index": 140,
+        "word": "John",
+        "start": 44.62,
+        "end": 44.96
+      },
+      {
+        "index": 141,
+        "word": "Syme",
+        "start": 44.96,
+        "end": 45.38
+      },
+      {
+        "index": 142,
+        "word": "It",
+        "start": 45.74,
+        "end": 46.02
+      },
+      {
+        "index": 143,
+        "word": "is",
+        "start": 46.02,
+        "end": 46.08
+      },
+      {
+        "index": 144,
+        "word": "very",
+        "start": 46.08,
+        "end": 46.22
+      },
+      {
+        "index": 145,
+        "word": "probable",
+        "start": 46.22,
+        "end": 46.56
+      },
+      {
+        "index": 146,
+        "word": "that",
+        "start": 46.56,
+        "end": 46.9
+      },
+      {
+        "index": 147,
+        "word": "the",
+        "start": 46.9,
+        "end": 47.02
+      },
+      {
+        "index": 148,
+        "word": "families",
+        "start": 47.02,
+        "end": 47.36
+      },
+      {
+        "index": 149,
+        "word": "were",
+        "start": 47.36,
+        "end": 47.64
+      },
+      {
+        "index": 150,
+        "word": "at",
+        "start": 47.64,
+        "end": 47.76
+      },
+      {
+        "index": 151,
+        "word": "this",
+        "start": 47.76,
+        "end": 47.92
+      },
+      {
+        "index": 152,
+        "word": "time",
+        "start": 47.92,
+        "end": 48.16
+      },
+      {
+        "index": 153,
+        "word": "connected",
+        "start": 48.16,
+        "end": 48.44
+      },
+      {
+        "index": 154,
+        "word": "in",
+        "start": 48.44,
+        "end": 48.84
+      },
+      {
+        "index": 155,
+        "word": "Scotland",
+        "start": 48.84,
+        "end": 49.08
+      },
+      {
+        "index": 156,
+        "word": "and",
+        "start": 49.64,
+        "end": 49.82
+      },
+      {
+        "index": 157,
+        "word": "that",
+        "start": 49.82,
+        "end": 49.94
+      },
+      {
+        "index": 158,
+        "word": "this",
+        "start": 49.94,
+        "end": 50.12
+      },
+      {
+        "index": 159,
+        "word": "fact",
+        "start": 50.12,
+        "end": 50.32
+      },
+      {
+        "index": 160,
+        "word": "caused",
+        "start": 50.32,
+        "end": 50.6
+      },
+      {
+        "index": 161,
+        "word": "John",
+        "start": 50.6,
+        "end": 50.9
+      },
+      {
+        "index": 162,
+        "word": "Henry",
+        "start": 50.9,
+        "end": 51.22
+      },
+      {
+        "index": 163,
+        "word": "to",
+        "start": 51.22,
+        "end": 51.38
+      },
+      {
+        "index": 164,
+        "word": "make",
+        "start": 51.38,
+        "end": 51.52
+      },
+      {
+        "index": 165,
+        "word": "his",
+        "start": 51.52,
+        "end": 51.68
+      },
+      {
+        "index": 166,
+        "word": "way",
+        "start": 51.68,
+        "end": 51.82
+      },
+      {
+        "index": 167,
+        "word": "to",
+        "start": 51.82,
+        "end": 52.0
+      },
+      {
+        "index": 168,
+        "word": "Hanover",
+        "start": 52.0,
+        "end": 52.36
+      },
+      {
+        "index": 169,
+        "word": "on",
+        "start": 52.36,
+        "end": 52.58
+      },
+      {
+        "index": 170,
+        "word": "his",
+        "start": 52.58,
+        "end": 52.74
+      },
+      {
+        "index": 171,
+        "word": "arrival",
+        "start": 52.74,
+        "end": 52.92
+      },
+      {
+        "index": 172,
+        "word": "in",
+        "start": 52.92,
+        "end": 53.2
+      },
+      {
+        "index": 173,
+        "word": "Virginia",
+        "start": 53.2,
+        "end": 53.46
+      },
+      {
+        "index": 174,
+        "word": "However",
+        "start": 53.9,
+        "end": 54.34
+      },
+      {
+        "index": 175,
+        "word": "this",
+        "start": 54.58,
+        "end": 54.76
+      },
+      {
+        "index": 176,
+        "word": "may",
+        "start": 54.76,
+        "end": 54.9
+      },
+      {
+        "index": 177,
+        "word": "be",
+        "start": 54.9,
+        "end": 55.1
+      },
+      {
+        "index": 178,
+        "word": "it",
+        "start": 55.19,
+        "end": 55.34
+      },
+      {
+        "index": 179,
+        "word": "is",
+        "start": 55.34,
+        "end": 55.44
+      },
+      {
+        "index": 180,
+        "word": "certain",
+        "start": 55.44,
+        "end": 55.68
+      },
+      {
+        "index": 181,
+        "word": "that",
+        "start": 55.68,
+        "end": 55.98
+      },
+      {
+        "index": 182,
+        "word": "he",
+        "start": 55.98,
+        "end": 56.1
+      },
+      {
+        "index": 183,
+        "word": "soon",
+        "start": 56.1,
+        "end": 56.3
+      },
+      {
+        "index": 184,
+        "word": "became",
+        "start": 56.3,
+        "end": 56.6
+      },
+      {
+        "index": 185,
+        "word": "domesticated",
+        "start": 56.6,
+        "end": 57.36
+      },
+      {
+        "index": 186,
+        "word": "in",
+        "start": 57.36,
+        "end": 57.58
+      },
+      {
+        "index": 187,
+        "word": "the",
+        "start": 57.58,
+        "end": 57.66
+      },
+      {
+        "index": 188,
+        "word": "family",
+        "start": 57.66,
+        "end": 57.98
+      },
+      {
+        "index": 189,
+        "word": "of",
+        "start": 57.98,
+        "end": 58.16
+      },
+      {
+        "index": 190,
+        "word": "Colonel",
+        "start": 58.16,
+        "end": 58.32
+      },
+      {
+        "index": 191,
+        "word": "Syme",
+        "start": 58.32,
+        "end": 58.84
+      },
+      {
+        "index": 192,
+        "word": "The",
+        "start": 59.58,
+        "end": 59.82
+      },
+      {
+        "index": 193,
+        "word": "author",
+        "start": 59.82,
+        "end": 60.0
+      },
+      {
+        "index": 194,
+        "word": "is",
+        "start": 60.0,
+        "end": 60.22
+      },
+      {
+        "index": 195,
+        "word": "indebted",
+        "start": 60.22,
+        "end": 60.48
+      },
+      {
+        "index": 196,
+        "word": "to",
+        "start": 60.48,
+        "end": 60.72
+      },
+      {
+        "index": 197,
+        "word": "Sir",
+        "start": 60.72,
+        "end": 60.9
+      },
+      {
+        "index": 198,
+        "word": "Mitchell",
+        "start": 60.9,
+        "end": 61.06
+      },
+      {
+        "index": 199,
+        "word": "Henry",
+        "start": 61.06,
+        "end": 61.34
+      },
+      {
+        "index": 200,
+        "word": "of",
+        "start": 61.34,
+        "end": 61.68
+      },
+      {
+        "index": 201,
+        "word": "Kylemore",
+        "start": 61.68,
+        "end": 62.1
+      },
+      {
+        "index": 202,
+        "word": "Castle",
+        "start": 62.1,
+        "end": 62.36
+      },
+      {
+        "index": 203,
+        "word": "Galway",
+        "start": 62.84,
+        "end": 63.26
+      },
+      {
+        "index": 204,
+        "word": "Ireland",
+        "start": 63.48,
+        "end": 63.64
+      },
+      {
+        "index": 205,
+        "word": "for",
+        "start": 64.14,
+        "end": 64.2
+      },
+      {
+        "index": 206,
+        "word": "years",
+        "start": 64.2,
+        "end": 64.42
+      },
+      {
+        "index": 207,
+        "word": "a",
+        "start": 64.42,
+        "end": 64.74
+      },
+      {
+        "index": 208,
+        "word": "distinguished",
+        "start": 64.74,
+        "end": 64.96
+      },
+      {
+        "index": 209,
+        "word": "member",
+        "start": 64.96,
+        "end": 65.42
+      },
+      {
+        "index": 210,
+        "word": "of",
+        "start": 65.42,
+        "end": 65.54
+      },
+      {
+        "index": 211,
+        "word": "Parliament",
+        "start": 65.54,
+        "end": 65.88
+      },
+      {
+        "index": 212,
+        "word": "for",
+        "start": 66.3,
+        "end": 66.52
+      },
+      {
+        "index": 213,
+        "word": "some",
+        "start": 66.52,
+        "end": 66.68
+      },
+      {
+        "index": 214,
+        "word": "account",
+        "start": 66.68,
+        "end": 66.88
+      },
+      {
+        "index": 215,
+        "word": "of",
+        "start": 66.88,
+        "end": 67.12
+      },
+      {
+        "index": 216,
+        "word": "the",
+        "start": 67.12,
+        "end": 67.2
+      },
+      {
+        "index": 217,
+        "word": "Henry",
+        "start": 67.2,
+        "end": 67.36
+      },
+      {
+        "index": 218,
+        "word": "family",
+        "start": 67.36,
+        "end": 67.72
+      },
+      {
+        "index": 219,
+        "word": "of",
+        "start": 67.72,
+        "end": 67.9
+      },
+      {
+        "index": 220,
+        "word": "Scotland",
+        "start": 67.9,
+        "end": 68.06
+      },
+      {
+        "index": 221,
+        "word": "He",
+        "start": 68.78,
+        "end": 68.9
+      },
+      {
+        "index": 222,
+        "word": "writes",
+        "start": 68.9,
+        "end": 69.08
+      },
+      {
+        "index": 223,
+        "word": "Although",
+        "start": 69.96,
+        "end": 70.1
+      },
+      {
+        "index": 224,
+        "word": "the",
+        "start": 70.1,
+        "end": 70.32
+      },
+      {
+        "index": 225,
+        "word": "recent",
+        "start": 70.32,
+        "end": 70.56
+      },
+      {
+        "index": 226,
+        "word": "Henrys",
+        "start": 70.56,
+        "end": 71.06
+      },
+      {
+        "index": 227,
+        "word": "are",
+        "start": 71.06,
+        "end": 71.16
+      },
+      {
+        "index": 228,
+        "word": "of",
+        "start": 71.16,
+        "end": 71.26
+      },
+      {
+        "index": 229,
+        "word": "Scotch",
+        "start": 71.26,
+        "end": 71.4
+      },
+      {
+        "index": 230,
+        "word": "extraction",
+        "start": 71.4,
+        "end": 71.76
+      },
+      {
+        "index": 231,
+        "word": "the",
+        "start": 72.3,
+        "end": 72.34
+      },
+      {
+        "index": 232,
+        "word": "family",
+        "start": 72.34,
+        "end": 72.52
+      },
+      {
+        "index": 233,
+        "word": "was",
+        "start": 72.52,
+        "end": 72.78
+      },
+      {
+        "index": 234,
+        "word": "originally",
+        "start": 72.78,
+        "end": 73.16
+      },
+      {
+        "index": 235,
+        "word": "Norman",
+        "start": 73.16,
+        "end": 73.4
+      },
+      {
+        "index": 236,
+        "word": "and",
+        "start": 73.96,
+        "end": 74.04
+      },
+      {
+        "index": 237,
+        "word": "will",
+        "start": 74.04,
+        "end": 74.16
+      },
+      {
+        "index": 238,
+        "word": "be",
+        "start": 74.16,
+        "end": 74.26
+      },
+      {
+        "index": 239,
+        "word": "found",
+        "start": 74.26,
+        "end": 74.48
+      },
+      {
+        "index": 240,
+        "word": "in",
+        "start": 74.48,
+        "end": 74.68
+      },
+      {
+        "index": 241,
+        "word": "the",
+        "start": 74.68,
+        "end": 74.78
+      },
+      {
+        "index": 242,
+        "word": "Livre",
+        "start": 74.78,
+        "end": 75.012
+      },
+      {
+        "index": 243,
+        "word": "des",
+        "start": 75.012,
+        "end": 75.151
+      },
+      {
+        "index": 244,
+        "word": "Conquerants",
+        "start": 75.151,
+        "end": 75.66
+      },
+      {
+        "index": 245,
+        "word": "of",
+        "start": 75.66,
+        "end": 76.0
+      },
+      {
+        "index": 246,
+        "word": "William",
+        "start": 76.0,
+        "end": 76.2
+      },
+      {
+        "index": 247,
+        "word": "the",
+        "start": 76.2,
+        "end": 76.4
+      },
+      {
+        "index": 248,
+        "word": "Conqueror",
+        "start": 76.4,
+        "end": 76.96
+      },
+      {
+        "index": 249,
+        "word": "and",
+        "start": 77.14,
+        "end": 77.36
+      },
+      {
+        "index": 250,
+        "word": "in",
+        "start": 77.36,
+        "end": 77.46
+      },
+      {
+        "index": 251,
+        "word": "Brittany",
+        "start": 77.46,
+        "end": 77.62
+      },
+      {
+        "index": 252,
+        "word": "there",
+        "start": 77.62,
+        "end": 77.88
+      },
+      {
+        "index": 253,
+        "word": "are",
+        "start": 77.88,
+        "end": 77.98
+      },
+      {
+        "index": 254,
+        "word": "many",
+        "start": 77.98,
+        "end": 78.14
+      },
+      {
+        "index": 255,
+        "word": "Henrys",
+        "start": 78.14,
+        "end": 78.72
+      },
+      {
+        "index": 256,
+        "word": "not",
+        "start": 78.9,
+        "end": 79.2
+      },
+      {
+        "index": 257,
+        "word": "Henri",
+        "start": 79.2,
+        "end": 79.38
+      },
+      {
+        "index": 258,
+        "word": "still",
+        "start": 79.92,
+        "end": 80.18
+      },
+      {
+        "index": 259,
+        "word": "remaining",
+        "start": 80.18,
+        "end": 80.42
+      },
+      {
+        "index": 260,
+        "word": "Some",
+        "start": 81.08,
+        "end": 81.56
+      },
+      {
+        "index": 261,
+        "word": "of",
+        "start": 81.56,
+        "end": 81.68
+      },
+      {
+        "index": 262,
+        "word": "the",
+        "start": 81.68,
+        "end": 81.76
+      },
+      {
+        "index": 263,
+        "word": "Henrys",
+        "start": 81.76,
+        "end": 82.18
+      },
+      {
+        "index": 264,
+        "word": "after",
+        "start": 82.18,
+        "end": 82.32
+      },
+      {
+        "index": 265,
+        "word": "the",
+        "start": 82.32,
+        "end": 82.54
+      },
+      {
+        "index": 266,
+        "word": "Conquest",
+        "start": 82.54,
+        "end": 82.76
+      },
+      {
+        "index": 267,
+        "word": "settled",
+        "start": 82.76,
+        "end": 83.34
+      },
+      {
+        "index": 268,
+        "word": "in",
+        "start": 83.34,
+        "end": 83.58
+      },
+      {
+        "index": 269,
+        "word": "England",
+        "start": 83.58,
+        "end": 83.84
+      },
+      {
+        "index": 270,
+        "word": "and",
+        "start": 84.5,
+        "end": 84.52
+      },
+      {
+        "index": 271,
+        "word": "some",
+        "start": 84.52,
+        "end": 84.7
+      },
+      {
+        "index": 272,
+        "word": "went",
+        "start": 84.7,
+        "end": 84.88
+      },
+      {
+        "index": 273,
+        "word": "north",
+        "start": 84.88,
+        "end": 85.08
+      },
+      {
+        "index": 274,
+        "word": "to",
+        "start": 85.08,
+        "end": 85.3
+      },
+      {
+        "index": 275,
+        "word": "Scotland",
+        "start": 85.3,
+        "end": 85.56
+      },
+      {
+        "index": 276,
+        "word": "and",
+        "start": 86.12,
+        "end": 86.22
+      },
+      {
+        "index": 277,
+        "word": "are",
+        "start": 86.22,
+        "end": 86.3
+      },
+      {
+        "index": 278,
+        "word": "to",
+        "start": 86.3,
+        "end": 86.44
+      },
+      {
+        "index": 279,
+        "word": "be",
+        "start": 86.44,
+        "end": 86.52
+      },
+      {
+        "index": 280,
+        "word": "found",
+        "start": 86.52,
+        "end": 86.76
+      },
+      {
+        "index": 281,
+        "word": "in",
+        "start": 86.76,
+        "end": 87.0
+      },
+      {
+        "index": 282,
+        "word": "eleven",
+        "start": 87.0,
+        "end": 87.36
+      },
+      {
+        "index": 283,
+        "word": "fifty-three",
+        "start": 87.36,
+        "end": 87.96
+      },
+      {
+        "index": 284,
+        "word": "in",
+        "start": 87.96,
+        "end": 88.26
+      },
+      {
+        "index": 285,
+        "word": "Hampshire",
+        "start": 88.26,
+        "end": 88.56
+      },
+      {
+        "index": 286,
+        "word": "Bedfordshire",
+        "start": 89.12,
+        "end": 89.64
+      },
+      {
+        "index": 287,
+        "word": "and",
+        "start": 89.92,
+        "end": 89.94
+      },
+      {
+        "index": 288,
+        "word": "Surrey",
+        "start": 89.94,
+        "end": 90.14
+      },
+      {
+        "index": 289,
+        "word": "among",
+        "start": 90.66,
+        "end": 90.76
+      },
+      {
+        "index": 290,
+        "word": "the",
+        "start": 90.76,
+        "end": 90.96
+      },
+      {
+        "index": 291,
+        "word": "latter",
+        "start": 90.96,
+        "end": 91.14
+      },
+      {
+        "index": 292,
+        "word": "in",
+        "start": 91.14,
+        "end": 91.42
+      },
+      {
+        "index": 293,
+        "word": "eleven",
+        "start": 91.42,
+        "end": 91.876
+      },
+      {
+        "index": 294,
+        "word": "ninety-six",
+        "start": 91.876,
+        "end": 92.56
+      },
+      {
+        "index": 295,
+        "word": "Alexander",
+        "start": 92.96,
+        "end": 93.42
+      },
+      {
+        "index": 296,
+        "word": "filius",
+        "start": 93.42,
+        "end": 93.955
+      },
+      {
+        "index": 297,
+        "word": "Henrici",
+        "start": 93.955,
+        "end": 94.58
+      }
+    ],
+    "natural_pauses": [
+      {
+        "boundary_index": 7,
+        "word_before": "century",
+        "word_after": "three",
+        "start_seconds": 2.81,
+        "end_seconds": 3.08,
+        "duration_seconds": 0.27
+      },
+      {
+        "boundary_index": 17,
+        "word_before": "Winston",
+        "word_after": "of",
+        "start_seconds": 5.72,
+        "end_seconds": 6.2,
+        "duration_seconds": 0.48
+      },
+      {
+        "boundary_index": 20,
+        "word_before": "Yorkshire",
+        "word_after": "England",
+        "start_seconds": 6.42,
+        "end_seconds": 6.9,
+        "duration_seconds": 0.48
+      },
+      {
+        "boundary_index": 21,
+        "word_before": "England",
+        "word_after": "emigrated",
+        "start_seconds": 7.04,
+        "end_seconds": 7.54,
+        "duration_seconds": 0.5
+      },
+      {
+        "boundary_index": 29,
+        "word_before": "Virginia",
+        "word_after": "They",
+        "start_seconds": 9.3,
+        "end_seconds": 10.0,
+        "duration_seconds": 0.7
+      },
+      {
+        "boundary_index": 33,
+        "word_before": "William",
+        "word_after": "Isaac",
+        "start_seconds": 10.58,
+        "end_seconds": 11.04,
+        "duration_seconds": 0.46
+      },
+      {
+        "boundary_index": 34,
+        "word_before": "Isaac",
+        "word_after": "and",
+        "start_seconds": 11.18,
+        "end_seconds": 11.52,
+        "duration_seconds": 0.34
+      },
+      {
+        "boundary_index": 36,
+        "word_before": "James",
+        "word_after": "and",
+        "start_seconds": 11.76,
+        "end_seconds": 12.42,
+        "duration_seconds": 0.66
+      },
+      {
+        "boundary_index": 44,
+        "word_before": "posterity",
+        "word_after": "which",
+        "start_seconds": 14.64,
+        "end_seconds": 14.8,
+        "duration_seconds": 0.16
+      },
+      {
+        "boundary_index": 55,
+        "word_before": "citizens",
+        "word_after": "Isaac",
+        "start_seconds": 17.48,
+        "end_seconds": 18.3,
+        "duration_seconds": 0.82
+      },
+      {
+        "boundary_index": 60,
+        "word_before": "Dabney",
+        "word_after": "and",
+        "start_seconds": 20.04,
+        "end_seconds": 20.34,
+        "duration_seconds": 0.3
+      },
+      {
+        "boundary_index": 68,
+        "word_before": "Hanover",
+        "word_after": "Among",
+        "start_seconds": 22.02,
+        "end_seconds": 22.66,
+        "duration_seconds": 0.64
+      },
+      {
+        "boundary_index": 74,
+        "word_before": "daughter",
+        "word_after": "Sarah",
+        "start_seconds": 23.82,
+        "end_seconds": 24.0,
+        "duration_seconds": 0.18
+      },
+      {
+        "boundary_index": 75,
+        "word_before": "Sarah",
+        "word_after": "who",
+        "start_seconds": 24.16,
+        "end_seconds": 24.58,
+        "duration_seconds": 0.42
+      },
+      {
+        "boundary_index": 86,
+        "word_before": "county",
+        "word_after": "There",
+        "start_seconds": 27.14,
+        "end_seconds": 27.8,
+        "duration_seconds": 0.66
+      },
+      {
+        "boundary_index": 97,
+        "word_before": "thirty",
+        "word_after": "John",
+        "start_seconds": 31.4,
+        "end_seconds": 31.86,
+        "duration_seconds": 0.46
+      },
+      {
+        "boundary_index": 99,
+        "word_before": "Henry",
+        "word_after": "the",
+        "start_seconds": 32.32,
+        "end_seconds": 32.64,
+        "duration_seconds": 0.32
+      },
+      {
+        "boundary_index": 107,
+        "word_before": "Robertson",
+        "word_after": "of",
+        "start_seconds": 34.62,
+        "end_seconds": 35.22,
+        "duration_seconds": 0.6
+      },
+      {
+        "boundary_index": 109,
+        "word_before": "Aberdeen",
+        "word_after": "Scotland",
+        "start_seconds": 35.62,
+        "end_seconds": 36.0,
+        "duration_seconds": 0.38
+      },
+      {
+        "boundary_index": 110,
+        "word_before": "Scotland",
+        "word_after": "John",
+        "start_seconds": 36.08,
+        "end_seconds": 36.86,
+        "duration_seconds": 0.78
+      },
+      {
+        "boundary_index": 118,
+        "word_before": "Dinwiddie",
+        "word_after": "who",
+        "start_seconds": 38.74,
+        "end_seconds": 38.9,
+        "duration_seconds": 0.16
+      },
+      {
+        "boundary_index": 126,
+        "word_before": "fifty-two",
+        "word_after": "and",
+        "start_seconds": 41.24,
+        "end_seconds": 41.92,
+        "duration_seconds": 0.68
+      },
+      {
+        "boundary_index": 141,
+        "word_before": "Syme",
+        "word_after": "It",
+        "start_seconds": 45.38,
+        "end_seconds": 45.74,
+        "duration_seconds": 0.36
+      },
+      {
+        "boundary_index": 155,
+        "word_before": "Scotland",
+        "word_after": "and",
+        "start_seconds": 49.08,
+        "end_seconds": 49.64,
+        "duration_seconds": 0.56
+      },
+      {
+        "boundary_index": 173,
+        "word_before": "Virginia",
+        "word_after": "However",
+        "start_seconds": 53.46,
+        "end_seconds": 53.9,
+        "duration_seconds": 0.44
+      },
+      {
+        "boundary_index": 174,
+        "word_before": "However",
+        "word_after": "this",
+        "start_seconds": 54.34,
+        "end_seconds": 54.58,
+        "duration_seconds": 0.24
+      },
+      {
+        "boundary_index": 191,
+        "word_before": "Syme",
+        "word_after": "The",
+        "start_seconds": 58.84,
+        "end_seconds": 59.58,
+        "duration_seconds": 0.74
+      },
+      {
+        "boundary_index": 202,
+        "word_before": "Castle",
+        "word_after": "Galway",
+        "start_seconds": 62.36,
+        "end_seconds": 62.84,
+        "duration_seconds": 0.48
+      },
+      {
+        "boundary_index": 203,
+        "word_before": "Galway",
+        "word_after": "Ireland",
+        "start_seconds": 63.26,
+        "end_seconds": 63.48,
+        "duration_seconds": 0.22
+      },
+      {
+        "boundary_index": 204,
+        "word_before": "Ireland",
+        "word_after": "for",
+        "start_seconds": 63.64,
+        "end_seconds": 64.14,
+        "duration_seconds": 0.5
+      },
+      {
+        "boundary_index": 211,
+        "word_before": "Parliament",
+        "word_after": "for",
+        "start_seconds": 65.88,
+        "end_seconds": 66.3,
+        "duration_seconds": 0.42
+      },
+      {
+        "boundary_index": 220,
+        "word_before": "Scotland",
+        "word_after": "He",
+        "start_seconds": 68.06,
+        "end_seconds": 68.78,
+        "duration_seconds": 0.72
+      },
+      {
+        "boundary_index": 222,
+        "word_before": "writes",
+        "word_after": "Although",
+        "start_seconds": 69.08,
+        "end_seconds": 69.96,
+        "duration_seconds": 0.88
+      },
+      {
+        "boundary_index": 230,
+        "word_before": "extraction",
+        "word_after": "the",
+        "start_seconds": 71.76,
+        "end_seconds": 72.3,
+        "duration_seconds": 0.54
+      },
+      {
+        "boundary_index": 235,
+        "word_before": "Norman",
+        "word_after": "and",
+        "start_seconds": 73.4,
+        "end_seconds": 73.96,
+        "duration_seconds": 0.56
+      },
+      {
+        "boundary_index": 248,
+        "word_before": "Conqueror",
+        "word_after": "and",
+        "start_seconds": 76.96,
+        "end_seconds": 77.14,
+        "duration_seconds": 0.18
+      },
+      {
+        "boundary_index": 255,
+        "word_before": "Henrys",
+        "word_after": "not",
+        "start_seconds": 78.72,
+        "end_seconds": 78.9,
+        "duration_seconds": 0.18
+      },
+      {
+        "boundary_index": 257,
+        "word_before": "Henri",
+        "word_after": "still",
+        "start_seconds": 79.38,
+        "end_seconds": 79.92,
+        "duration_seconds": 0.54
+      },
+      {
+        "boundary_index": 259,
+        "word_before": "remaining",
+        "word_after": "Some",
+        "start_seconds": 80.42,
+        "end_seconds": 81.08,
+        "duration_seconds": 0.66
+      },
+      {
+        "boundary_index": 269,
+        "word_before": "England",
+        "word_after": "and",
+        "start_seconds": 83.84,
+        "end_seconds": 84.5,
+        "duration_seconds": 0.66
+      },
+      {
+        "boundary_index": 275,
+        "word_before": "Scotland",
+        "word_after": "and",
+        "start_seconds": 85.56,
+        "end_seconds": 86.12,
+        "duration_seconds": 0.56
+      },
+      {
+        "boundary_index": 285,
+        "word_before": "Hampshire",
+        "word_after": "Bedfordshire",
+        "start_seconds": 88.56,
+        "end_seconds": 89.12,
+        "duration_seconds": 0.56
+      },
+      {
+        "boundary_index": 286,
+        "word_before": "Bedfordshire",
+        "word_after": "and",
+        "start_seconds": 89.64,
+        "end_seconds": 89.92,
+        "duration_seconds": 0.28
+      },
+      {
+        "boundary_index": 288,
+        "word_before": "Surrey",
+        "word_after": "among",
+        "start_seconds": 90.14,
+        "end_seconds": 90.66,
+        "duration_seconds": 0.52
+      },
+      {
+        "boundary_index": 294,
+        "word_before": "ninety-six",
+        "word_after": "Alexander",
+        "start_seconds": 92.56,
+        "end_seconds": 92.96,
+        "duration_seconds": 0.4
+      }
+    ],
+    "boundary_map": {
+      "7": {
+        "boundary_index": 7,
+        "word_before": "century",
+        "word_after": "three",
+        "start_seconds": 2.81,
+        "end_seconds": 3.08,
+        "duration_seconds": 0.27
+      },
+      "17": {
+        "boundary_index": 17,
+        "word_before": "Winston",
+        "word_after": "of",
+        "start_seconds": 5.72,
+        "end_seconds": 6.2,
+        "duration_seconds": 0.48
+      },
+      "20": {
+        "boundary_index": 20,
+        "word_before": "Yorkshire",
+        "word_after": "England",
+        "start_seconds": 6.42,
+        "end_seconds": 6.9,
+        "duration_seconds": 0.48
+      },
+      "21": {
+        "boundary_index": 21,
+        "word_before": "England",
+        "word_after": "emigrated",
+        "start_seconds": 7.04,
+        "end_seconds": 7.54,
+        "duration_seconds": 0.5
+      },
+      "29": {
+        "boundary_index": 29,
+        "word_before": "Virginia",
+        "word_after": "They",
+        "start_seconds": 9.3,
+        "end_seconds": 10.0,
+        "duration_seconds": 0.7
+      },
+      "33": {
+        "boundary_index": 33,
+        "word_before": "William",
+        "word_after": "Isaac",
+        "start_seconds": 10.58,
+        "end_seconds": 11.04,
+        "duration_seconds": 0.46
+      },
+      "34": {
+        "boundary_index": 34,
+        "word_before": "Isaac",
+        "word_after": "and",
+        "start_seconds": 11.18,
+        "end_seconds": 11.52,
+        "duration_seconds": 0.34
+      },
+      "36": {
+        "boundary_index": 36,
+        "word_before": "James",
+        "word_after": "and",
+        "start_seconds": 11.76,
+        "end_seconds": 12.42,
+        "duration_seconds": 0.66
+      },
+      "44": {
+        "boundary_index": 44,
+        "word_before": "posterity",
+        "word_after": "which",
+        "start_seconds": 14.64,
+        "end_seconds": 14.8,
+        "duration_seconds": 0.16
+      },
+      "55": {
+        "boundary_index": 55,
+        "word_before": "citizens",
+        "word_after": "Isaac",
+        "start_seconds": 17.48,
+        "end_seconds": 18.3,
+        "duration_seconds": 0.82
+      },
+      "60": {
+        "boundary_index": 60,
+        "word_before": "Dabney",
+        "word_after": "and",
+        "start_seconds": 20.04,
+        "end_seconds": 20.34,
+        "duration_seconds": 0.3
+      },
+      "68": {
+        "boundary_index": 68,
+        "word_before": "Hanover",
+        "word_after": "Among",
+        "start_seconds": 22.02,
+        "end_seconds": 22.66,
+        "duration_seconds": 0.64
+      },
+      "74": {
+        "boundary_index": 74,
+        "word_before": "daughter",
+        "word_after": "Sarah",
+        "start_seconds": 23.82,
+        "end_seconds": 24.0,
+        "duration_seconds": 0.18
+      },
+      "75": {
+        "boundary_index": 75,
+        "word_before": "Sarah",
+        "word_after": "who",
+        "start_seconds": 24.16,
+        "end_seconds": 24.58,
+        "duration_seconds": 0.42
+      },
+      "86": {
+        "boundary_index": 86,
+        "word_before": "county",
+        "word_after": "There",
+        "start_seconds": 27.14,
+        "end_seconds": 27.8,
+        "duration_seconds": 0.66
+      },
+      "97": {
+        "boundary_index": 97,
+        "word_before": "thirty",
+        "word_after": "John",
+        "start_seconds": 31.4,
+        "end_seconds": 31.86,
+        "duration_seconds": 0.46
+      },
+      "99": {
+        "boundary_index": 99,
+        "word_before": "Henry",
+        "word_after": "the",
+        "start_seconds": 32.32,
+        "end_seconds": 32.64,
+        "duration_seconds": 0.32
+      },
+      "107": {
+        "boundary_index": 107,
+        "word_before": "Robertson",
+        "word_after": "of",
+        "start_seconds": 34.62,
+        "end_seconds": 35.22,
+        "duration_seconds": 0.6
+      },
+      "109": {
+        "boundary_index": 109,
+        "word_before": "Aberdeen",
+        "word_after": "Scotland",
+        "start_seconds": 35.62,
+        "end_seconds": 36.0,
+        "duration_seconds": 0.38
+      },
+      "110": {
+        "boundary_index": 110,
+        "word_before": "Scotland",
+        "word_after": "John",
+        "start_seconds": 36.08,
+        "end_seconds": 36.86,
+        "duration_seconds": 0.78
+      },
+      "118": {
+        "boundary_index": 118,
+        "word_before": "Dinwiddie",
+        "word_after": "who",
+        "start_seconds": 38.74,
+        "end_seconds": 38.9,
+        "duration_seconds": 0.16
+      },
+      "126": {
+        "boundary_index": 126,
+        "word_before": "fifty-two",
+        "word_after": "and",
+        "start_seconds": 41.24,
+        "end_seconds": 41.92,
+        "duration_seconds": 0.68
+      },
+      "141": {
+        "boundary_index": 141,
+        "word_before": "Syme",
+        "word_after": "It",
+        "start_seconds": 45.38,
+        "end_seconds": 45.74,
+        "duration_seconds": 0.36
+      },
+      "155": {
+        "boundary_index": 155,
+        "word_before": "Scotland",
+        "word_after": "and",
+        "start_seconds": 49.08,
+        "end_seconds": 49.64,
+        "duration_seconds": 0.56
+      },
+      "173": {
+        "boundary_index": 173,
+        "word_before": "Virginia",
+        "word_after": "However",
+        "start_seconds": 53.46,
+        "end_seconds": 53.9,
+        "duration_seconds": 0.44
+      },
+      "174": {
+        "boundary_index": 174,
+        "word_before": "However",
+        "word_after": "this",
+        "start_seconds": 54.34,
+        "end_seconds": 54.58,
+        "duration_seconds": 0.24
+      },
+      "191": {
+        "boundary_index": 191,
+        "word_before": "Syme",
+        "word_after": "The",
+        "start_seconds": 58.84,
+        "end_seconds": 59.58,
+        "duration_seconds": 0.74
+      },
+      "202": {
+        "boundary_index": 202,
+        "word_before": "Castle",
+        "word_after": "Galway",
+        "start_seconds": 62.36,
+        "end_seconds": 62.84,
+        "duration_seconds": 0.48
+      },
+      "203": {
+        "boundary_index": 203,
+        "word_before": "Galway",
+        "word_after": "Ireland",
+        "start_seconds": 63.26,
+        "end_seconds": 63.48,
+        "duration_seconds": 0.22
+      },
+      "204": {
+        "boundary_index": 204,
+        "word_before": "Ireland",
+        "word_after": "for",
+        "start_seconds": 63.64,
+        "end_seconds": 64.14,
+        "duration_seconds": 0.5
+      },
+      "211": {
+        "boundary_index": 211,
+        "word_before": "Parliament",
+        "word_after": "for",
+        "start_seconds": 65.88,
+        "end_seconds": 66.3,
+        "duration_seconds": 0.42
+      },
+      "220": {
+        "boundary_index": 220,
+        "word_before": "Scotland",
+        "word_after": "He",
+        "start_seconds": 68.06,
+        "end_seconds": 68.78,
+        "duration_seconds": 0.72
+      },
+      "222": {
+        "boundary_index": 222,
+        "word_before": "writes",
+        "word_after": "Although",
+        "start_seconds": 69.08,
+        "end_seconds": 69.96,
+        "duration_seconds": 0.88
+      },
+      "230": {
+        "boundary_index": 230,
+        "word_before": "extraction",
+        "word_after": "the",
+        "start_seconds": 71.76,
+        "end_seconds": 72.3,
+        "duration_seconds": 0.54
+      },
+      "235": {
+        "boundary_index": 235,
+        "word_before": "Norman",
+        "word_after": "and",
+        "start_seconds": 73.4,
+        "end_seconds": 73.96,
+        "duration_seconds": 0.56
+      },
+      "248": {
+        "boundary_index": 248,
+        "word_before": "Conqueror",
+        "word_after": "and",
+        "start_seconds": 76.96,
+        "end_seconds": 77.14,
+        "duration_seconds": 0.18
+      },
+      "255": {
+        "boundary_index": 255,
+        "word_before": "Henrys",
+        "word_after": "not",
+        "start_seconds": 78.72,
+        "end_seconds": 78.9,
+        "duration_seconds": 0.18
+      },
+      "257": {
+        "boundary_index": 257,
+        "word_before": "Henri",
+        "word_after": "still",
+        "start_seconds": 79.38,
+        "end_seconds": 79.92,
+        "duration_seconds": 0.54
+      },
+      "259": {
+        "boundary_index": 259,
+        "word_before": "remaining",
+        "word_after": "Some",
+        "start_seconds": 80.42,
+        "end_seconds": 81.08,
+        "duration_seconds": 0.66
+      },
+      "269": {
+        "boundary_index": 269,
+        "word_before": "England",
+        "word_after": "and",
+        "start_seconds": 83.84,
+        "end_seconds": 84.5,
+        "duration_seconds": 0.66
+      },
+      "275": {
+        "boundary_index": 275,
+        "word_before": "Scotland",
+        "word_after": "and",
+        "start_seconds": 85.56,
+        "end_seconds": 86.12,
+        "duration_seconds": 0.56
+      },
+      "285": {
+        "boundary_index": 285,
+        "word_before": "Hampshire",
+        "word_after": "Bedfordshire",
+        "start_seconds": 88.56,
+        "end_seconds": 89.12,
+        "duration_seconds": 0.56
+      },
+      "286": {
+        "boundary_index": 286,
+        "word_before": "Bedfordshire",
+        "word_after": "and",
+        "start_seconds": 89.64,
+        "end_seconds": 89.92,
+        "duration_seconds": 0.28
+      },
+      "288": {
+        "boundary_index": 288,
+        "word_before": "Surrey",
+        "word_after": "among",
+        "start_seconds": 90.14,
+        "end_seconds": 90.66,
+        "duration_seconds": 0.52
+      },
+      "294": {
+        "boundary_index": 294,
+        "word_before": "ninety-six",
+        "word_after": "Alexander",
+        "start_seconds": 92.56,
+        "end_seconds": 92.96,
+        "duration_seconds": 0.4
+      }
+    },
+    "count": 45,
+    "mean_seconds": 0.4811,
+    "std_seconds": 0.1877,
+    "median_seconds": 0.48,
+    "mad_seconds": 0.16,
+    "scaled_mad_seconds": 0.2372
+  },
+  "baseline_clip02": {
+    "alignment_csv": "C:\\Users\\Rahul Dev\\Desktop\\Laya\\dataset\\sources\\librivox_02_alignment.csv",
+    "total_words": 218,
+    "words": [
+      {
+        "index": 0,
+        "word": "Prince",
+        "start": 0.0,
+        "end": 0.2
+      },
+      {
+        "index": 1,
+        "word": "Bismarck",
+        "start": 0.2,
+        "end": 0.84
+      },
+      {
+        "index": 2,
+        "word": "was",
+        "start": 0.84,
+        "end": 0.94
+      },
+      {
+        "index": 3,
+        "word": "trying",
+        "start": 0.94,
+        "end": 1.28
+      },
+      {
+        "index": 4,
+        "word": "to",
+        "start": 1.28,
+        "end": 1.48
+      },
+      {
+        "index": 5,
+        "word": "fight",
+        "start": 1.48,
+        "end": 1.74
+      },
+      {
+        "index": 6,
+        "word": "the",
+        "start": 1.74,
+        "end": 1.92
+      },
+      {
+        "index": 7,
+        "word": "revolutionary",
+        "start": 1.92,
+        "end": 2.24
+      },
+      {
+        "index": 8,
+        "word": "parties",
+        "start": 2.24,
+        "end": 2.74
+      },
+      {
+        "index": 9,
+        "word": "not",
+        "start": 3.36,
+        "end": 3.56
+      },
+      {
+        "index": 10,
+        "word": "only",
+        "start": 3.56,
+        "end": 3.72
+      },
+      {
+        "index": 11,
+        "word": "with",
+        "start": 3.72,
+        "end": 3.94
+      },
+      {
+        "index": 12,
+        "word": "such",
+        "start": 3.94,
+        "end": 4.12
+      },
+      {
+        "index": 13,
+        "word": "restrictive",
+        "start": 4.12,
+        "end": 4.58
+      },
+      {
+        "index": 14,
+        "word": "laws",
+        "start": 4.58,
+        "end": 5.04
+      },
+      {
+        "index": 15,
+        "word": "as",
+        "start": 5.04,
+        "end": 5.3
+      },
+      {
+        "index": 16,
+        "word": "been",
+        "start": 5.3,
+        "end": 5.5
+      },
+      {
+        "index": 17,
+        "word": "passed",
+        "start": 5.5,
+        "end": 5.8
+      },
+      {
+        "index": 18,
+        "word": "against",
+        "start": 5.8,
+        "end": 6.06
+      },
+      {
+        "index": 19,
+        "word": "the",
+        "start": 6.06,
+        "end": 6.28
+      },
+      {
+        "index": 20,
+        "word": "Socialists",
+        "start": 6.28,
+        "end": 6.6
+      },
+      {
+        "index": 21,
+        "word": "but",
+        "start": 7.28,
+        "end": 7.48
+      },
+      {
+        "index": 22,
+        "word": "also",
+        "start": 7.48,
+        "end": 7.66
+      },
+      {
+        "index": 23,
+        "word": "with",
+        "start": 7.66,
+        "end": 7.98
+      },
+      {
+        "index": 24,
+        "word": "constructive",
+        "start": 7.98,
+        "end": 8.42
+      },
+      {
+        "index": 25,
+        "word": "measures",
+        "start": 8.42,
+        "end": 8.92
+      },
+      {
+        "index": 26,
+        "word": "like",
+        "start": 8.92,
+        "end": 9.52
+      },
+      {
+        "index": 27,
+        "word": "the",
+        "start": 9.52,
+        "end": 9.7
+      },
+      {
+        "index": 28,
+        "word": "one",
+        "start": 9.7,
+        "end": 9.92
+      },
+      {
+        "index": 29,
+        "word": "which",
+        "start": 9.92,
+        "end": 10.1
+      },
+      {
+        "index": 30,
+        "word": "had",
+        "start": 10.1,
+        "end": 10.26
+      },
+      {
+        "index": 31,
+        "word": "been",
+        "start": 10.26,
+        "end": 10.38
+      },
+      {
+        "index": 32,
+        "word": "submitted",
+        "start": 10.38,
+        "end": 10.88
+      },
+      {
+        "index": 33,
+        "word": "to",
+        "start": 10.88,
+        "end": 11.08
+      },
+      {
+        "index": 34,
+        "word": "the",
+        "start": 11.08,
+        "end": 11.18
+      },
+      {
+        "index": 35,
+        "word": "Reichstag",
+        "start": 11.18,
+        "end": 11.74
+      },
+      {
+        "index": 36,
+        "word": "on",
+        "start": 11.74,
+        "end": 12.26
+      },
+      {
+        "index": 37,
+        "word": "March",
+        "start": 12.26,
+        "end": 12.44
+      },
+      {
+        "index": 38,
+        "word": "eighth",
+        "start": 12.44,
+        "end": 12.8
+      },
+      {
+        "index": 39,
+        "word": "eighteen",
+        "start": 12.8,
+        "end": 13.28
+      },
+      {
+        "index": 40,
+        "word": "eighty-one",
+        "start": 13.28,
+        "end": 13.82
+      },
+      {
+        "index": 41,
+        "word": "It",
+        "start": 15.08,
+        "end": 15.38
+      },
+      {
+        "index": 42,
+        "word": "proposed",
+        "start": 15.38,
+        "end": 15.72
+      },
+      {
+        "index": 43,
+        "word": "the",
+        "start": 15.72,
+        "end": 16.1
+      },
+      {
+        "index": 44,
+        "word": "insurance",
+        "start": 16.1,
+        "end": 16.38
+      },
+      {
+        "index": 45,
+        "word": "of",
+        "start": 16.38,
+        "end": 16.76
+      },
+      {
+        "index": 46,
+        "word": "the",
+        "start": 16.76,
+        "end": 16.84
+      },
+      {
+        "index": 47,
+        "word": "workingman",
+        "start": 16.84,
+        "end": 17.48
+      },
+      {
+        "index": 48,
+        "word": "against",
+        "start": 17.48,
+        "end": 17.78
+      },
+      {
+        "index": 49,
+        "word": "accidents",
+        "start": 17.78,
+        "end": 18.22
+      },
+      {
+        "index": 50,
+        "word": "and",
+        "start": 18.22,
+        "end": 18.94
+      },
+      {
+        "index": 51,
+        "word": "the",
+        "start": 18.94,
+        "end": 19.08
+      },
+      {
+        "index": 52,
+        "word": "founding",
+        "start": 19.08,
+        "end": 19.36
+      },
+      {
+        "index": 53,
+        "word": "of",
+        "start": 19.36,
+        "end": 19.6
+      },
+      {
+        "index": 54,
+        "word": "a",
+        "start": 19.6,
+        "end": 19.66
+      },
+      {
+        "index": 55,
+        "word": "governmental",
+        "start": 19.66,
+        "end": 19.96
+      },
+      {
+        "index": 56,
+        "word": "insurance",
+        "start": 19.96,
+        "end": 20.52
+      },
+      {
+        "index": 57,
+        "word": "company",
+        "start": 20.52,
+        "end": 21.18
+      },
+      {
+        "index": 58,
+        "word": "The",
+        "start": 21.64,
+        "end": 21.8
+      },
+      {
+        "index": 59,
+        "word": "bill",
+        "start": 21.8,
+        "end": 21.96
+      },
+      {
+        "index": 60,
+        "word": "was",
+        "start": 21.96,
+        "end": 22.22
+      },
+      {
+        "index": 61,
+        "word": "severely",
+        "start": 22.22,
+        "end": 22.62
+      },
+      {
+        "index": 62,
+        "word": "criticized",
+        "start": 22.62,
+        "end": 23.02
+      },
+      {
+        "index": 63,
+        "word": "notably",
+        "start": 24.02,
+        "end": 24.36
+      },
+      {
+        "index": 64,
+        "word": "by",
+        "start": 24.36,
+        "end": 24.74
+      },
+      {
+        "index": 65,
+        "word": "Eugen",
+        "start": 24.74,
+        "end": 25.02
+      },
+      {
+        "index": 66,
+        "word": "Richter",
+        "start": 25.02,
+        "end": 25.56
+      },
+      {
+        "index": 67,
+        "word": "who",
+        "start": 25.96,
+        "end": 26.16
+      },
+      {
+        "index": 68,
+        "word": "did",
+        "start": 26.16,
+        "end": 26.28
+      },
+      {
+        "index": 69,
+        "word": "not",
+        "start": 26.28,
+        "end": 26.46
+      },
+      {
+        "index": 70,
+        "word": "miss",
+        "start": 26.46,
+        "end": 26.68
+      },
+      {
+        "index": 71,
+        "word": "the",
+        "start": 26.68,
+        "end": 26.9
+      },
+      {
+        "index": 72,
+        "word": "opportunity",
+        "start": 26.9,
+        "end": 27.3
+      },
+      {
+        "index": 73,
+        "word": "of",
+        "start": 27.3,
+        "end": 27.64
+      },
+      {
+        "index": 74,
+        "word": "attacking",
+        "start": 27.64,
+        "end": 28.02
+      },
+      {
+        "index": 75,
+        "word": "also",
+        "start": 28.02,
+        "end": 28.46
+      },
+      {
+        "index": 76,
+        "word": "the",
+        "start": 28.46,
+        "end": 28.68
+      },
+      {
+        "index": 77,
+        "word": "chancellor",
+        "start": 28.68,
+        "end": 28.96
+      },
+      {
+        "index": 78,
+        "word": "personally",
+        "start": 28.96,
+        "end": 29.42
+      },
+      {
+        "index": 79,
+        "word": "Prince",
+        "start": 30.94,
+        "end": 31.5
+      },
+      {
+        "index": 80,
+        "word": "Bismarck's",
+        "start": 31.5,
+        "end": 32.06
+      },
+      {
+        "index": 81,
+        "word": "reply",
+        "start": 32.06,
+        "end": 32.24
+      },
+      {
+        "index": 82,
+        "word": "made",
+        "start": 32.24,
+        "end": 33.08
+      },
+      {
+        "index": 83,
+        "word": "a",
+        "start": 33.08,
+        "end": 33.2
+      },
+      {
+        "index": 84,
+        "word": "deep",
+        "start": 33.2,
+        "end": 33.4
+      },
+      {
+        "index": 85,
+        "word": "impression",
+        "start": 33.4,
+        "end": 33.58
+      },
+      {
+        "index": 86,
+        "word": "in",
+        "start": 33.58,
+        "end": 34.08
+      },
+      {
+        "index": 87,
+        "word": "the",
+        "start": 34.08,
+        "end": 34.2
+      },
+      {
+        "index": 88,
+        "word": "country",
+        "start": 34.2,
+        "end": 34.38
+      },
+      {
+        "index": 89,
+        "word": "at",
+        "start": 34.38,
+        "end": 34.74
+      },
+      {
+        "index": 90,
+        "word": "large",
+        "start": 34.74,
+        "end": 34.94
+      },
+      {
+        "index": 91,
+        "word": "The",
+        "start": 35.72,
+        "end": 35.8
+      },
+      {
+        "index": 92,
+        "word": "bill",
+        "start": 35.8,
+        "end": 35.94
+      },
+      {
+        "index": 93,
+        "word": "itself",
+        "start": 35.94,
+        "end": 36.2
+      },
+      {
+        "index": 94,
+        "word": "however",
+        "start": 36.22,
+        "end": 36.74
+      },
+      {
+        "index": 95,
+        "word": "was",
+        "start": 37.16,
+        "end": 37.32
+      },
+      {
+        "index": 96,
+        "word": "so",
+        "start": 37.32,
+        "end": 37.54
+      },
+      {
+        "index": 97,
+        "word": "badly",
+        "start": 37.54,
+        "end": 37.88
+      },
+      {
+        "index": 98,
+        "word": "amended",
+        "start": 37.88,
+        "end": 38.24
+      },
+      {
+        "index": 99,
+        "word": "in",
+        "start": 38.24,
+        "end": 38.52
+      },
+      {
+        "index": 100,
+        "word": "the",
+        "start": 38.52,
+        "end": 38.62
+      },
+      {
+        "index": 101,
+        "word": "Reichstag",
+        "start": 38.62,
+        "end": 39.18
+      },
+      {
+        "index": 102,
+        "word": "that",
+        "start": 39.18,
+        "end": 39.66
+      },
+      {
+        "index": 103,
+        "word": "Bismarck",
+        "start": 39.66,
+        "end": 40.34
+      },
+      {
+        "index": 104,
+        "word": "urged",
+        "start": 40.34,
+        "end": 40.62
+      },
+      {
+        "index": 105,
+        "word": "the",
+        "start": 40.62,
+        "end": 40.9
+      },
+      {
+        "index": 106,
+        "word": "Bundesrat",
+        "start": 40.9,
+        "end": 41.46
+      },
+      {
+        "index": 107,
+        "word": "to",
+        "start": 41.46,
+        "end": 41.7
+      },
+      {
+        "index": 108,
+        "word": "reject",
+        "start": 41.7,
+        "end": 41.92
+      },
+      {
+        "index": 109,
+        "word": "it",
+        "start": 41.92,
+        "end": 42.26
+      },
+      {
+        "index": 110,
+        "word": "which",
+        "start": 42.6,
+        "end": 42.88
+      },
+      {
+        "index": 111,
+        "word": "it",
+        "start": 42.88,
+        "end": 43.04
+      },
+      {
+        "index": 112,
+        "word": "did",
+        "start": 43.04,
+        "end": 43.26
+      },
+      {
+        "index": 113,
+        "word": "Several",
+        "start": 43.92,
+        "end": 44.12
+      },
+      {
+        "index": 114,
+        "word": "changes",
+        "start": 44.12,
+        "end": 44.52
+      },
+      {
+        "index": 115,
+        "word": "thereupon",
+        "start": 44.52,
+        "end": 45.26
+      },
+      {
+        "index": 116,
+        "word": "were",
+        "start": 45.26,
+        "end": 45.52
+      },
+      {
+        "index": 117,
+        "word": "made",
+        "start": 45.52,
+        "end": 45.76
+      },
+      {
+        "index": 118,
+        "word": "in",
+        "start": 45.76,
+        "end": 45.9
+      },
+      {
+        "index": 119,
+        "word": "the",
+        "start": 45.9,
+        "end": 46.02
+      },
+      {
+        "index": 120,
+        "word": "bill",
+        "start": 46.02,
+        "end": 46.22
+      },
+      {
+        "index": 121,
+        "word": "and",
+        "start": 46.74,
+        "end": 46.9
+      },
+      {
+        "index": 122,
+        "word": "after",
+        "start": 47.28,
+        "end": 47.66
+      },
+      {
+        "index": 123,
+        "word": "having",
+        "start": 47.66,
+        "end": 47.94
+      },
+      {
+        "index": 124,
+        "word": "been",
+        "start": 47.94,
+        "end": 48.16
+      },
+      {
+        "index": 125,
+        "word": "delayed",
+        "start": 48.16,
+        "end": 48.46
+      },
+      {
+        "index": 126,
+        "word": "in",
+        "start": 48.46,
+        "end": 48.6
+      },
+      {
+        "index": 127,
+        "word": "committee",
+        "start": 48.6,
+        "end": 48.8
+      },
+      {
+        "index": 128,
+        "word": "it",
+        "start": 49.46,
+        "end": 49.56
+      },
+      {
+        "index": 129,
+        "word": "was",
+        "start": 49.56,
+        "end": 49.68
+      },
+      {
+        "index": 130,
+        "word": "again",
+        "start": 49.68,
+        "end": 49.98
+      },
+      {
+        "index": 131,
+        "word": "brought",
+        "start": 49.98,
+        "end": 50.3
+      },
+      {
+        "index": 132,
+        "word": "up",
+        "start": 50.3,
+        "end": 50.56
+      },
+      {
+        "index": 133,
+        "word": "for",
+        "start": 50.56,
+        "end": 50.76
+      },
+      {
+        "index": 134,
+        "word": "discussion",
+        "start": 50.76,
+        "end": 50.98
+      },
+      {
+        "index": 135,
+        "word": "in",
+        "start": 50.98,
+        "end": 51.34
+      },
+      {
+        "index": 136,
+        "word": "eighteen",
+        "start": 51.34,
+        "end": 51.704
+      },
+      {
+        "index": 137,
+        "word": "eighty-four",
+        "start": 51.704,
+        "end": 52.16
+      },
+      {
+        "index": 138,
+        "word": "when",
+        "start": 52.16,
+        "end": 52.76
+      },
+      {
+        "index": 139,
+        "word": "another",
+        "start": 52.76,
+        "end": 53.04
+      },
+      {
+        "index": 140,
+        "word": "exhaustive",
+        "start": 53.04,
+        "end": 53.56
+      },
+      {
+        "index": 141,
+        "word": "speech",
+        "start": 53.56,
+        "end": 54.1
+      },
+      {
+        "index": 142,
+        "word": "by",
+        "start": 54.1,
+        "end": 54.44
+      },
+      {
+        "index": 143,
+        "word": "the",
+        "start": 54.44,
+        "end": 54.58
+      },
+      {
+        "index": 144,
+        "word": "chancellor",
+        "start": 54.58,
+        "end": 54.9
+      },
+      {
+        "index": 145,
+        "word": "on",
+        "start": 54.9,
+        "end": 55.64
+      },
+      {
+        "index": 146,
+        "word": "March",
+        "start": 55.64,
+        "end": 55.88
+      },
+      {
+        "index": 147,
+        "word": "fifteenth",
+        "start": 55.88,
+        "end": 56.24
+      },
+      {
+        "index": 148,
+        "word": "brought",
+        "start": 56.24,
+        "end": 56.74
+      },
+      {
+        "index": 149,
+        "word": "about",
+        "start": 56.74,
+        "end": 57.1
+      },
+      {
+        "index": 150,
+        "word": "its",
+        "start": 57.1,
+        "end": 57.32
+      },
+      {
+        "index": 151,
+        "word": "acceptance",
+        "start": 57.32,
+        "end": 57.62
+      },
+      {
+        "index": 152,
+        "word": "Before",
+        "start": 59.78,
+        "end": 60.46
+      },
+      {
+        "index": 153,
+        "word": "turning",
+        "start": 60.46,
+        "end": 61.08
+      },
+      {
+        "index": 154,
+        "word": "to",
+        "start": 61.08,
+        "end": 61.42
+      },
+      {
+        "index": 155,
+        "word": "the",
+        "start": 61.42,
+        "end": 61.54
+      },
+      {
+        "index": 156,
+        "word": "subject",
+        "start": 61.54,
+        "end": 61.92
+      },
+      {
+        "index": 157,
+        "word": "in",
+        "start": 61.92,
+        "end": 62.28
+      },
+      {
+        "index": 158,
+        "word": "hand",
+        "start": 62.28,
+        "end": 62.58
+      },
+      {
+        "index": 159,
+        "word": "I",
+        "start": 63.24,
+        "end": 63.68
+      },
+      {
+        "index": 160,
+        "word": "wished",
+        "start": 63.68,
+        "end": 63.92
+      },
+      {
+        "index": 161,
+        "word": "to",
+        "start": 63.92,
+        "end": 64.2
+      },
+      {
+        "index": 162,
+        "word": "reply",
+        "start": 64.2,
+        "end": 64.42
+      },
+      {
+        "index": 163,
+        "word": "to",
+        "start": 64.42,
+        "end": 64.82
+      },
+      {
+        "index": 164,
+        "word": "some",
+        "start": 64.82,
+        "end": 65.08
+      },
+      {
+        "index": 165,
+        "word": "remarks",
+        "start": 65.08,
+        "end": 65.6
+      },
+      {
+        "index": 166,
+        "word": "of",
+        "start": 65.6,
+        "end": 65.94
+      },
+      {
+        "index": 167,
+        "word": "the",
+        "start": 65.94,
+        "end": 66.08
+      },
+      {
+        "index": 168,
+        "word": "previous",
+        "start": 66.08,
+        "end": 66.54
+      },
+      {
+        "index": 169,
+        "word": "speaker",
+        "start": 66.54,
+        "end": 66.96
+      },
+      {
+        "index": 170,
+        "word": "lest",
+        "start": 67.78,
+        "end": 67.88
+      },
+      {
+        "index": 171,
+        "word": "I",
+        "start": 67.88,
+        "end": 68.14
+      },
+      {
+        "index": 172,
+        "word": "forget",
+        "start": 68.14,
+        "end": 68.48
+      },
+      {
+        "index": 173,
+        "word": "them",
+        "start": 68.48,
+        "end": 68.86
+      },
+      {
+        "index": 174,
+        "word": "they",
+        "start": 69.32,
+        "end": 69.54
+      },
+      {
+        "index": 175,
+        "word": "are",
+        "start": 69.54,
+        "end": 69.76
+      },
+      {
+        "index": 176,
+        "word": "of",
+        "start": 69.76,
+        "end": 70.08
+      },
+      {
+        "index": 177,
+        "word": "so",
+        "start": 70.08,
+        "end": 70.32
+      },
+      {
+        "index": 178,
+        "word": "little",
+        "start": 70.32,
+        "end": 70.62
+      },
+      {
+        "index": 179,
+        "word": "weight",
+        "start": 70.62,
+        "end": 71.08
+      },
+      {
+        "index": 180,
+        "word": "He",
+        "start": 71.84,
+        "end": 72.14
+      },
+      {
+        "index": 181,
+        "word": "finished",
+        "start": 72.14,
+        "end": 72.54
+      },
+      {
+        "index": 182,
+        "word": "by",
+        "start": 72.54,
+        "end": 73.2
+      },
+      {
+        "index": 183,
+        "word": "saying",
+        "start": 73.2,
+        "end": 73.76
+      },
+      {
+        "index": 184,
+        "word": "that",
+        "start": 73.76,
+        "end": 74.02
+      },
+      {
+        "index": 185,
+        "word": "my",
+        "start": 74.02,
+        "end": 74.26
+      },
+      {
+        "index": 186,
+        "word": "prestige",
+        "start": 74.26,
+        "end": 74.78
+      },
+      {
+        "index": 187,
+        "word": "was",
+        "start": 74.78,
+        "end": 75.3
+      },
+      {
+        "index": 188,
+        "word": "waning",
+        "start": 75.3,
+        "end": 75.66
+      },
+      {
+        "index": 189,
+        "word": "If",
+        "start": 76.58,
+        "end": 76.74
+      },
+      {
+        "index": 190,
+        "word": "he",
+        "start": 76.74,
+        "end": 76.92
+      },
+      {
+        "index": 191,
+        "word": "were",
+        "start": 76.92,
+        "end": 77.16
+      },
+      {
+        "index": 192,
+        "word": "right",
+        "start": 77.16,
+        "end": 77.52
+      },
+      {
+        "index": 193,
+        "word": "I",
+        "start": 77.96,
+        "end": 78.12
+      },
+      {
+        "index": 194,
+        "word": "should",
+        "start": 78.12,
+        "end": 78.38
+      },
+      {
+        "index": 195,
+        "word": "feel",
+        "start": 78.38,
+        "end": 78.68
+      },
+      {
+        "index": 196,
+        "word": "like",
+        "start": 78.68,
+        "end": 79.04
+      },
+      {
+        "index": 197,
+        "word": "saying",
+        "start": 79.04,
+        "end": 79.38
+      },
+      {
+        "index": 198,
+        "word": "Thank",
+        "start": 80.02,
+        "end": 80.22
+      },
+      {
+        "index": 199,
+        "word": "God",
+        "start": 80.22,
+        "end": 80.84
+      },
+      {
+        "index": 200,
+        "word": "for",
+        "start": 81.28,
+        "end": 81.54
+      },
+      {
+        "index": 201,
+        "word": "prestige",
+        "start": 81.54,
+        "end": 82.0
+      },
+      {
+        "index": 202,
+        "word": "is",
+        "start": 82.0,
+        "end": 82.52
+      },
+      {
+        "index": 203,
+        "word": "a",
+        "start": 82.52,
+        "end": 82.66
+      },
+      {
+        "index": 204,
+        "word": "very",
+        "start": 82.66,
+        "end": 82.9
+      },
+      {
+        "index": 205,
+        "word": "burdensome",
+        "start": 82.9,
+        "end": 83.76
+      },
+      {
+        "index": 206,
+        "word": "affair",
+        "start": 83.76,
+        "end": 84.02
+      },
+      {
+        "index": 207,
+        "word": "One",
+        "start": 85.34,
+        "end": 85.72
+      },
+      {
+        "index": 208,
+        "word": "suffers",
+        "start": 85.72,
+        "end": 86.26
+      },
+      {
+        "index": 209,
+        "word": "under",
+        "start": 86.26,
+        "end": 86.9
+      },
+      {
+        "index": 210,
+        "word": "its",
+        "start": 86.9,
+        "end": 87.1
+      },
+      {
+        "index": 211,
+        "word": "weight",
+        "start": 87.1,
+        "end": 87.44
+      },
+      {
+        "index": 212,
+        "word": "and",
+        "start": 88.18,
+        "end": 88.28
+      },
+      {
+        "index": 213,
+        "word": "quickly",
+        "start": 88.28,
+        "end": 88.64
+      },
+      {
+        "index": 214,
+        "word": "gets",
+        "start": 88.64,
+        "end": 89.12
+      },
+      {
+        "index": 215,
+        "word": "tired",
+        "start": 89.12,
+        "end": 89.62
+      },
+      {
+        "index": 216,
+        "word": "of",
+        "start": 89.62,
+        "end": 90.04
+      },
+      {
+        "index": 217,
+        "word": "it",
+        "start": 90.04,
+        "end": 90.3
+      }
+    ],
+    "natural_pauses": [
+      {
+        "boundary_index": 8,
+        "word_before": "parties",
+        "word_after": "not",
+        "start_seconds": 2.74,
+        "end_seconds": 3.36,
+        "duration_seconds": 0.62
+      },
+      {
+        "boundary_index": 20,
+        "word_before": "Socialists",
+        "word_after": "but",
+        "start_seconds": 6.6,
+        "end_seconds": 7.28,
+        "duration_seconds": 0.68
+      },
+      {
+        "boundary_index": 40,
+        "word_before": "eighty-one",
+        "word_after": "It",
+        "start_seconds": 13.82,
+        "end_seconds": 15.08,
+        "duration_seconds": 1.26
+      },
+      {
+        "boundary_index": 57,
+        "word_before": "company",
+        "word_after": "The",
+        "start_seconds": 21.18,
+        "end_seconds": 21.64,
+        "duration_seconds": 0.46
+      },
+      {
+        "boundary_index": 62,
+        "word_before": "criticized",
+        "word_after": "notably",
+        "start_seconds": 23.02,
+        "end_seconds": 24.02,
+        "duration_seconds": 1.0
+      },
+      {
+        "boundary_index": 66,
+        "word_before": "Richter",
+        "word_after": "who",
+        "start_seconds": 25.56,
+        "end_seconds": 25.96,
+        "duration_seconds": 0.4
+      },
+      {
+        "boundary_index": 78,
+        "word_before": "personally",
+        "word_after": "Prince",
+        "start_seconds": 29.42,
+        "end_seconds": 30.94,
+        "duration_seconds": 1.52
+      },
+      {
+        "boundary_index": 90,
+        "word_before": "large",
+        "word_after": "The",
+        "start_seconds": 34.94,
+        "end_seconds": 35.72,
+        "duration_seconds": 0.78
+      },
+      {
+        "boundary_index": 94,
+        "word_before": "however",
+        "word_after": "was",
+        "start_seconds": 36.74,
+        "end_seconds": 37.16,
+        "duration_seconds": 0.42
+      },
+      {
+        "boundary_index": 109,
+        "word_before": "it",
+        "word_after": "which",
+        "start_seconds": 42.26,
+        "end_seconds": 42.6,
+        "duration_seconds": 0.34
+      },
+      {
+        "boundary_index": 112,
+        "word_before": "did",
+        "word_after": "Several",
+        "start_seconds": 43.26,
+        "end_seconds": 43.92,
+        "duration_seconds": 0.66
+      },
+      {
+        "boundary_index": 120,
+        "word_before": "bill",
+        "word_after": "and",
+        "start_seconds": 46.22,
+        "end_seconds": 46.74,
+        "duration_seconds": 0.52
+      },
+      {
+        "boundary_index": 121,
+        "word_before": "and",
+        "word_after": "after",
+        "start_seconds": 46.9,
+        "end_seconds": 47.28,
+        "duration_seconds": 0.38
+      },
+      {
+        "boundary_index": 127,
+        "word_before": "committee",
+        "word_after": "it",
+        "start_seconds": 48.8,
+        "end_seconds": 49.46,
+        "duration_seconds": 0.66
+      },
+      {
+        "boundary_index": 151,
+        "word_before": "acceptance",
+        "word_after": "Before",
+        "start_seconds": 57.62,
+        "end_seconds": 59.78,
+        "duration_seconds": 2.16
+      },
+      {
+        "boundary_index": 158,
+        "word_before": "hand",
+        "word_after": "I",
+        "start_seconds": 62.58,
+        "end_seconds": 63.24,
+        "duration_seconds": 0.66
+      },
+      {
+        "boundary_index": 169,
+        "word_before": "speaker",
+        "word_after": "lest",
+        "start_seconds": 66.96,
+        "end_seconds": 67.78,
+        "duration_seconds": 0.82
+      },
+      {
+        "boundary_index": 173,
+        "word_before": "them",
+        "word_after": "they",
+        "start_seconds": 68.86,
+        "end_seconds": 69.32,
+        "duration_seconds": 0.46
+      },
+      {
+        "boundary_index": 179,
+        "word_before": "weight",
+        "word_after": "He",
+        "start_seconds": 71.08,
+        "end_seconds": 71.84,
+        "duration_seconds": 0.76
+      },
+      {
+        "boundary_index": 188,
+        "word_before": "waning",
+        "word_after": "If",
+        "start_seconds": 75.66,
+        "end_seconds": 76.58,
+        "duration_seconds": 0.92
+      },
+      {
+        "boundary_index": 192,
+        "word_before": "right",
+        "word_after": "I",
+        "start_seconds": 77.52,
+        "end_seconds": 77.96,
+        "duration_seconds": 0.44
+      },
+      {
+        "boundary_index": 197,
+        "word_before": "saying",
+        "word_after": "Thank",
+        "start_seconds": 79.38,
+        "end_seconds": 80.02,
+        "duration_seconds": 0.64
+      },
+      {
+        "boundary_index": 199,
+        "word_before": "God",
+        "word_after": "for",
+        "start_seconds": 80.84,
+        "end_seconds": 81.28,
+        "duration_seconds": 0.44
+      },
+      {
+        "boundary_index": 206,
+        "word_before": "affair",
+        "word_after": "One",
+        "start_seconds": 84.02,
+        "end_seconds": 85.34,
+        "duration_seconds": 1.32
+      },
+      {
+        "boundary_index": 211,
+        "word_before": "weight",
+        "word_after": "and",
+        "start_seconds": 87.44,
+        "end_seconds": 88.18,
+        "duration_seconds": 0.74
+      }
+    ],
+    "boundary_map": {
+      "8": {
+        "boundary_index": 8,
+        "word_before": "parties",
+        "word_after": "not",
+        "start_seconds": 2.74,
+        "end_seconds": 3.36,
+        "duration_seconds": 0.62
+      },
+      "20": {
+        "boundary_index": 20,
+        "word_before": "Socialists",
+        "word_after": "but",
+        "start_seconds": 6.6,
+        "end_seconds": 7.28,
+        "duration_seconds": 0.68
+      },
+      "40": {
+        "boundary_index": 40,
+        "word_before": "eighty-one",
+        "word_after": "It",
+        "start_seconds": 13.82,
+        "end_seconds": 15.08,
+        "duration_seconds": 1.26
+      },
+      "57": {
+        "boundary_index": 57,
+        "word_before": "company",
+        "word_after": "The",
+        "start_seconds": 21.18,
+        "end_seconds": 21.64,
+        "duration_seconds": 0.46
+      },
+      "62": {
+        "boundary_index": 62,
+        "word_before": "criticized",
+        "word_after": "notably",
+        "start_seconds": 23.02,
+        "end_seconds": 24.02,
+        "duration_seconds": 1.0
+      },
+      "66": {
+        "boundary_index": 66,
+        "word_before": "Richter",
+        "word_after": "who",
+        "start_seconds": 25.56,
+        "end_seconds": 25.96,
+        "duration_seconds": 0.4
+      },
+      "78": {
+        "boundary_index": 78,
+        "word_before": "personally",
+        "word_after": "Prince",
+        "start_seconds": 29.42,
+        "end_seconds": 30.94,
+        "duration_seconds": 1.52
+      },
+      "90": {
+        "boundary_index": 90,
+        "word_before": "large",
+        "word_after": "The",
+        "start_seconds": 34.94,
+        "end_seconds": 35.72,
+        "duration_seconds": 0.78
+      },
+      "94": {
+        "boundary_index": 94,
+        "word_before": "however",
+        "word_after": "was",
+        "start_seconds": 36.74,
+        "end_seconds": 37.16,
+        "duration_seconds": 0.42
+      },
+      "109": {
+        "boundary_index": 109,
+        "word_before": "it",
+        "word_after": "which",
+        "start_seconds": 42.26,
+        "end_seconds": 42.6,
+        "duration_seconds": 0.34
+      },
+      "112": {
+        "boundary_index": 112,
+        "word_before": "did",
+        "word_after": "Several",
+        "start_seconds": 43.26,
+        "end_seconds": 43.92,
+        "duration_seconds": 0.66
+      },
+      "120": {
+        "boundary_index": 120,
+        "word_before": "bill",
+        "word_after": "and",
+        "start_seconds": 46.22,
+        "end_seconds": 46.74,
+        "duration_seconds": 0.52
+      },
+      "121": {
+        "boundary_index": 121,
+        "word_before": "and",
+        "word_after": "after",
+        "start_seconds": 46.9,
+        "end_seconds": 47.28,
+        "duration_seconds": 0.38
+      },
+      "127": {
+        "boundary_index": 127,
+        "word_before": "committee",
+        "word_after": "it",
+        "start_seconds": 48.8,
+        "end_seconds": 49.46,
+        "duration_seconds": 0.66
+      },
+      "151": {
+        "boundary_index": 151,
+        "word_before": "acceptance",
+        "word_after": "Before",
+        "start_seconds": 57.62,
+        "end_seconds": 59.78,
+        "duration_seconds": 2.16
+      },
+      "158": {
+        "boundary_index": 158,
+        "word_before": "hand",
+        "word_after": "I",
+        "start_seconds": 62.58,
+        "end_seconds": 63.24,
+        "duration_seconds": 0.66
+      },
+      "169": {
+        "boundary_index": 169,
+        "word_before": "speaker",
+        "word_after": "lest",
+        "start_seconds": 66.96,
+        "end_seconds": 67.78,
+        "duration_seconds": 0.82
+      },
+      "173": {
+        "boundary_index": 173,
+        "word_before": "them",
+        "word_after": "they",
+        "start_seconds": 68.86,
+        "end_seconds": 69.32,
+        "duration_seconds": 0.46
+      },
+      "179": {
+        "boundary_index": 179,
+        "word_before": "weight",
+        "word_after": "He",
+        "start_seconds": 71.08,
+        "end_seconds": 71.84,
+        "duration_seconds": 0.76
+      },
+      "188": {
+        "boundary_index": 188,
+        "word_before": "waning",
+        "word_after": "If",
+        "start_seconds": 75.66,
+        "end_seconds": 76.58,
+        "duration_seconds": 0.92
+      },
+      "192": {
+        "boundary_index": 192,
+        "word_before": "right",
+        "word_after": "I",
+        "start_seconds": 77.52,
+        "end_seconds": 77.96,
+        "duration_seconds": 0.44
+      },
+      "197": {
+        "boundary_index": 197,
+        "word_before": "saying",
+        "word_after": "Thank",
+        "start_seconds": 79.38,
+        "end_seconds": 80.02,
+        "duration_seconds": 0.64
+      },
+      "199": {
+        "boundary_index": 199,
+        "word_before": "God",
+        "word_after": "for",
+        "start_seconds": 80.84,
+        "end_seconds": 81.28,
+        "duration_seconds": 0.44
+      },
+      "206": {
+        "boundary_index": 206,
+        "word_before": "affair",
+        "word_after": "One",
+        "start_seconds": 84.02,
+        "end_seconds": 85.34,
+        "duration_seconds": 1.32
+      },
+      "211": {
+        "boundary_index": 211,
+        "word_before": "weight",
+        "word_after": "and",
+        "start_seconds": 87.44,
+        "end_seconds": 88.18,
+        "duration_seconds": 0.74
+      }
+    },
+    "count": 25,
+    "mean_seconds": 0.7624,
+    "std_seconds": 0.4132,
+    "median_seconds": 0.66,
+    "mad_seconds": 0.2,
+    "scaled_mad_seconds": 0.2965
+  },
+  "clip01_results": [
+    {
+      "file": "librivox_01_pause_rushed_tier1.json",
+      "tier": 1,
+      "direction": "rushed",
+      "multiplier": 0.85,
+      "detected": false,
+      "direction_correct": false,
+      "peak_z": -0.527,
+      "target_z_mode_A": -0.527,
+      "target_z_mode_B": 0.341,
+      "start_error": null,
+      "end_error": null,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 1,
+      "target_boundary_index": 86,
+      "target_flagged_entry": null,
+      "all_flagged_boundaries": []
+    },
+    {
+      "file": "librivox_01_pause_rushed_tier2.json",
+      "tier": 2,
+      "direction": "rushed",
+      "multiplier": 0.65,
+      "detected": false,
+      "direction_correct": false,
+      "peak_z": -1.231,
+      "target_z_mode_A": -1.231,
+      "target_z_mode_B": -0.215,
+      "start_error": null,
+      "end_error": null,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 1,
+      "target_boundary_index": 86,
+      "target_flagged_entry": null,
+      "all_flagged_boundaries": []
+    },
+    {
+      "file": "librivox_01_pause_rushed_tier3.json",
+      "tier": 3,
+      "direction": "rushed",
+      "multiplier": 0.4,
+      "detected": true,
+      "direction_correct": true,
+      "peak_z": -2.11,
+      "target_z_mode_A": -2.11,
+      "target_z_mode_B": -0.911,
+      "start_error": 0.0,
+      "end_error": 0.0,
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "target_boundary_index": 86,
+      "target_flagged_entry": {
+        "boundary_index": 86,
+        "word_before": "county",
+        "word_after": "There",
+        "start_seconds": 27.14,
+        "end_seconds": 27.404,
+        "test_duration_seconds": 0.264,
+        "baseline_duration_seconds": 0.66,
+        "z_score_mode_A": -2.11,
+        "z_score_mode_B": -0.911,
+        "active_z_score": -2.11,
+        "direction": "too short",
+        "is_flagged": true
+      },
+      "all_flagged_boundaries": [
+        {
+          "boundary_index": 86,
+          "word_before": "county",
+          "word_after": "There",
+          "start_seconds": 27.14,
+          "end_seconds": 27.404,
+          "test_duration_seconds": 0.264,
+          "baseline_duration_seconds": 0.66,
+          "z_score_mode_A": -2.11,
+          "z_score_mode_B": -0.911,
+          "active_z_score": -2.11,
+          "direction": "too short",
+          "is_flagged": true
+        }
+      ]
+    },
+    {
+      "file": "librivox_01_pause_rushed_tier4.json",
+      "tier": 4,
+      "direction": "rushed",
+      "multiplier": 0.2,
+      "detected": true,
+      "direction_correct": true,
+      "peak_z": -2.813,
+      "target_z_mode_A": -2.813,
+      "target_z_mode_B": -1.467,
+      "start_error": 0.0,
+      "end_error": 0.0,
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "target_boundary_index": 86,
+      "target_flagged_entry": {
+        "boundary_index": 86,
+        "word_before": "county",
+        "word_after": "There",
+        "start_seconds": 27.14,
+        "end_seconds": 27.272,
+        "test_duration_seconds": 0.132,
+        "baseline_duration_seconds": 0.66,
+        "z_score_mode_A": -2.813,
+        "z_score_mode_B": -1.467,
+        "active_z_score": -2.813,
+        "direction": "too short",
+        "is_flagged": true
+      },
+      "all_flagged_boundaries": [
+        {
+          "boundary_index": 86,
+          "word_before": "county",
+          "word_after": "There",
+          "start_seconds": 27.14,
+          "end_seconds": 27.272,
+          "test_duration_seconds": 0.132,
+          "baseline_duration_seconds": 0.66,
+          "z_score_mode_A": -2.813,
+          "z_score_mode_B": -1.467,
+          "active_z_score": -2.813,
+          "direction": "too short",
+          "is_flagged": true
+        }
+      ]
+    },
+    {
+      "file": "librivox_01_pause_rushed_tier5.json",
+      "tier": 5,
+      "direction": "rushed",
+      "multiplier": 0.0,
+      "detected": true,
+      "direction_correct": true,
+      "peak_z": -3.516,
+      "target_z_mode_A": -3.516,
+      "target_z_mode_B": -2.024,
+      "start_error": 0.005,
+      "end_error": 0.005,
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "target_boundary_index": 86,
+      "target_flagged_entry": {
+        "boundary_index": 86,
+        "word_before": "county",
+        "word_after": "There",
+        "start_seconds": 27.14,
+        "end_seconds": 27.14,
+        "test_duration_seconds": 0.0,
+        "baseline_duration_seconds": 0.66,
+        "z_score_mode_A": -3.516,
+        "z_score_mode_B": -2.024,
+        "active_z_score": -3.516,
+        "direction": "too short",
+        "is_flagged": true
+      },
+      "all_flagged_boundaries": [
+        {
+          "boundary_index": 86,
+          "word_before": "county",
+          "word_after": "There",
+          "start_seconds": 27.14,
+          "end_seconds": 27.14,
+          "test_duration_seconds": 0.0,
+          "baseline_duration_seconds": 0.66,
+          "z_score_mode_A": -3.516,
+          "z_score_mode_B": -2.024,
+          "active_z_score": -3.516,
+          "direction": "too short",
+          "is_flagged": true
+        }
+      ]
+    },
+    {
+      "file": "librivox_01_pause_draggy_tier1.json",
+      "tier": 1,
+      "direction": "draggy",
+      "multiplier": 1.15,
+      "detected": false,
+      "direction_correct": false,
+      "peak_z": 0.527,
+      "target_z_mode_A": 0.527,
+      "target_z_mode_B": 1.176,
+      "start_error": null,
+      "end_error": null,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 1,
+      "target_boundary_index": 86,
+      "target_flagged_entry": null,
+      "all_flagged_boundaries": []
+    },
+    {
+      "file": "librivox_01_pause_draggy_tier2.json",
+      "tier": 2,
+      "direction": "draggy",
+      "multiplier": 1.4,
+      "detected": false,
+      "direction_correct": false,
+      "peak_z": 1.406,
+      "target_z_mode_A": 1.406,
+      "target_z_mode_B": 1.872,
+      "start_error": null,
+      "end_error": null,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 1,
+      "target_boundary_index": 86,
+      "target_flagged_entry": null,
+      "all_flagged_boundaries": []
+    },
+    {
+      "file": "librivox_01_pause_draggy_tier3.json",
+      "tier": 3,
+      "direction": "draggy",
+      "multiplier": 1.8,
+      "detected": true,
+      "direction_correct": true,
+      "peak_z": 2.813,
+      "target_z_mode_A": 2.813,
+      "target_z_mode_B": 2.985,
+      "start_error": 0.0,
+      "end_error": 0.0,
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "target_boundary_index": 86,
+      "target_flagged_entry": {
+        "boundary_index": 86,
+        "word_before": "county",
+        "word_after": "There",
+        "start_seconds": 27.14,
+        "end_seconds": 28.328,
+        "test_duration_seconds": 1.188,
+        "baseline_duration_seconds": 0.66,
+        "z_score_mode_A": 2.813,
+        "z_score_mode_B": 2.985,
+        "active_z_score": 2.813,
+        "direction": "too long",
+        "is_flagged": true
+      },
+      "all_flagged_boundaries": [
+        {
+          "boundary_index": 86,
+          "word_before": "county",
+          "word_after": "There",
+          "start_seconds": 27.14,
+          "end_seconds": 28.328,
+          "test_duration_seconds": 1.188,
+          "baseline_duration_seconds": 0.66,
+          "z_score_mode_A": 2.813,
+          "z_score_mode_B": 2.985,
+          "active_z_score": 2.813,
+          "direction": "too long",
+          "is_flagged": true
+        }
+      ]
+    },
+    {
+      "file": "librivox_01_pause_draggy_tier4.json",
+      "tier": 4,
+      "direction": "draggy",
+      "multiplier": 2.5,
+      "detected": true,
+      "direction_correct": true,
+      "peak_z": 5.274,
+      "target_z_mode_A": 5.274,
+      "target_z_mode_B": 4.933,
+      "start_error": 0.0,
+      "end_error": 0.0,
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "target_boundary_index": 86,
+      "target_flagged_entry": {
+        "boundary_index": 86,
+        "word_before": "county",
+        "word_after": "There",
+        "start_seconds": 27.14,
+        "end_seconds": 28.79,
+        "test_duration_seconds": 1.65,
+        "baseline_duration_seconds": 0.66,
+        "z_score_mode_A": 5.274,
+        "z_score_mode_B": 4.933,
+        "active_z_score": 5.274,
+        "direction": "too long",
+        "is_flagged": true
+      },
+      "all_flagged_boundaries": [
+        {
+          "boundary_index": 86,
+          "word_before": "county",
+          "word_after": "There",
+          "start_seconds": 27.14,
+          "end_seconds": 28.79,
+          "test_duration_seconds": 1.65,
+          "baseline_duration_seconds": 0.66,
+          "z_score_mode_A": 5.274,
+          "z_score_mode_B": 4.933,
+          "active_z_score": 5.274,
+          "direction": "too long",
+          "is_flagged": true
+        }
+      ]
+    },
+    {
+      "file": "librivox_01_pause_draggy_tier5.json",
+      "tier": 5,
+      "direction": "draggy",
+      "multiplier": 3.0,
+      "detected": true,
+      "direction_correct": true,
+      "peak_z": 7.032,
+      "target_z_mode_A": 7.032,
+      "target_z_mode_B": 6.324,
+      "start_error": 0.0,
+      "end_error": 0.0,
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "target_boundary_index": 86,
+      "target_flagged_entry": {
+        "boundary_index": 86,
+        "word_before": "county",
+        "word_after": "There",
+        "start_seconds": 27.14,
+        "end_seconds": 29.12,
+        "test_duration_seconds": 1.98,
+        "baseline_duration_seconds": 0.66,
+        "z_score_mode_A": 7.032,
+        "z_score_mode_B": 6.324,
+        "active_z_score": 7.032,
+        "direction": "too long",
+        "is_flagged": true
+      },
+      "all_flagged_boundaries": [
+        {
+          "boundary_index": 86,
+          "word_before": "county",
+          "word_after": "There",
+          "start_seconds": 27.14,
+          "end_seconds": 29.12,
+          "test_duration_seconds": 1.98,
+          "baseline_duration_seconds": 0.66,
+          "z_score_mode_A": 7.032,
+          "z_score_mode_B": 6.324,
+          "active_z_score": 7.032,
+          "direction": "too long",
+          "is_flagged": true
+        }
+      ]
+    },
+    {
+      "file": "librivox_01_pause_control.json",
+      "tier": "control",
+      "direction": "control",
+      "multiplier": 1.0,
+      "detected": false,
+      "direction_correct": true,
+      "peak_z": 0.0,
+      "target_z_mode_A": 0.0,
+      "target_z_mode_B": 0.759,
+      "start_error": null,
+      "end_error": null,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "target_boundary_index": 86,
+      "target_flagged_entry": null,
+      "all_flagged_boundaries": []
+    }
+  ],
+  "clip02_results": [
+    {
+      "file": "librivox_02_pause_rushed_tier2.json",
+      "tier": 2,
+      "direction": "rushed",
+      "multiplier": 0.65,
+      "detected": false,
+      "direction_correct": false,
+      "peak_z": -0.559,
+      "target_z_mode_A": -0.559,
+      "target_z_mode_B": -0.779,
+      "start_error": null,
+      "end_error": null,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 1,
+      "target_boundary_index": 158,
+      "target_flagged_entry": null,
+      "all_flagged_boundaries": []
+    },
+    {
+      "file": "librivox_02_pause_rushed_tier3.json",
+      "tier": 3,
+      "direction": "rushed",
+      "multiplier": 0.4,
+      "detected": false,
+      "direction_correct": false,
+      "peak_z": -0.958,
+      "target_z_mode_A": -0.958,
+      "target_z_mode_B": -1.336,
+      "start_error": null,
+      "end_error": null,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 1,
+      "target_boundary_index": 158,
+      "target_flagged_entry": null,
+      "all_flagged_boundaries": []
+    },
+    {
+      "file": "librivox_02_pause_rushed_tier5.json",
+      "tier": 5,
+      "direction": "rushed",
+      "multiplier": 0.0,
+      "detected": false,
+      "direction_correct": false,
+      "peak_z": -1.597,
+      "target_z_mode_A": -1.597,
+      "target_z_mode_B": -2.226,
+      "start_error": null,
+      "end_error": null,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 1,
+      "target_boundary_index": 158,
+      "target_flagged_entry": null,
+      "all_flagged_boundaries": []
+    },
+    {
+      "file": "librivox_02_pause_draggy_tier2.json",
+      "tier": 2,
+      "direction": "draggy",
+      "multiplier": 1.4,
+      "detected": false,
+      "direction_correct": false,
+      "peak_z": 0.639,
+      "target_z_mode_A": 0.639,
+      "target_z_mode_B": 0.89,
+      "start_error": null,
+      "end_error": null,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 1,
+      "target_boundary_index": 158,
+      "target_flagged_entry": null,
+      "all_flagged_boundaries": []
+    },
+    {
+      "file": "librivox_02_pause_draggy_tier3.json",
+      "tier": 3,
+      "direction": "draggy",
+      "multiplier": 1.8,
+      "detected": false,
+      "direction_correct": false,
+      "peak_z": 1.278,
+      "target_z_mode_A": 1.278,
+      "target_z_mode_B": 1.781,
+      "start_error": null,
+      "end_error": null,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 1,
+      "target_boundary_index": 158,
+      "target_flagged_entry": null,
+      "all_flagged_boundaries": []
+    },
+    {
+      "file": "librivox_02_pause_draggy_tier5.json",
+      "tier": 5,
+      "direction": "draggy",
+      "multiplier": 3.0,
+      "detected": true,
+      "direction_correct": true,
+      "peak_z": 3.195,
+      "target_z_mode_A": 3.195,
+      "target_z_mode_B": 4.452,
+      "start_error": 0.0,
+      "end_error": 0.0,
+      "true_positives": 1,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "target_boundary_index": 158,
+      "target_flagged_entry": {
+        "boundary_index": 158,
+        "word_before": "hand",
+        "word_after": "I",
+        "start_seconds": 62.58,
+        "end_seconds": 64.56,
+        "test_duration_seconds": 1.98,
+        "baseline_duration_seconds": 0.66,
+        "z_score_mode_A": 3.195,
+        "z_score_mode_B": 4.452,
+        "active_z_score": 3.195,
+        "direction": "too long",
+        "is_flagged": true
+      },
+      "all_flagged_boundaries": [
+        {
+          "boundary_index": 158,
+          "word_before": "hand",
+          "word_after": "I",
+          "start_seconds": 62.58,
+          "end_seconds": 64.56,
+          "test_duration_seconds": 1.98,
+          "baseline_duration_seconds": 0.66,
+          "z_score_mode_A": 3.195,
+          "z_score_mode_B": 4.452,
+          "active_z_score": 3.195,
+          "direction": "too long",
+          "is_flagged": true
+        }
+      ]
+    },
+    {
+      "file": "librivox_02_pause_control.json",
+      "tier": "control",
+      "direction": "control",
+      "multiplier": 1.0,
+      "detected": false,
+      "direction_correct": true,
+      "peak_z": 0.0,
+      "target_z_mode_A": 0.0,
+      "target_z_mode_B": 0.0,
+      "start_error": null,
+      "end_error": null,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "target_boundary_index": 158,
+      "target_flagged_entry": null,
+      "all_flagged_boundaries": []
+    }
+  ],
+  "clip01_summary": {
+    "dataset": "Clip 01 (Full Ladder)",
+    "total_files": 11,
+    "flawed_files": 10,
+    "detection_rate": 0.6,
+    "direction_accuracy": 1.0,
+    "peak_z_mean": 0.623,
+    "peak_z_range": [
+      -3.516,
+      7.032
+    ],
+    "start_error_mean": 0.0008,
+    "start_error_range": [
+      0.0,
+      0.005
+    ],
+    "end_error_mean": 0.0008,
+    "end_error_range": [
+      0.0,
+      0.005
+    ],
+    "total_tp": 6,
+    "total_fp": 0,
+    "total_fn": 4
+  },
+  "clip02_summary": {
+    "dataset": "Clip 02 (Generalization)",
+    "total_files": 7,
+    "flawed_files": 6,
+    "detection_rate": 0.1667,
+    "direction_accuracy": 1.0,
+    "peak_z_mean": 0.285,
+    "peak_z_range": [
+      -1.597,
+      3.195
+    ],
+    "start_error_mean": 0.0,
+    "start_error_range": [
+      0.0,
+      0.0
+    ],
+    "end_error_mean": 0.0,
+    "end_error_range": [
+      0.0,
+      0.0
+    ],
+    "total_tp": 1,
+    "total_fp": 0,
+    "total_fn": 5
+  }
+}
