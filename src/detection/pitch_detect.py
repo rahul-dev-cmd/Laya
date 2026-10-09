@@ -50,13 +50,21 @@ if venv_py.exists() and sys.executable.lower() != str(venv_py).lower():
 
 from src.features.extract import compute_f0_contour
 
+from src.detection.config import (
+    PITCH_WINDOW_DURATION as WINDOW_DURATION,
+    PITCH_HOP_DURATION as HOP_DURATION,
+    PITCH_Z_SCORE_THRESHOLD as Z_SCORE_THRESHOLD,
+    PITCH_WORD_Z_THRESHOLD as WORD_Z_THRESHOLD,
+    PITCH_MIN_VOICED_FRAMES as MIN_VOICED_FRAMES,
+    PITCH_CONTRASTIVE_RATIO,
+    PITCH_CONTRASTIVE_DROP,
+    PITCH_MERGE_GAP_SECONDS,
+    PITCH_STAGE2_MARGIN_SECONDS,
+)
+
 # Reproducibility seed & sliding window parameters
 RANDOM_SEED: int = 42
-WINDOW_DURATION: float = 3.0       # 3.0 s sliding window
-HOP_DURATION: float = 0.1          # 100 ms step between sliding windows
-Z_SCORE_THRESHOLD: float = -2.0    # Window anomaly criterion: z <= -2.0 (flat intonation)
-WORD_Z_THRESHOLD: float = -1.5     # Word pitch spread compression criterion: z <= -1.5
-MIN_VOICED_FRAMES: int = 30        # At least 300 ms voiced speech in a 3s window
+
 
 PITCH_LADDER_SPEC = [
     {"wav": "librivox_01_pitch_tier1.wav", "json": "librivox_01_pitch_tier1.json", "k": 0.85, "tier": 1},
@@ -283,14 +291,17 @@ def detect_pitch_flaw_regions(
     word_z_threshold: float = WORD_Z_THRESHOLD,
     window_duration: float = WINDOW_DURATION,
     hop_duration: float = HOP_DURATION,
+    disable_contrastive_gate: bool = False,
+    cross_baseline_stats: Optional[Dict[str, Any]] = None,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]], float]:
     """Two-stage pitch anomaly detector: window flagging followed by per-word edge placement.
     
     Stage 1 (Window flagging):
     1. Computes cleaned F0 in semitones relative to speaker's baseline median F0.
     2. Slides 3.0s windows (100ms hop) and computes local F0 standard deviation.
-    3. Flags windows where z <= -2.0 that exhibit contrastive compression relative
-       to baseline delivery of that passage.
+    3. Flags windows where z <= -2.0. By default, applies contrastive gate relative
+       to baseline delivery of that passage; if disable_contrastive_gate=True,
+       flags based purely on z-score threshold (e.g., Mode B cross-speaker diagnostic).
     4. Merges overlapping / adjacent flagged windows into candidate flaw regions.
     
     Stage 2 (Per-word pitch spread edge placement):
@@ -308,12 +319,15 @@ def detect_pitch_flaw_regions(
         word_z_threshold: Per-word range compression cutoff (default: -1.5).
         window_duration: Window size (default: 3.0s).
         hop_duration: Hop size (default: 0.1s).
+        disable_contrastive_gate: If True, skips contrastive passage gate (Mode B).
+        cross_baseline_stats: Optional baseline stats from a different clip (cross-speaker).
         
     Returns:
         Tuple of (detected_regions, all_windows, flagged_windows, peak_z).
     """
-    b_mean = baseline_stats["mean_f0_sd"]
-    b_std = baseline_stats["std_f0_sd"]
+    active_baseline = cross_baseline_stats if cross_baseline_stats is not None else baseline_stats
+    b_mean = active_baseline["mean_f0_sd"]
+    b_std = active_baseline["std_f0_sd"]
     spk_med = baseline_stats["speaker_median_f0"]
     b_wins = baseline_stats["windows"]
     b_sds = [w["f0_sd"] for w in b_wins]
@@ -338,22 +352,25 @@ def detect_pitch_flaw_regions(
         w["z_score"] = round(float(z), 3)
         
         if z <= z_threshold:
-            osd = b_sds[idx] if idx < len(b_sds) else np.nan
-            # Contrastive check against baseline delivery:
-            # (at least 15% reduction in SD and >= 0.4 semitones drop)
-            if not np.isnan(osd) and (tsd <= osd * 0.85) and ((osd - tsd) >= 0.4):
+            if disable_contrastive_gate:
                 flagged_windows.append(w)
+            else:
+                osd = b_sds[idx] if idx < len(b_sds) else np.nan
+                # Contrastive check against baseline delivery:
+                # (at least 15% reduction in SD and >= 0.4 semitones drop)
+                if not np.isnan(osd) and (tsd <= osd * PITCH_CONTRASTIVE_RATIO) and ((osd - tsd) >= PITCH_CONTRASTIVE_DROP):
+                    flagged_windows.append(w)
 
     if not flagged_windows:
         return [], test_wins, [], 0.0
 
-    # Merge overlapping flagged windows: w['start'] <= curr_end + 0.35
+    # Merge overlapping flagged windows: w['start'] <= curr_end + PITCH_MERGE_GAP_SECONDS
     merged_groups: List[List[Dict[str, Any]]] = []
     curr = [flagged_windows[0]]
     curr_end = flagged_windows[0]["end"]
 
     for w in flagged_windows[1:]:
-        if w["start"] <= curr_end + 0.35:
+        if w["start"] <= curr_end + PITCH_MERGE_GAP_SECONDS:
             curr.append(w)
             curr_end = max(curr_end, w["end"])
         else:
@@ -380,10 +397,10 @@ def detect_pitch_flaw_regions(
         
         # Stage 2: per-word pitch spread edge placement
         if alignment_words and test_word_ranges is not None:
-            # Search words overlapping or around flagged window region (within 0.5s margin)
+            # Search words overlapping or around flagged window region (within margin)
             search_words = [
                 i for i, w in enumerate(alignment_words)
-                if float(w["end"]) >= raw_start - 0.5 and float(w["start"]) <= raw_end + 0.5
+                if float(w["end"]) >= raw_start - PITCH_STAGE2_MARGIN_SECONDS and float(w["start"]) <= raw_end + PITCH_STAGE2_MARGIN_SECONDS
             ]
             
             comp_indices = []

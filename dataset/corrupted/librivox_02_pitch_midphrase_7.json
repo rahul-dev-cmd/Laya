@@ -1,0 +1,47 @@
+{
+  "source_clip": "librivox_02.wav",
+  "source_audio_path": "dataset/sources/librivox_02.wav",
+  "flaw_type": "pitch",
+  "description": "Pitch dynamic range compression (flat / monotone intonation flaw)",
+  "tier": "clip02_midphrase_7",
+  "k": 0.65,
+  "is_monotone": false,
+  "phrase_median_f0_hz": 107.45,
+  "words": [
+    "in",
+    "hand",
+    "I",
+    "wished",
+    "to",
+    "reply",
+    "to",
+    "some",
+    "remarks"
+  ],
+  "phrase_text": "in hand I wished to reply to some remarks",
+  "phrase_word_count": 9,
+  "original_region": {
+    "start_seconds": 61.92,
+    "end_seconds": 65.6,
+    "duration_seconds": 3.68
+  },
+  "flaw_region": {
+    "start_seconds": 61.92,
+    "end_seconds": 65.6,
+    "duration_seconds": 3.68
+  },
+  "corrupted_timeline": {
+    "flaw_start_seconds": 61.92,
+    "flaw_end_seconds": 65.6,
+    "time_shift_seconds": 0.0
+  },
+  "crossfade_details": {
+    "crossfade_ms": 10.0,
+    "crossfade_samples": 160
+  },
+  "audio_info": {
+    "sample_rate": 16000,
+    "original_duration_seconds": 91.0,
+    "corrupted_duration_seconds": 90.98
+  }
+}

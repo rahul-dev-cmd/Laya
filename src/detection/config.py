@@ -58,6 +58,19 @@ CLIP_01_TARGET_PAUSE: Tuple[int, int] = (86, 87)
 CLIP_02_CHOSEN_WORDS: Tuple[int, int] = (156, 164)
 CLIP_02_TARGET_PAUSE: Tuple[int, int] = (158, 159)
 
+# =====================================================================
+# Pitch Detection Frozen Constants & Thresholds
+# =====================================================================
+PITCH_WINDOW_DURATION: float = 3.0          # 3.0 s sliding window
+PITCH_HOP_DURATION: float = 0.1             # 100 ms step between sliding windows
+PITCH_Z_SCORE_THRESHOLD: float = -2.0       # Window anomaly criterion: z <= -2.0 (flat intonation)
+PITCH_WORD_Z_THRESHOLD: float = -1.5        # Word pitch spread compression criterion: z <= -1.5
+PITCH_MIN_VOICED_FRAMES: int = 30           # At least 300 ms voiced speech in a 3s window
+PITCH_CONTRASTIVE_RATIO: float = 0.85       # At least 15% reduction in SD relative to baseline
+PITCH_CONTRASTIVE_DROP: float = 0.4         # At least 0.4 semitones drop relative to baseline
+PITCH_MERGE_GAP_SECONDS: float = 0.35       # Max gap (s) between overlapping/adjacent flagged windows
+PITCH_STAGE2_MARGIN_SECONDS: float = 0.5    # Search margin around flagged windows for word edge refinement
+
 
 def print_detection_config() -> None:
     """Print active detection thresholds at the start of each run."""
@@ -72,3 +85,20 @@ def print_detection_config() -> None:
     print(f"  Rushed Tier Multipliers:    {RUSHED_TIERS}")
     print(f"  Draggy Tier Multipliers:    {DRAGGY_TIERS}")
     print("=" * 70)
+
+
+def print_pitch_detection_config() -> None:
+    """Print active pitch detection thresholds at the start of each run."""
+    print("=" * 70)
+    print("  PITCH DETECTION CONFIGURATION THRESHOLDS")
+    print("=" * 70)
+    print(f"  Sliding Window Duration:    {PITCH_WINDOW_DURATION:.1f} s")
+    print(f"  Window Hop Duration:        {PITCH_HOP_DURATION:.2f} s (100 ms)")
+    print(f"  Window Z-Score Threshold:   z <= {PITCH_Z_SCORE_THRESHOLD:.1f}")
+    print(f"  Word Z-Score Threshold:     z <= {PITCH_WORD_Z_THRESHOLD:.1f}")
+    print(f"  Minimum Voiced Frames:      {PITCH_MIN_VOICED_FRAMES} frames")
+    print(f"  Contrastive Drop Criterion: SD <= {PITCH_CONTRASTIVE_RATIO*100:.0f}% baseline & drop >= {PITCH_CONTRASTIVE_DROP:.2f} st")
+    print(f"  Window Merge Gap:           {PITCH_MERGE_GAP_SECONDS:.2f} s")
+    print(f"  Stage 2 Search Margin:      {PITCH_STAGE2_MARGIN_SECONDS:.2f} s")
+    print("=" * 70)
+
