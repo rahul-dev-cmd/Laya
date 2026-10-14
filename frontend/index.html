@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laya - Contrastive Speech Analytics</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Plotly.js for stacked multi-track subplots and stress test charts -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Header Strip -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="header-title-group">
+        <h1 class="header-title">Laya</h1>
+        <span class="header-badge">Temporal Flaw Grounding</span>
+      </div>
+      <div>
+        <span id="modeBadge" class="mode-badge">Loading mode...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Container -->
+  <main class="main-container">
+
+    <!-- Controls Row: Example Picker + Upload Panel -->
+    <div class="controls-grid">
+      
+      <!-- Example Picker Card -->
+      <section class="card">
+        <h2 class="card-title">Precomputed Examples</h2>
+        <div class="form-group">
+          <label for="exampleSelect" class="form-label">Select Dataset Clip</label>
+          <select id="exampleSelect" class="form-select">
+            <option value="librivox_01_pitch_tier5">librivox_01_pitch_tier5</option>
+            <option value="librivox_01_rate_tier4">librivox_01_rate_tier4</option>
+          </select>
+        </div>
+        <button id="btnLoadExample" class="btn btn-primary" type="button">Load Example</button>
+      </section>
+
+      <!-- Upload Panel Card -->
+      <section class="card">
+        <h2 class="card-title">Analyze Speech Recording</h2>
+        <form id="uploadForm">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm);">
+            <div class="form-group">
+              <label for="fileAudio" class="form-label">Audio WAV (Participant)</label>
+              <input type="file" id="fileAudio" name="audio_file" accept=".wav,.mpeg,.mp3" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label for="fileReference" class="form-label">Reference WAV (Optional)</label>
+              <input type="file" id="fileReference" name="reference_file" accept=".wav,.mpeg,.mp3" class="form-input">
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm);">
+            <div class="form-group">
+              <label for="whisperModel" class="form-label">Whisper Model Size</label>
+              <select id="whisperModel" name="whisper_model" class="form-select">
+                <option value="small.en" selected>small.en (default)</option>
+                <option value="tiny.en">tiny.en</option>
+                <option value="base.en">base.en</option>
+                <option value="medium.en">medium.en</option>
+              </select>
+            </div>
+            <div class="form-group" style="display: flex; flex-direction: column; justify-content: flex-end;">
+              <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: 8px;">
+                CPU, int8, beam size 5, seed 42
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="transcriptText" class="form-label">Transcript Text (Optional)</label>
+            <textarea id="transcriptText" name="transcript_text" class="form-textarea" placeholder="Leave empty to transcribe automatically"></textarea>
+            <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: 4px;">Leave empty to transcribe automatically</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: var(--space-md);">
+            <button id="btnSubmitAnalyze" class="btn btn-secondary" type="submit">Run Analysis</button>
+            <span id="uploadStatus" class="form-label" style="margin: 0; color: var(--color-text);"></span>
+          </div>
+        </form>
+      </section>
+
+    </div>
+
+    <!-- Transcript Review Panel (Shown after analysis) -->
+    <section class="card" id="transcriptReviewCard" style="display: none; margin-bottom: var(--space-lg);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
+        <div style="display: flex; align-items: center; gap: var(--space-sm);">
+          <h2 class="card-title" id="transcriptReviewLabel" style="margin: 0; border-bottom: none;">Transcript Review</h2>
+          <span id="transcriptSourceBadge" class="transcript-source-badge">auto</span>
+        </div>
+        <button id="btnRerun" class="btn btn-primary" type="button">Re-run</button>
+      </div>
+
+      <!-- Low Confidence Alert Section with Label: Check these words -->
+      <div id="lowConfidenceSection" class="low-confidence-section" style="display: none;">
+        <div class="low-confidence-header">
+          <span class="low-confidence-tag">Check these words</span>
+          <span id="lowConfidenceCount" class="low-confidence-count">0 words with confidence &lt; 0.6</span>
+        </div>
+        <div id="lowConfidenceChips" class="low-confidence-chips"></div>
+      </div>
+
+      <div class="form-group" style="margin: 0;">
+        <label for="transcriptReviewText" class="form-label">Editable Transcript</label>
+        <textarea id="transcriptReviewText" class="form-textarea" rows="4"></textarea>
+      </div>
+    </section>
+
+    <!-- Results Hero Strip: Headline Sentence + 3 Data Counters -->
+    <section class="results-hero">
+      <div class="result-sentence-card">
+        <span class="result-sentence-label">Analysis Result</span>
+        <div id="resultSentenceText" class="result-sentence-text">Loading analysis...</div>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Regions Flagged</span>
+        <div id="statRegionCount" class="stat-value">-</div>
+        <div id="statRegionType" class="stat-subtext">-</div>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Flagged Duration</span>
+        <div id="statFlaggedDuration" class="stat-value">-</div>
+        <div id="statTotalDuration" class="stat-subtext">-</div>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Peak Deviation</span>
+        <div id="statPeakZ" class="stat-value">-</div>
+        <div class="stat-subtext">peak normalized z-score</div>
+      </div>
+    </section>
+
+    <!-- Stacked Acoustic Tracks Card -->
+    <section class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-xs);">
+        <h2 class="card-title" style="margin-bottom: 0; border-bottom: none;">Acoustic Contours and Temporal Flaws</h2>
+        <div id="injectedLegendBadge" style="display: none;" class="gt-banner">
+          Injected ground-truth region is shown as an outlined green bracket
+        </div>
+      </div>
+
+      <div class="legend-row">
+        <div class="legend-item">
+          <div class="legend-line recording"></div>
+          <span>Recording (solid)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-line reference"></div>
+          <span>Reference take (dashed grey)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-box flagged"></div>
+          <span>Flagged flaw region (|z| &gt;= 2.0)</span>
+        </div>
+        <div class="legend-item" id="legendInjectedItem" style="display: none;">
+          <div class="legend-box injected"></div>
+          <span>Injected (ground truth)</span>
+        </div>
+      </div>
+
+      <!-- Playback Bar -->
+      <div class="audio-bar">
+        <div class="audio-controls">
+          <button id="btnPlayPause" class="btn btn-primary btn-sm" type="button">Play</button>
+          <button id="btnStop" class="btn btn-secondary btn-sm" type="button">Reset</button>
+        </div>
+        <div id="audioTimeDisplay" class="audio-time">0:00.0 / 0:00.0</div>
+        <div id="audioStatusDisplay" class="audio-status">Audio ready</div>
+        <audio id="audioPlayer" preload="auto" style="display: none;"></audio>
+      </div>
+
+      <!-- Plotly Subplots Target -->
+      <div id="stackedTracksPlot" class="plot-container"></div>
+    </section>
+
+    <!-- Flagged Regions Table and Why It Was Flagged Card -->
+    <div class="details-grid">
+      
+      <!-- List of Flagged Regions -->
+      <section class="card">
+        <h2 class="card-title">Detected Flaw Regions</h2>
+        <div class="data-table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Time Range</th>
+                <th>Duration</th>
+                <th>Peak z</th>
+                <th>Severity</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="regionsTableBody">
+              <tr>
+                <td colspan="6" class="empty-state">No flaw regions loaded.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Why It Was Flagged Card -->
+      <section class="card">
+        <h2 class="card-title">Why It Was Flagged</h2>
+        <div id="whyFlaggedContainer" class="why-flagged-content">
+          <div class="empty-state">Select a flaw region above to inspect its metrics.</div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Stress Test Card -->
+    <section class="card">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;">
+        <h2 class="card-title">Stress Test Ladders (LibriVox Clip 01 Benchmark)</h2>
+        <span class="stat-subtext">Detection ladder results across corruption tiers</span>
+      </div>
+
+      <div class="tab-row">
+        <button id="tabPitchLadder" class="tab-btn active" type="button">Pitch Monotone Ladder</button>
+        <button id="tabRateLadder" class="tab-btn" type="button">Speech Rate Ladder</button>
+      </div>
+
+      <div class="stress-grid">
+        <div>
+          <div id="stressLadderPlot" class="stress-plot"></div>
+        </div>
+        <div class="data-table-container">
+          <table class="data-table">
+            <thead>
+              <tr id="stressTableHead">
+                <th>File</th>
+                <th>Parameter</th>
+                <th>Peak z</th>
+                <th>Detected</th>
+                <th>IoU</th>
+              </tr>
+            </thead>
+            <tbody id="stressTableBody">
+              <tr>
+                <td colspan="5" class="empty-state">Loading stress test benchmark data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Dashboard JavaScript Logic -->
+  <script src="app.js"></script>
+</body>
+</html>

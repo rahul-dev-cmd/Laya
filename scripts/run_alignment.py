@@ -23,6 +23,36 @@ from src.config import (
 from src.utils.io import read_transcript
 from src.alignment.aligner import align_speech
 
+def run_alignment(
+    audio_path: str | Path,
+    transcript_text: str | None = None,
+    output_path: str | Path | None = None,
+    device: str = DEFAULT_DEVICE,
+    model_size: str = "base.en",
+    seed: int = RANDOM_SEED,
+) -> dict:
+    """Run WhisperX alignment on audio with optional transcript text."""
+    audio_path = Path(audio_path)
+    if not audio_path.is_file():
+        raise FileNotFoundError(f"Audio file not found at {audio_path}")
+
+    out_json = output_path
+    if out_json is None:
+        out_json = PROCESSED_DATA_DIR / f"{audio_path.stem}_aligned.json"
+
+    print(f"[Run] Aligning: {audio_path.name}")
+    print(f"[Run] Device: {device} | Model: {model_size} | Seed: {seed}")
+
+    result = align_speech(
+        audio_path=audio_path,
+        transcript_text=transcript_text,
+        output_json_path=out_json,
+        device=device,
+        model_size=model_size,
+        seed=seed,
+    )
+    return result
+
 def main():
     parser = argparse.ArgumentParser(
         description="Run WhisperX word-level alignment on a speech audio file and transcript."
@@ -86,13 +116,10 @@ def main():
     if out_json is None:
         out_json = PROCESSED_DATA_DIR / f"{audio_path.stem}_aligned.json"
 
-    print(f"[Run] Aligning: {audio_path.name}")
-    print(f"[Run] Device: {args.device} | Model: {args.model} | Seed: {args.seed}")
-
-    result = align_speech(
+    result = run_alignment(
         audio_path=audio_path,
         transcript_text=transcript_text,
-        output_json_path=out_json,
+        output_path=out_json,
         device=args.device,
         model_size=args.model,
         seed=args.seed,

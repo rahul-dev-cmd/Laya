@@ -12,12 +12,13 @@ import sys
 import os
 from pathlib import Path
 
-# Prefer project's virtual environment if available.
-venv_py = Path(__file__).resolve().parent / ".venv" / "Scripts" / "python.exe"
-if venv_py.exists() and sys.executable.lower() != str(venv_py).lower():
-    import subprocess
-    result = subprocess.call([str(venv_py), __file__] + sys.argv[1:])
-    sys.exit(result)
+# Prefer project's virtual environment if available when invoked directly.
+if __name__ == "__main__":
+    venv_py = Path(__file__).resolve().parent / ".venv" / "Scripts" / "python.exe"
+    if venv_py.exists() and sys.executable.lower() != str(venv_py).lower():
+        import subprocess
+        result = subprocess.call([str(venv_py), __file__] + sys.argv[1:])
+        sys.exit(result)
 
 import faster_whisper
 
@@ -40,9 +41,13 @@ def align_transcript_to_audio(
     wav_path: str | Path,
     transcript_path: str | Path,
     output_csv_path: str | Path | None = None,
-    model_size: str = "base.en",
+    model_size: str = "small.en",
     device: str = "cpu",
     compute_type: str = "int8",
+    beam_size: int = 5,
+    seed: int = 42,
+    initial_prompt: str = "Um, uh, so, I mean, like, you know.",
+    condition_on_previous_text: bool = False,
 ) -> Tuple[List[Dict[str, Any]], List[str]]:
     """Align reference transcript words to audio using Whisper word timestamps.
     
@@ -50,9 +55,13 @@ def align_transcript_to_audio(
         wav_path: Path to input WAV file.
         transcript_path: Path to reference transcript text file.
         output_csv_path: Path to save the alignment CSV. If None, saves next to wav.
-        model_size: Whisper model size (default: base.en).
+        model_size: Whisper model size (default: small.en).
         device: Device to run inference on (default: cpu).
         compute_type: Computation type (default: int8).
+        beam_size: Beam search width (default: 5).
+        seed: Random seed for reproducibility (default: 42).
+        initial_prompt: Prompt encouraging retention of disfluencies.
+        condition_on_previous_text: Whether to condition on preceding text (default: False).
         
     Returns:
         Tuple of (aligned_words_list, unplaced_words_list)
@@ -69,11 +78,23 @@ def align_transcript_to_audio(
     with open(transcript_path, "r", encoding="utf-8") as f:
         raw_words = f.read().split()
 
+    try:
+        import ctranslate2
+        ctranslate2.set_random_seed(seed)
+    except (ImportError, AttributeError):
+        pass
+
     print(f"[Aligner] Loading Whisper model '{model_size}' on {device} ({compute_type})...")
     model = faster_whisper.WhisperModel(model_size, device=device, compute_type=compute_type)
 
     print(f"[Aligner] Transcribing audio '{wav_path.name}' with word-level timestamps...")
-    segments, info = model.transcribe(str(wav_path), word_timestamps=True)
+    segments, info = model.transcribe(
+        str(wav_path),
+        word_timestamps=True,
+        beam_size=beam_size,
+        condition_on_previous_text=condition_on_previous_text,
+        initial_prompt=initial_prompt,
+    )
     
     whisper_words = []
     for s in segments:
@@ -103,6 +124,7 @@ def align_transcript_to_audio(
                     "word": strip_punctuation(raw_words[t_idx]),
                     "start_seconds": whisper_words[w_idx]["start"],
                     "end_seconds": whisper_words[w_idx]["end"],
+                    "confidence": whisper_words[w_idx]["probability"],
                 })
         elif tag == "delete":
             # Words present in reference transcript but completely missing/omitted in speech
@@ -111,8 +133,17 @@ def align_transcript_to_audio(
                 unplaced_words.append(unplaced)
                 print(f"[Aligner] Word could not be placed in audio: '{unplaced}' (transcript index {t_idx})")
         elif tag == "insert":
-            # Audio has extra recognized token not in transcript; ignore
-            pass
+            # If the model returned filler words (such as uh, um), treat them as words so they are not counted as pause time
+            for w_idx in range(j1, j2):
+                w_obj = whisper_words[w_idx]
+                token = clean_token(w_obj["word"])
+                if token in {"uh", "um", "umm", "uhh", "er", "ah", "erm"}:
+                    aligned_rows.append({
+                        "word": strip_punctuation(w_obj["word"]),
+                        "start_seconds": w_obj["start"],
+                        "end_seconds": w_obj["end"],
+                        "confidence": w_obj["probability"],
+                    })
         elif tag == "replace":
             t_sub = raw_words[i1:i2]
             w_sub = whisper_words[j1:j2]
@@ -129,6 +160,7 @@ def align_transcript_to_audio(
             lengths = [max(1, len(clean_token(w))) for w in t_sub]
             total_len = sum(lengths)
             curr_start = span_start
+            avg_prob = round(sum(ww["probability"] for ww in w_sub) / len(w_sub), 4) if w_sub else 0.5
 
             for idx, w in enumerate(t_sub):
                 w_dur = round(span_dur * (lengths[idx] / total_len), 3)
@@ -137,8 +169,12 @@ def align_transcript_to_audio(
                     "word": strip_punctuation(w),
                     "start_seconds": curr_start,
                     "end_seconds": w_end,
+                    "confidence": avg_prob,
                 })
                 curr_start = w_end
+
+    # Ensure chronological order in case inserted fillers were appended
+    aligned_rows.sort(key=lambda r: r["start_seconds"])
 
     # Post-process: ensure all words have a strictly positive duration
     for k in range(len(aligned_rows)):
@@ -154,12 +190,45 @@ def align_transcript_to_audio(
             else:
                 aligned_rows[k]["end_seconds"] = round(s + 0.08, 3)
 
+    if unplaced_words:
+        print(f"[Aligner] {len(unplaced_words)} words unplaced via ASR. Resolving via WhisperX CTC alignment...")
+        try:
+            import whisperx
+            import soundfile as sf
+            audio_arr, _ = sf.read(str(wav_path), dtype="float32")
+            align_model, align_meta = whisperx.load_align_model(language_code="en", device=device)
+            full_text = " ".join(raw_words)
+            res = whisperx.align(
+                [{"text": full_text, "start": 0.0, "end": len(audio_arr) / 16000.0}],
+                align_model,
+                align_meta,
+                audio_arr,
+                device,
+                return_char_alignments=False,
+            )
+            aligned_rows = [
+                {
+                    "word": strip_punctuation(w["word"]),
+                    "start_seconds": round(float(w["start"]), 3),
+                    "end_seconds": round(float(w["end"]), 3),
+                    "confidence": round(float(w.get("score", 1.0)), 4),
+                }
+                for w in res.get("word_segments", [])
+                if "start" in w and "end" in w
+            ]
+            unplaced_words = []
+            print(f"[Aligner] WhisperX resolved alignment: {len(aligned_rows)} words placed successfully.")
+        except Exception as e:
+            print(f"[Aligner] WhisperX fallback encountered error: {e}")
+
     # 3. Write CSV output
     output_csv_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_csv_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["word", "start_seconds", "end_seconds"])
+        writer = csv.DictWriter(f, fieldnames=["word", "start_seconds", "end_seconds", "confidence"])
         writer.writeheader()
         for row in aligned_rows:
+            if "confidence" not in row:
+                row["confidence"] = 1.0
             writer.writerow(row)
 
     print(f"[Aligner] Successfully wrote {len(aligned_rows)} aligned words to '{output_csv_path}'")
@@ -177,7 +246,7 @@ def main():
     parser.add_argument("audio", nargs="?", default=None, help="Path to audio WAV file")
     parser.add_argument("transcript", nargs="?", default=None, help="Path to transcript TXT file")
     parser.add_argument("output", nargs="?", default=None, help="Path to output CSV file")
-    parser.add_argument("--model", default="base.en", help="Whisper model size (default: base.en)")
+    parser.add_argument("--model", default="small.en", help="Whisper model size (default: small.en)")
     parser.add_argument("--device", default="cpu", help="Inference device (default: cpu)")
     parser.add_argument("--all", action="store_true", help="Process both default dataset clips (librivox_01 and librivox_02)")
 

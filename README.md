@@ -186,3 +186,33 @@ The speech rate / tempo flaw ladder evaluates local articulation rate perturbati
 - [x] **Phase 3**: Full 8-point speech tempo flaw ladder generation (5 speed-up + 3 slow-down).
 - [ ] **Phase 4**: Acoustic feature extraction (F0 semitones, energy z-scores, MFCCs, HNR, pauses).
 - [ ] **Phase 5**: Interactive Contrastive Dashboard (Next.js + WaveSurfer.js).
+
+---
+
+## Laya Dashboard
+
+Run the interactive dashboard with one command:
+
+```powershell
+python backend/app.py
+```
+
+Alternatively, run via uvicorn directly:
+
+```powershell
+uvicorn backend.app:app --host 127.0.0.1 --port 8000
+```
+
+Once started, open http://127.0.0.1:8000 in your browser.
+
+### Dashboard Features
+- Example picker loading precomputed analysis JSON files (default: librivox_01_pitch_tier5).
+- Audio upload form with transcript and optional reference WAV for live pipeline analysis.
+- Stacked Plotly tracks sharing a synchronized time axis: Waveform, Pitch (F0 semitones), Energy (RMS z-score), and Speech Rate (words per second).
+- Shaded flaw columns spanning all tracks with region tabs.
+- Outlined ground truth bracket for injected regions when corruption metadata exists.
+- Interactive audio playback with synchronized vertical playhead and jump navigation.
+- Why it was flagged card with quantitative breakdown: observed value, baseline mean, baseline spread, threshold, and z calculation.
+- Stress test card displaying detection ladders for pitch and rate perturbations against the threshold line.
+- Mode indicator showing Paired or Experimental mode based on reference availability.
+

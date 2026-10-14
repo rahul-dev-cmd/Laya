@@ -24,3 +24,10 @@ def set_seed(seed: int = 42) -> None:
             torch.backends.cudnn.benchmark = False
     except ImportError:
         pass
+
+    try:
+        import ctranslate2
+        ctranslate2.set_random_seed(seed)
+    except (ImportError, AttributeError):
+        pass
+

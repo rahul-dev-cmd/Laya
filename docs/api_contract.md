@@ -13,6 +13,8 @@ result = analyze(
     audio_wav="path/to/participant.wav",
     transcript_txt="path/to/transcript.txt",
     reference_wav="path/to/reference.wav",  # Optional: omit for experimental mode
+    whisper_model="small.en",              # Optional: tiny.en, base.en, small.en, medium.en
+    transcript_source=None,                # Optional: "provided", "auto", or "edited"
 )
 ```
 
@@ -27,10 +29,14 @@ result = analyze(
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | `mode` | `string` | Either `"paired"` or `"experimental"`. |
+| `mode_note` | `string \| null` | Explanatory note if paired mode switched to experimental (e.g. match rate < 60%), otherwise `null`. |
 | `duration` | `float` | Duration of the participant audio recording in seconds. |
 | `audio_file` | `string` | Resolved file path to the participant audio WAV. |
 | `reference_file` | `string \| null` | Resolved file path to reference audio WAV, or `null` if unassisted. |
-| `words` | `array[object]` | Chronological word list with forced alignment timestamps. |
+| `transcript_source` | `string` | One of `"provided"`, `"auto"`, or `"edited"`. |
+| `transcript` | `string` | Full transcript text used for forced alignment and speech analysis. |
+| `word_match_rate` | `float \| null` | Proportion of words matched between participant and reference via difflib (0.0 to 1.0), or `null`. |
+| `words` | `array[object]` | Chronological word list with forced alignment timestamps and confidence values. |
 | `curves` | `object` | Frame-level continuous acoustic feature curves at a uniform 10 ms hop (100 Hz). |
 | `flaw_regions` | `array[object]` | Temporal flaw intervals identified by frozen detector rules ($|z| \ge 2.0$). |
 
@@ -45,18 +51,21 @@ Array of aligned tokens:
   {
     "word": "However",
     "start": 53.900,
-    "end": 54.280
+    "end": 54.280,
+    "confidence": 0.945
   },
   {
     "word": "this",
     "start": 54.280,
-    "end": 54.420
+    "end": 54.420,
+    "confidence": 0.880
   }
 ]
 ```
 * `word` (`string`): The spoken word token (stripped of surrounding punctuation).
 * `start` (`float`): Start timestamp in seconds.
 * `end` (`float`): End timestamp in seconds.
+* `confidence` (`float`): Alignment confidence score between 0.0 and 1.0.
 
 ---
 
