@@ -66,7 +66,7 @@ def download_and_preprocess() -> Path:
     # 1. Download raw MP3 if not already present
     if not raw_mp3.is_file():
         print(f"[Download] Fetching verified LibriVox audio from:\n  {AUDIO_SOURCE_URL}")
-        headers = {"User-Agent": "SecondTakeSpeechAnalytics/1.0"}
+        headers = {"User-Agent": "LayaSpeechAnalytics/1.0"}
         req = urllib.request.Request(AUDIO_SOURCE_URL, headers=headers)
         with urllib.request.urlopen(req) as resp, open(raw_mp3, "wb") as out_f:
             out_f.write(resp.read())

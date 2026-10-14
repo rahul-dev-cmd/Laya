@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preparation script for new speech clips in Second Take dataset.
+"""Preparation script for new speech clips in Laya dataset.
 
 Inputs:
     1. mp3 path: Path to source MP3 recording

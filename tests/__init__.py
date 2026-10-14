@@ -1,1 +1,1 @@
-"""Tests for Second Take."""
+"""Tests for Laya."""
