@@ -53,3 +53,5 @@ Thumbs.db
 scratch/
 
 dataset/features/
+dataset/backup/
+*_auto_alignment.csv
