@@ -202,6 +202,11 @@
             </tbody>
           </table>
         </div>
+
+        <div class="explanation-btn-row">
+          <button id="btnExplainReport" class="btn btn-secondary btn-sm" type="button">Explain in simple words</button>
+          <span id="explainLoadingSpinner" class="explain-spinner" style="display: none;">Loading plain-language explanation...</span>
+        </div>
       </section>
 
       <!-- Why It Was Flagged Card -->
@@ -213,6 +218,49 @@
       </section>
 
     </div>
+
+    <!-- Plain Language Explanation Card -->
+    <section id="explanationCard" class="card explanation-card" style="display: none;">
+      <div class="explanation-header">
+        <div>
+          <h2 id="explanationCardTitle" class="explanation-title">AI-written explanation of the measurements above</h2>
+          <p class="explanation-note">Only the measurements were sent, not your audio</p>
+        </div>
+        <span id="explanationSourceBadge" class="source-badge ai">AI</span>
+      </div>
+
+      <div class="explanation-content">
+        <!-- Summary -->
+        <div class="explanation-block">
+          <h3 class="explanation-subtitle">Summary</h3>
+          <p id="explanationSummary" class="explanation-text"></p>
+        </div>
+
+        <!-- What Happened -->
+        <div class="explanation-block">
+          <h3 class="explanation-subtitle">What Happened</h3>
+          <div id="explanationWhatHappened" class="explanation-paragraphs"></div>
+        </div>
+
+        <!-- Why It Matters -->
+        <div class="explanation-block">
+          <h3 class="explanation-subtitle">Why It Matters</h3>
+          <p id="explanationWhyMatters" class="explanation-text"></p>
+        </div>
+
+        <!-- Practice Tips -->
+        <div class="explanation-block">
+          <h3 class="explanation-subtitle">Practice Tips</h3>
+          <div id="explanationPracticeTips" class="practice-tips-container"></div>
+        </div>
+
+        <!-- Caveats -->
+        <div id="explanationCaveatsBlock" class="caveats-block">
+          <h3 class="explanation-subtitle" style="font-size: 11px;">Conditions &amp; Caveats</h3>
+          <p id="explanationCaveats" class="explanation-text" style="font-size: 12px; color: var(--color-text-muted);"></p>
+        </div>
+      </div>
+    </section>
 
     <!-- Stress Test Card -->
     <section class="card">

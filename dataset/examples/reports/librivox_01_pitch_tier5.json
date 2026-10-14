@@ -1,0 +1,16 @@
+{
+  "summary": "One region from 54.58 to 58.84 seconds showed unusually low pitch variation, making the delivery flat or monotone.",
+  "what_happened": [
+    "From 54.58 seconds to 58.84 seconds (duration 4.26 seconds), the pitch variation was too small, resulting in a flat or monotone delivery; the observed standard deviation of pitch was 0.037 semitones."
+  ],
+  "why_it_matters": "When pitch variation is minimal, the speech can sound monotonous, making it harder for listeners to stay engaged and to perceive emphasis or emotion.",
+  "practice_tips": {
+    "pitch": [
+      "Stress the key word of each sentence and lift the pitch on it.",
+      "Read a paragraph with exaggerated expression before returning to normal.",
+      "Vary your pitch contour across phrases instead of holding a flat monotone tone."
+    ]
+  },
+  "caveats": "Compared with an ideal recording of the same speech",
+  "source": "ai"
+}

@@ -43,6 +43,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from backend.report import router as report_router
 from src.pipeline.analyze import analyze
 
 app = FastAPI(
@@ -59,6 +60,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount AI report explanation endpoints
+app.include_router(report_router)
 
 FRONTEND_DIR = PROJECT_ROOT / "frontend"
 EXAMPLES_DIR = PROJECT_ROOT / "dataset" / "examples"

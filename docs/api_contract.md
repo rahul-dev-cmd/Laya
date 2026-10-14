@@ -232,3 +232,60 @@ python src/pipeline/analyze.py `
     --reference dataset/sources/librivox_01.wav `
     --output dataset/examples/librivox_01_rate_tier4.json
 ```
+
+---
+
+## Explanation Layer (`POST /api/report`)
+
+The explanation service converts raw measurement numbers and flagged regions into plain-language feedback. It accepts the analysis JSON payload and returns structured feedback with verified numeric grounding.
+
+### Endpoint: `POST /api/report`
+
+**Request Payload:**
+```json
+{
+  "duration": 94.98,
+  "mode": "paired",
+  "transcript_source": "auto",
+  "example_id": "librivox_01_pitch_tier5",
+  "flaw_regions": [
+    {
+      "type": "pitch",
+      "start": 54.58,
+      "end": 58.84,
+      "z": -4.478,
+      "severity": "tier 5 (severe)",
+      "observed_value": 0.037,
+      "unit": "semitones",
+      "baseline_mean": 2.9295,
+      "baseline_spread": 0.646,
+      "threshold": -2.0,
+      "explanation": "Pitch intonation is monotone / flat..."
+    }
+  ]
+}
+```
+
+**Response Payload:**
+```json
+{
+  "source": "ai",
+  "summary": "We analyzed 94.98 seconds of speech and identified 1 delivery variation region involving pitch, with a peak deviation score of z = -4.48.",
+  "what_happened": [
+    "From 54.58s to 58.84s (4.26 seconds duration), the speaker's vocal inflection was exceptionally flat (tier 5 (severe)). Measured pitch standard deviation dropped to 0.037 semitones compared to the baseline average of 2.93 semitones (deviation z = -4.48)."
+  ],
+  "why_it_matters": "Listeners depend on melodic pitch inflection and predictable pause boundaries to absorb spoken ideas effortlessly. Monotone stretches make it difficult for listeners to identify key takeaways.",
+  "practice_tips": {
+    "pitch": [
+      "Mark the central concept in each sentence and deliberately lift your pitch on that target word.",
+      "Practice reading a short paragraph aloud with exaggerated storytelling intonation before returning to conversational level.",
+      "Ensure the final word of declarative statements finishes on a gentle downward pitch cadence."
+    ]
+  },
+  "caveats": "Analysis was compared directly against a paired reference take."
+}
+```
+
+### Fallback Guarantee
+If LLM credentials are unset, the provider returns an error, the call exceeds the 30-second timeout, or any extracted number fails ground-truth verification, the endpoint returns the deterministic template report with `source: "template"`.
+

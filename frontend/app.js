@@ -18,6 +18,7 @@ const state = {
   currentTime: 0.0,
   duration: 95.0,
   animationFrameId: null,
+  currentReport: null,
 };
 
 // DOM element references
@@ -58,6 +59,17 @@ const elements = {
   lowConfidenceSection: document.getElementById("lowConfidenceSection"),
   lowConfidenceCount: document.getElementById("lowConfidenceCount"),
   lowConfidenceChips: document.getElementById("lowConfidenceChips"),
+  btnExplainReport: document.getElementById("btnExplainReport"),
+  explainLoadingSpinner: document.getElementById("explainLoadingSpinner"),
+  explanationCard: document.getElementById("explanationCard"),
+  explanationCardTitle: document.getElementById("explanationCardTitle"),
+  explanationSourceBadge: document.getElementById("explanationSourceBadge"),
+  explanationSummary: document.getElementById("explanationSummary"),
+  explanationWhatHappened: document.getElementById("explanationWhatHappened"),
+  explanationWhyMatters: document.getElementById("explanationWhyMatters"),
+  explanationPracticeTips: document.getElementById("explanationPracticeTips"),
+  explanationCaveats: document.getElementById("explanationCaveats"),
+  explanationCaveatsBlock: document.getElementById("explanationCaveatsBlock"),
 };
 
 /**
@@ -143,6 +155,11 @@ function setupEventListeners() {
   elements.btnPlayPause.addEventListener("click", togglePlayback);
   elements.btnStop.addEventListener("click", resetPlayback);
 
+  // Explain in simple words button
+  if (elements.btnExplainReport) {
+    elements.btnExplainReport.addEventListener("click", handleExplainClick);
+  }
+
   // Audio element events
   elements.audioPlayer.addEventListener("timeupdate", onAudioTimeUpdate);
   elements.audioPlayer.addEventListener("ended", onAudioEnded);
@@ -210,6 +227,7 @@ async function loadExample(name) {
     state.selectedRegionIndex = 0;
     renderDashboard(data);
     elements.uploadStatus.textContent = "";
+    prefetchExampleReport(name);
   } catch (err) {
     elements.uploadStatus.textContent = "Error loading example: " + err.message;
     console.error("Error loading example:", err);
@@ -368,6 +386,12 @@ async function loadLaddersData() {
  */
 function renderDashboard(data) {
   if (!data) return;
+
+  // Reset explanation state
+  state.currentReport = null;
+  if (elements.explanationCard) {
+    elements.explanationCard.style.display = "none";
+  }
 
   // 1. Mode Badge
   const isPaired = data.mode === "paired";
@@ -1109,4 +1133,198 @@ function renderStressTest() {
   };
 
   Plotly.newPlot("stressLadderPlot", [traceBars], layout, { responsive: true, displayModeBar: false });
+}
+
+/**
+ * Handle "Explain in simple words" button click.
+ */
+async function handleExplainClick() {
+  if (!state.data) return;
+  if (state.currentReport) {
+    renderExplanationCard(state.currentReport);
+    if (elements.explanationCard) {
+      elements.explanationCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+    return;
+  }
+  await loadAndRenderReport(true);
+}
+
+/**
+ * Prefetch report for precomputed example so click is instantaneous.
+ */
+async function prefetchExampleReport(exampleId) {
+  if (!state.data) return;
+  try {
+    const payload = {
+      example_id: exampleId,
+      duration: state.data.duration,
+      mode: state.data.mode,
+      transcript_source: state.data.transcript_source,
+      flaw_regions: state.data.flaw_regions || [],
+    };
+    const res = await fetch("/api/report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) {
+      state.currentReport = await res.json();
+    }
+  } catch (err) {
+    console.warn("Report prefetch skipped:", err);
+  }
+}
+
+/**
+ * Request plain-language explanation report from backend.
+ */
+async function loadAndRenderReport(scrollToCard = false) {
+  if (!state.data) return;
+
+  if (elements.explainLoadingSpinner) {
+    elements.explainLoadingSpinner.style.display = "inline";
+  }
+  if (elements.btnExplainReport) {
+    elements.btnExplainReport.disabled = true;
+  }
+
+  try {
+    const payload = {
+      example_id: state.currentExample,
+      duration: state.data.duration,
+      mode: state.data.mode,
+      transcript_source: state.data.transcript_source,
+      flaw_regions: state.data.flaw_regions || [],
+    };
+
+    const res = await fetch("/api/report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const report = await res.json();
+    state.currentReport = report;
+    renderExplanationCard(report);
+
+    if (scrollToCard && elements.explanationCard) {
+      elements.explanationCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  } catch (err) {
+    console.error("Failed to generate explanation:", err);
+    alert("Could not load explanation: " + err.message);
+  } finally {
+    if (elements.explainLoadingSpinner) {
+      elements.explainLoadingSpinner.style.display = "none";
+    }
+    if (elements.btnExplainReport) {
+      elements.btnExplainReport.disabled = false;
+    }
+  }
+}
+
+/**
+ * Render explanation report card.
+ */
+function renderExplanationCard(report) {
+  if (!report || !elements.explanationCard) return;
+
+  const isAi = report.source === "ai";
+
+  // Label: "AI-written explanation of the measurements above" or "Template explanation"
+  if (elements.explanationCardTitle) {
+    elements.explanationCardTitle.textContent = isAi
+      ? "AI-written explanation of the measurements above"
+      : "Template explanation";
+  }
+
+  // Source Badge
+  if (elements.explanationSourceBadge) {
+    elements.explanationSourceBadge.textContent = isAi ? "AI" : "Template";
+    elements.explanationSourceBadge.className = `source-badge ${isAi ? "ai" : "template"}`;
+  }
+
+  // Summary
+  if (elements.explanationSummary) {
+    elements.explanationSummary.textContent = report.summary || "";
+  }
+
+  // What Happened (one short paragraph per flagged region)
+  if (elements.explanationWhatHappened) {
+    elements.explanationWhatHappened.innerHTML = "";
+    const items = Array.isArray(report.what_happened)
+      ? report.what_happened
+      : [report.what_happened];
+    items.forEach((pText) => {
+      if (!pText) return;
+      const p = document.createElement("p");
+      p.className = "explanation-paragraph";
+      p.textContent = pText;
+      elements.explanationWhatHappened.appendChild(p);
+    });
+  }
+
+  // Why It Matters
+  if (elements.explanationWhyMatters) {
+    elements.explanationWhyMatters.textContent = report.why_it_matters || "";
+  }
+
+  // Practice Tips (three practice tips per region type)
+  if (elements.explanationPracticeTips) {
+    elements.explanationPracticeTips.innerHTML = "";
+    const tips = report.practice_tips || {};
+
+    if (Array.isArray(tips)) {
+      const block = document.createElement("div");
+      block.className = "practice-type-block";
+      const ul = document.createElement("ul");
+      ul.className = "practice-tips-list";
+      tips.forEach((tipText) => {
+        const li = document.createElement("li");
+        li.textContent = tipText;
+        ul.appendChild(li);
+      });
+      block.appendChild(ul);
+      elements.explanationPracticeTips.appendChild(block);
+    } else {
+      for (const [regType, tipsList] of Object.entries(tips)) {
+        const block = document.createElement("div");
+        block.className = "practice-type-block";
+
+        const heading = document.createElement("div");
+        heading.className = "practice-type-heading";
+        heading.textContent = `${regType.toUpperCase()} DELIVERY TIPS`;
+        block.appendChild(heading);
+
+        const ul = document.createElement("ul");
+        ul.className = "practice-tips-list";
+        if (Array.isArray(tipsList)) {
+          tipsList.forEach((tipText) => {
+            const li = document.createElement("li");
+            li.textContent = tipText;
+            ul.appendChild(li);
+          });
+        }
+        block.appendChild(ul);
+        elements.explanationPracticeTips.appendChild(block);
+      }
+    }
+  }
+
+  // Caveats
+  if (elements.explanationCaveats && elements.explanationCaveatsBlock) {
+    if (report.caveats) {
+      elements.explanationCaveatsBlock.style.display = "block";
+      elements.explanationCaveats.textContent = report.caveats;
+    } else {
+      elements.explanationCaveatsBlock.style.display = "none";
+    }
+  }
+
+  elements.explanationCard.style.display = "block";
 }
