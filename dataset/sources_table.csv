@@ -1,0 +1,4 @@
+clip_id,wav_file,raw_mp3,start_time,duration_seconds,word_count,source_text_file,audio_url,text_url,audio_license,text_license
+librivox_01,librivox_01.wav,raw_01.mp3,00:00:21,95.0,299,source_text_01.txt,,,,
+librivox_02,librivox_02.wav,raw_02.mp3,00:00:25.5,91.0,219,source_text_02.txt,,,,
+librivox_99,librivox_99.wav,raw_01.mp3,00:00:21,95.0,295,source_text_01.txt,,,,
