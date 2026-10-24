@@ -19,6 +19,8 @@ const state = {
   duration: 95.0,
   animationFrameId: null,
   currentReport: null,
+  chatHistory: [],
+  chatSessionId: Math.random().toString(36).substring(2, 10),
 };
 
 // DOM element references
@@ -35,6 +37,15 @@ const elements = {
   statFlaggedDuration: document.getElementById("statFlaggedDuration"),
   statTotalDuration: document.getElementById("statTotalDuration"),
   statPeakZ: document.getElementById("statPeakZ"),
+  deliveryScoreCard: document.getElementById("deliveryScoreCard"),
+  rubricReliabilityNote: document.getElementById("rubricReliabilityNote"),
+  rubricOverallScore: document.getElementById("rubricOverallScore"),
+  rubricEmptyState: document.getElementById("rubricEmptyState"),
+  rubricDimensionsList: document.getElementById("rubricDimensionsList"),
+  rubricCalculationDetails: document.getElementById("rubricCalculationDetails"),
+  rubricMethodText: document.getElementById("rubricMethodText"),
+  rubricCriteriaList: document.getElementById("rubricCriteriaList"),
+  rubricMethodNote: document.getElementById("rubricMethodNote"),
   injectedLegendBadge: document.getElementById("injectedLegendBadge"),
   legendInjectedItem: document.getElementById("legendInjectedItem"),
   audioPlayer: document.getElementById("audioPlayer"),
@@ -70,6 +81,13 @@ const elements = {
   explanationPracticeTips: document.getElementById("explanationPracticeTips"),
   explanationCaveats: document.getElementById("explanationCaveats"),
   explanationCaveatsBlock: document.getElementById("explanationCaveatsBlock"),
+  chatCard: document.getElementById("chatCard"),
+  chatMessagesContainer: document.getElementById("chatMessagesContainer"),
+  chatEmptyState: document.getElementById("chatEmptyState"),
+  chatForm: document.getElementById("chatForm"),
+  chatInput: document.getElementById("chatInput"),
+  btnSendChat: document.getElementById("btnSendChat"),
+  chatStatusText: document.getElementById("chatStatusText"),
 };
 
 /**
@@ -159,6 +177,22 @@ function setupEventListeners() {
   if (elements.btnExplainReport) {
     elements.btnExplainReport.addEventListener("click", handleExplainClick);
   }
+
+  // Chat form submit
+  if (elements.chatForm) {
+    elements.chatForm.addEventListener("submit", handleChatSubmit);
+  }
+
+  // Chat suggested question buttons
+  const suggestionButtons = document.querySelectorAll(".btn-suggestion");
+  suggestionButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const q = btn.getAttribute("data-question");
+      if (q) {
+        sendChatMessage(q);
+      }
+    });
+  });
 
   // Audio element events
   elements.audioPlayer.addEventListener("timeupdate", onAudioTimeUpdate);
@@ -393,6 +427,9 @@ function renderDashboard(data) {
     elements.explanationCard.style.display = "none";
   }
 
+  // Reset and enable chat box for loaded analysis
+  resetChatForNewAnalysis();
+
   // 1. Mode Badge
   const isPaired = data.mode === "paired";
   let modeLabel = isPaired
@@ -458,6 +495,9 @@ function renderDashboard(data) {
 
   // 3. Results Hero Strip (Headline sentence & 3 data numbers)
   renderResultsHero(data);
+
+  // 3b. Delivery Score Rubric
+  renderDeliveryRubric(data);
 
   // 4. Ground Truth legend indicator
   const hasGroundTruth = Boolean(data.ground_truth);
@@ -613,6 +653,132 @@ function renderResultsHero(data) {
   // Counter 3: Peak z-score
   const sign = primary.peak_z >= 0 ? "+" : "";
   elements.statPeakZ.textContent = `${sign}${primary.peak_z.toFixed(2)}`;
+}
+
+/**
+ * Render Delivery Score Rubric Card.
+ * Adheres strictly to design rules:
+ * Flat styling, no gradients, no emoji, no icons, no animation.
+ * All values rendered straight from data.
+ */
+function renderDeliveryRubric(data) {
+  const rubric = data.rubric;
+  const card = elements.deliveryScoreCard;
+  if (!card) return;
+
+  if (!rubric) {
+    if (elements.rubricEmptyState) elements.rubricEmptyState.style.display = "block";
+    if (elements.rubricDimensionsList) elements.rubricDimensionsList.style.display = "none";
+    if (elements.rubricCalculationDetails) elements.rubricCalculationDetails.style.display = "none";
+    if (elements.rubricOverallScore) elements.rubricOverallScore.textContent = "-";
+    if (elements.rubricReliabilityNote) elements.rubricReliabilityNote.textContent = "";
+    return;
+  }
+
+  if (elements.rubricEmptyState) elements.rubricEmptyState.style.display = "none";
+  if (elements.rubricDimensionsList) elements.rubricDimensionsList.style.display = "flex";
+  if (elements.rubricCalculationDetails) elements.rubricCalculationDetails.style.display = "block";
+
+  // 1. Overall Score as large number
+  if (rubric.overall !== null && rubric.overall !== undefined) {
+    elements.rubricOverallScore.textContent = rubric.overall.toFixed(1);
+  } else {
+    elements.rubricOverallScore.textContent = "null";
+  }
+
+  // 2. Reliability note in plain text
+  if (elements.rubricReliabilityNote) {
+    elements.rubricReliabilityNote.textContent = rubric.reliability_note || "";
+  }
+
+  // 3. Dimensions list
+  if (elements.rubricDimensionsList) {
+    elements.rubricDimensionsList.innerHTML = "";
+    const dims = rubric.dimensions || [];
+    const duration = data.duration || 0.0;
+
+    dims.forEach((d) => {
+      const row = document.createElement("div");
+      row.className = "rubric-dim-row";
+
+      let scoreDisplay = "Not scored yet";
+      let barWidth = 0;
+      if (d.scored && d.score !== null && d.score !== undefined) {
+        scoreDisplay = d.score.toFixed(1);
+        barWidth = Math.max(0, Math.min(100, d.score));
+      }
+
+      let shortLine = "";
+      if (d.name === "Pace" || d.name === "Pitch variation") {
+        const flagSec = (d.flagged_seconds !== null && d.flagged_seconds !== undefined)
+          ? d.flagged_seconds.toFixed(1)
+          : "0.0";
+        const durStr = duration.toFixed(1);
+        if (d.region_count === 0) {
+          shortLine = `0.0 s of ${durStr} s flagged, no flaws detected`;
+        } else {
+          const zStr = (d.worst_z !== null && d.worst_z !== undefined)
+            ? `, worst z ${d.worst_z.toFixed(2)}`
+            : "";
+          const sevStr = d.worst_severity ? `, ${d.worst_severity}` : "";
+          shortLine = `${flagSec} s of ${durStr} s flagged${zStr}${sevStr}`;
+        }
+      } else if (d.name === "Pauses") {
+        if (d.scored && d.score !== null) {
+          const examinedStr = d.pauses_examined ? ` of ${d.pauses_examined}` : "";
+          const zStr = (d.worst_z !== null && d.worst_z !== undefined)
+            ? `, worst z ${d.worst_z.toFixed(2)}`
+            : "";
+          const sevStr = d.worst_severity ? `, ${d.worst_severity}` : "";
+          shortLine = `${d.flagged_pauses}${examinedStr} pauses flagged${zStr}${sevStr}`;
+        } else {
+          const pauseCount = d.flagged_pauses !== undefined ? d.flagged_pauses : (d.region_count || 0);
+          const zStr = (d.worst_z !== null && d.worst_z !== undefined)
+            ? `, worst z ${d.worst_z.toFixed(2)}`
+            : "";
+          const sevStr = d.worst_severity ? `, ${d.worst_severity}` : "";
+          const reasonStr = d.reason ? ` Reason: ${d.reason}` : "";
+          shortLine = `${pauseCount} flagged pauses${zStr}${sevStr}.${reasonStr}`;
+        }
+      } else if (d.name === "Loudness") {
+        const reasonStr = d.reason ? ` Reason: ${d.reason}` : "";
+        shortLine = `Not scored yet.${reasonStr}`;
+      } else {
+        shortLine = d.reason || "";
+      }
+
+      row.innerHTML = `
+        <div class="rubric-dim-header">
+          <span class="rubric-dim-name">${escapeHtml(d.name)}</span>
+          <span class="rubric-dim-score ${d.scored ? "scored" : "unscored"}">${escapeHtml(scoreDisplay)}</span>
+        </div>
+        <div class="rubric-bar-track">
+          <div class="rubric-bar-fill" style="width: ${barWidth}%;"></div>
+        </div>
+        <div class="rubric-dim-shortline">${escapeHtml(shortLine)}</div>
+      `;
+      elements.rubricDimensionsList.appendChild(row);
+    });
+  }
+
+  // 4. Collapsible section: method, criteria, method_note straight from data
+  if (elements.rubricMethodText) {
+    elements.rubricMethodText.textContent = rubric.method || "";
+  }
+
+  if (elements.rubricCriteriaList) {
+    elements.rubricCriteriaList.innerHTML = "";
+    (rubric.dimensions || []).forEach((d) => {
+      const li = document.createElement("li");
+      li.className = "rubric-criteria-item";
+      li.innerHTML = `<strong>${escapeHtml(d.name)}:</strong> ${escapeHtml(d.criterion || "")}`;
+      elements.rubricCriteriaList.appendChild(li);
+    });
+  }
+
+  if (elements.rubricMethodNote) {
+    elements.rubricMethodNote.textContent = rubric.method_note || "";
+  }
 }
 
 /**
@@ -1328,3 +1494,219 @@ function renderExplanationCard(report) {
 
   elements.explanationCard.style.display = "block";
 }
+
+/**
+ * Reset chat card state when a new analysis is loaded.
+ */
+function resetChatForNewAnalysis() {
+  state.chatHistory = [];
+  state.chatSessionId = Math.random().toString(36).substring(2, 10);
+
+  if (elements.chatInput) {
+    elements.chatInput.disabled = false;
+    elements.chatInput.value = "";
+  }
+  if (elements.btnSendChat) {
+    elements.btnSendChat.disabled = false;
+  }
+  document.querySelectorAll(".btn-suggestion").forEach((btn) => {
+    btn.disabled = false;
+  });
+
+  if (elements.chatMessagesContainer) {
+    elements.chatMessagesContainer.innerHTML =
+      '<div class="empty-state" id="chatEmptyState">No questions asked yet. Choose a suggested question or enter your own below.</div>';
+  }
+  if (elements.chatStatusText) {
+    elements.chatStatusText.style.display = "none";
+    elements.chatStatusText.textContent = "";
+  }
+}
+
+/**
+ * Handle submission of the chat input form.
+ */
+function handleChatSubmit(e) {
+  e.preventDefault();
+  if (!elements.chatInput) return;
+  const question = elements.chatInput.value.trim();
+  if (!question) return;
+  sendChatMessage(question);
+}
+
+/**
+ * Send a question to /api/chat and render user and assistant turns.
+ */
+async function sendChatMessage(question) {
+  if (!state.data) return;
+  const cleanQ = question.trim().substring(0, 300);
+  if (!cleanQ) return;
+
+  if (elements.chatInput) {
+    elements.chatInput.value = "";
+  }
+
+  const emptyState = document.getElementById("chatEmptyState");
+  if (emptyState) {
+    emptyState.remove();
+  }
+
+  // Append user message
+  appendChatMessage("user", cleanQ);
+
+  // Disable controls while waiting
+  setChatControlsDisabled(true);
+
+  // Show plain loading state
+  const loadingEl = appendChatLoading();
+
+  try {
+    const curves = state.data.curves || {};
+    const pCurves = curves.participant || curves;
+    let curvesSummary = null;
+    if (pCurves && (pCurves.f0_semitones || pCurves.speech_rate || pCurves.energy_z)) {
+      curvesSummary = {};
+      for (const k of ["f0_semitones", "energy_z", "speech_rate"]) {
+        const arr = pCurves[k];
+        if (Array.isArray(arr) && arr.length > 0) {
+          const valid = arr.filter((v) => v !== null && !isNaN(v));
+          if (valid.length > 0) {
+            let min = valid[0];
+            let max = valid[0];
+            let sum = 0;
+            for (const v of valid) {
+              if (v < min) min = v;
+              if (v > max) max = v;
+              sum += v;
+            }
+            curvesSummary[k] = {
+              min: Math.round(min * 100) / 100,
+              max: Math.round(max * 100) / 100,
+              mean: Math.round((sum / valid.length) * 100) / 100,
+            };
+          }
+        }
+      }
+    }
+
+    const payload = {
+      analysis: {
+        flaw_regions: state.data.flaw_regions || [],
+        mode: state.data.mode || "experimental",
+        duration: state.data.duration || 0.0,
+        transcript_source: state.data.transcript_source || "provided",
+        curves_summary: curvesSummary,
+        report: state.currentReport || null,
+      },
+      question: cleanQ,
+      history: state.chatHistory.slice(-4),
+      session_id: state.chatSessionId,
+    };
+
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const answer = data.answer || "No response received.";
+    const source = data.source || "template";
+
+    if (loadingEl && loadingEl.parentNode) {
+      loadingEl.remove();
+    }
+
+    appendChatMessage("assistant", answer, source);
+
+    state.chatHistory.push({ role: "user", content: cleanQ });
+    state.chatHistory.push({ role: "assistant", content: answer });
+    if (state.chatHistory.length > 8) {
+      state.chatHistory = state.chatHistory.slice(-8);
+    }
+  } catch (err) {
+    if (loadingEl && loadingEl.parentNode) {
+      loadingEl.remove();
+    }
+    appendChatMessage(
+      "assistant",
+      "Network error: could not connect to chat endpoint. Please try again.",
+      "template"
+    );
+  } finally {
+    setChatControlsDisabled(false);
+    if (elements.chatInput) {
+      elements.chatInput.focus();
+    }
+  }
+}
+
+/**
+ * Disable or enable chat input and buttons.
+ */
+function setChatControlsDisabled(disabled) {
+  if (elements.chatInput) elements.chatInput.disabled = disabled;
+  if (elements.btnSendChat) elements.btnSendChat.disabled = disabled;
+  document.querySelectorAll(".btn-suggestion").forEach((btn) => {
+    btn.disabled = disabled;
+  });
+}
+
+/**
+ * Append a chat message bubble to the messages log.
+ */
+function appendChatMessage(role, text, source = "template") {
+  if (!elements.chatMessagesContainer) return;
+
+  const msgDiv = document.createElement("div");
+  msgDiv.className = `chat-msg chat-msg-${role}`;
+
+  const badge = document.createElement("div");
+  badge.className = `chat-msg-badge ${role === "user" ? "user" : source}`;
+  if (role === "user") {
+    badge.textContent = "Question";
+  } else {
+    badge.textContent =
+      source === "ai"
+        ? "AI answer based only on the measurements above"
+        : "Template answer";
+  }
+  msgDiv.appendChild(badge);
+
+  const bubble = document.createElement("div");
+  bubble.className = "chat-msg-bubble";
+  bubble.textContent = text;
+  msgDiv.appendChild(bubble);
+
+  elements.chatMessagesContainer.appendChild(msgDiv);
+  elements.chatMessagesContainer.scrollTop = elements.chatMessagesContainer.scrollHeight;
+}
+
+/**
+ * Display a plain text loading state indicator in the chat container.
+ */
+function appendChatLoading() {
+  if (!elements.chatMessagesContainer) return null;
+
+  const msgDiv = document.createElement("div");
+  msgDiv.className = "chat-msg chat-msg-assistant chat-loading";
+
+  const badge = document.createElement("div");
+  badge.className = "chat-msg-badge template";
+  badge.textContent = "Analyzing measurements...";
+  msgDiv.appendChild(badge);
+
+  const bubble = document.createElement("div");
+  bubble.className = "chat-msg-bubble chat-loading-text";
+  bubble.textContent = "Checking speech data and verified tips...";
+  msgDiv.appendChild(bubble);
+
+  elements.chatMessagesContainer.appendChild(msgDiv);
+  elements.chatMessagesContainer.scrollTop = elements.chatMessagesContainer.scrollHeight;
+  return msgDiv;
+}
+

@@ -39,6 +39,7 @@ result = analyze(
 | `words` | `array[object]` | Chronological word list with forced alignment timestamps and confidence values. |
 | `curves` | `object` | Frame-level continuous acoustic feature curves at a uniform 10 ms hop (100 Hz). |
 | `flaw_regions` | `array[object]` | Temporal flaw intervals identified by frozen detector rules ($|z| \ge 2.0$). |
+| `rubric` | `object` | Delivery rubric score payload with overall and dimensional scores. |
 
 ---
 
@@ -149,6 +150,94 @@ Array of flagged temporal intervals sorted chronologically by `start`. Each entr
 
 ---
 
+### 4. `rubric` (Delivery Rubric Scoring)
+Structured delivery rubric scoring evaluated across delivery dimensions (Pace, Pitch variation, Pauses, Loudness) and overall summary score.
+
+```json
+{
+  "version": "1.0.0",
+  "method": "Pace and Pitch variation scores = 100 * (1 - flagged_seconds / duration), where overlapping flagged intervals are merged and clipped to audio duration. Pauses score = 100 * (1 - flagged_pauses / pauses_examined). Loudness is measured but unscored. Overall score is the unweighted arithmetic mean of scored dimensions (minimum 2 scored dimensions required, otherwise null).",
+  "method_note": "A score of 100 means the detectors flagged nothing. It does not prove the delivery was good.",
+  "mode": "paired",
+  "reliability_note": "Compared with an ideal recording of the same speech",
+  "dimensions": [
+    {
+      "name": "Pace",
+      "score": 96.6,
+      "scored": true,
+      "measured": true,
+      "reason": null,
+      "region_count": 1,
+      "flagged_seconds": 3.1,
+      "worst_z": 4.70,
+      "worst_severity": "tier 5 (severe)",
+      "criterion": "Evaluates speech tempo consistency and flags intervals where speaking rate is significantly too fast or too slow."
+    },
+    {
+      "name": "Pitch variation",
+      "score": 96.5,
+      "scored": true,
+      "measured": true,
+      "reason": null,
+      "region_count": 1,
+      "flagged_seconds": 3.2,
+      "worst_z": -2.17,
+      "worst_severity": "tier 1 (slight)",
+      "criterion": "Evaluates melodic intonation variation and flags intervals where vocal pitch is abnormally flat or monotone."
+    },
+    {
+      "name": "Pauses",
+      "score": null,
+      "scored": false,
+      "measured": true,
+      "reason": "The pause detector examines natural baseline phrase boundaries (>= 150 ms) and test gaps >= 150 ms, but the examined boundary count is not preserved in analysis results and cannot be determined without changing the detector.",
+      "region_count": 2,
+      "flagged_pauses": 2,
+      "pauses_examined": null,
+      "worst_z": -2.45,
+      "worst_severity": "tier 2 (mild)",
+      "criterion": "Evaluates conversational phrasing and flags silent gaps between words that are abnormally rushed or prolonged."
+    },
+    {
+      "name": "Loudness",
+      "score": null,
+      "scored": false,
+      "measured": false,
+      "reason": "Loudness scoring is not yet calibrated; energy dynamics are measured and displayed without affecting the delivery score.",
+      "region_count": 0,
+      "flagged_seconds": 0.0,
+      "worst_z": null,
+      "worst_severity": null,
+      "criterion": "Evaluates volume stability and energy dynamics across spoken phrases."
+    }
+  ],
+  "overall": 96.5
+}
+```
+
+#### Field Specifications:
+* `version` (`string`): Rubric configuration version string (e.g. `"1.0.0"`).
+* `method` (`string`): Exact formula as plain text describing dimensional and overall calculations.
+* `method_note` (`string`): Explanatory caveat: `"A score of 100 means the detectors flagged nothing. It does not prove the delivery was good."`
+* `mode` (`string`): Analysis mode (`"paired"` or `"experimental"`).
+* `reliability_note` (`string`): Mode-specific baseline comparison context note (`"Compared with an ideal recording of the same speech"` or `"Compared with a general baseline, so less reliable"`).
+* `dimensions` (`array[object]`): List of dimension score objects:
+  * `name` (`string`): Dimension name (`"Pace"`, `"Pitch variation"`, `"Pauses"`, or `"Loudness"`).
+  * `score` (`float | null`): Computed dimension score rounded to one decimal place, or `null` if unscored.
+  * `scored` (`boolean`): Whether this dimension is included in the overall score calculation.
+  * `measured` (`boolean`): Whether this dimension was measured from acoustic data.
+  * `reason` (`string | null`): Explanatory reason if the dimension is unscored or unmeasured.
+  * `region_count` (`integer`): Number of detected flaw regions or boundary flags for this dimension.
+  * `flagged_seconds` (`float | null`): Flagged audio duration in seconds for continuous dimensions (Pace, Pitch variation, Loudness).
+  * `flagged_pauses` (`integer | null`): Count of flagged boundary events for discrete dimensions (Pauses).
+  * `pauses_examined` (`integer | null`): Number of word gaps examined by the pause detector, or `null` if unrecorded.
+  * `worst_z` (`float | null`): Normalized deviation of the worst flagged region in this dimension, or `null` if no flags.
+  * `worst_severity` (`string | null`): Standardized severity tier classification of the worst flagged region, or `null`.
+  * `criterion` (`string`): One sentence describing what delivery characteristic the dimension checks.
+* `overall` (`float | null`): Unweighted arithmetic mean of scored dimensions rounded to one decimal place, or `null` if fewer than 2 dimensions are scored.
+
+---
+
 ## Minimal Example Payload
 
 ```json
@@ -217,7 +306,66 @@ Array of flagged temporal intervals sorted chronologically by `start`. Each entr
       "null_reason": null,
       "explanation": "Pitch intonation is monotone / flat with observed F0 SD of 0.442 semitones in peak window [0.45s-3.45s] (reference: 3.120 semitones; baseline mean: 2.930 semitones, spread: 0.646 semitones, threshold: -2.00; z = -3.851, peak z = -3.850) between 0.45s and 2.10s."
     }
-  ]
+  ],
+  "rubric": {
+    "version": "1.0.0",
+    "method": "Pace and Pitch variation scores = 100 * (1 - flagged_seconds / duration), where overlapping flagged intervals are merged and clipped to audio duration. Pauses score = 100 * (1 - flagged_pauses / pauses_examined). Loudness is measured but unscored. Overall score is the unweighted arithmetic mean of scored dimensions (minimum 2 scored dimensions required, otherwise null).",
+    "method_note": "A score of 100 means the detectors flagged nothing. It does not prove the delivery was good.",
+    "mode": "paired",
+    "reliability_note": "Compared with an ideal recording of the same speech",
+    "dimensions": [
+      {
+        "name": "Pace",
+        "score": 100.0,
+        "scored": true,
+        "measured": true,
+        "reason": null,
+        "region_count": 0,
+        "flagged_seconds": 0.0,
+        "worst_z": null,
+        "worst_severity": null,
+        "criterion": "Evaluates speech tempo consistency and flags intervals where speaking rate is significantly too fast or too slow."
+      },
+      {
+        "name": "Pitch variation",
+        "score": 69.6,
+        "scored": true,
+        "measured": true,
+        "reason": null,
+        "region_count": 1,
+        "flagged_seconds": 1.7,
+        "worst_z": -3.85,
+        "worst_severity": "tier 4 (high)",
+        "criterion": "Evaluates melodic intonation variation and flags intervals where vocal pitch is abnormally flat or monotone."
+      },
+      {
+        "name": "Pauses",
+        "score": null,
+        "scored": false,
+        "measured": true,
+        "reason": "The pause detector examines natural baseline phrase boundaries (>= 150 ms) and test gaps >= 150 ms, but the examined boundary count is not preserved in analysis results and cannot be determined without changing the detector.",
+        "region_count": 0,
+        "flagged_pauses": 0,
+        "pauses_examined": null,
+        "worst_z": null,
+        "worst_severity": null,
+        "criterion": "Evaluates conversational phrasing and flags silent gaps between words that are abnormally rushed or prolonged."
+      },
+      {
+        "name": "Loudness",
+        "score": null,
+        "scored": false,
+        "measured": false,
+        "reason": "Loudness scoring is not yet calibrated; energy dynamics are measured and displayed without affecting the delivery score.",
+        "region_count": 0,
+        "flagged_seconds": 0.0,
+        "worst_z": null,
+        "worst_severity": null,
+        "criterion": "Evaluates volume stability and energy dynamics across spoken phrases."
+      }
+    ],
+    "overall": 84.8
+  }
 }
 ```
 

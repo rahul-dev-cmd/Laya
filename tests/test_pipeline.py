@@ -75,3 +75,10 @@ def test_analyze_contract_structure():
         assert len(reg["explanation"]) > 0
         # Check that explanation embeds timestamps
         assert f"{reg['start']:.2f}" in reg["explanation"] or f"{reg['end']:.2f}" in reg["explanation"]
+
+    # 5. Rubric delivery score
+    assert "rubric" in result
+    assert isinstance(result["rubric"], dict)
+    assert "overall" in result["rubric"]
+    assert "dimensions" in result["rubric"]
+

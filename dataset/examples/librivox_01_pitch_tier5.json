@@ -115529,5 +115529,64 @@
       "null_reason": null,
       "explanation": "Pitch intonation is monotone / flat with observed F0 SD of 0.037 semitones in peak window [55.00s-58.00s] (reference: 3.390 semitones; baseline mean: 2.929 semitones, spread: 0.646 semitones, threshold: -2.00; z = -4.478, peak z = -4.478) between 54.58s and 58.84s."
     }
-  ]
+  ],
+  "rubric": {
+    "version": "1.0.0",
+    "method": "Pace and Pitch variation scores = 100 * (1 - flagged_seconds / duration), where overlapping flagged intervals are merged and clipped to audio duration. Pauses score = 100 * (1 - flagged_pauses / pauses_examined). Loudness is measured but unscored. Overall score is the unweighted arithmetic mean of scored dimensions (minimum 2 scored dimensions required, otherwise null).",
+    "method_note": "A score of 100 means the detectors flagged nothing. It does not prove the delivery was good.",
+    "mode": "paired",
+    "reliability_note": "Compared with an ideal recording of the same speech",
+    "dimensions": [
+      {
+        "name": "Pace",
+        "score": 100.0,
+        "scored": true,
+        "measured": true,
+        "reason": null,
+        "region_count": 0,
+        "flagged_seconds": 0.0,
+        "worst_z": null,
+        "worst_severity": null,
+        "criterion": "Evaluates speech tempo consistency and flags intervals where speaking rate is significantly too fast or too slow."
+      },
+      {
+        "name": "Pitch variation",
+        "score": 95.5,
+        "scored": true,
+        "measured": true,
+        "reason": null,
+        "region_count": 1,
+        "flagged_seconds": 4.3,
+        "worst_z": -4.48,
+        "worst_severity": "tier 5 (severe)",
+        "criterion": "Evaluates melodic intonation variation and flags intervals where vocal pitch is abnormally flat or monotone."
+      },
+      {
+        "name": "Pauses",
+        "score": null,
+        "scored": false,
+        "measured": true,
+        "reason": "The pause detector examines natural baseline phrase boundaries (>= 150 ms) and test gaps >= 150 ms, but the examined boundary count is not preserved in analysis results and cannot be determined without changing the detector.",
+        "region_count": 0,
+        "flagged_pauses": 0,
+        "pauses_examined": null,
+        "worst_z": null,
+        "worst_severity": null,
+        "criterion": "Evaluates conversational phrasing and flags silent gaps between words that are abnormally rushed or prolonged."
+      },
+      {
+        "name": "Loudness",
+        "score": null,
+        "scored": false,
+        "measured": false,
+        "reason": "Loudness scoring is not yet calibrated; energy dynamics are measured and displayed without affecting the delivery score.",
+        "region_count": 0,
+        "flagged_seconds": 0.0,
+        "worst_z": null,
+        "worst_severity": null,
+        "criterion": "Evaluates volume stability and energy dynamics across spoken phrases."
+      }
+    ],
+    "overall": 97.8
+  }
 }

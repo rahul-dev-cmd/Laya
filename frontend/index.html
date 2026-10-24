@@ -134,6 +134,45 @@
       </div>
     </section>
 
+    <!-- Delivery Score Card -->
+    <section class="card" id="deliveryScoreCard" style="margin-top: var(--space-md); margin-bottom: var(--space-md);">
+      <div class="delivery-score-header">
+        <div>
+          <h2 class="card-title" style="margin-bottom: var(--space-2xs); border-bottom: none;">Delivery Score</h2>
+          <div id="rubricReliabilityNote" class="rubric-reliability-note"></div>
+        </div>
+        <div class="delivery-score-overall-box">
+          <span class="delivery-score-overall-label">Overall Score</span>
+          <div id="rubricOverallScore" class="delivery-score-overall-value">-</div>
+        </div>
+      </div>
+
+      <div id="rubricEmptyState" class="rubric-empty-state" style="display: none;">
+        No rubric score data available.
+      </div>
+
+      <div id="rubricDimensionsList" class="rubric-dimensions-list"></div>
+
+      <!-- Collapsible Section: How the score is calculated -->
+      <details class="rubric-details" id="rubricCalculationDetails">
+        <summary class="rubric-summary">How the score is calculated</summary>
+        <div class="rubric-calc-content">
+          <div class="rubric-calc-block">
+            <span class="rubric-calc-label">Method</span>
+            <div id="rubricMethodText" class="rubric-calc-text"></div>
+          </div>
+          <div class="rubric-calc-block">
+            <span class="rubric-calc-label">Criteria</span>
+            <ul id="rubricCriteriaList" class="rubric-criteria-list"></ul>
+          </div>
+          <div class="rubric-calc-block">
+            <span class="rubric-calc-label">Method Note</span>
+            <div id="rubricMethodNote" class="rubric-calc-note"></div>
+          </div>
+        </div>
+      </details>
+    </section>
+
     <!-- Stacked Acoustic Tracks Card -->
     <section class="card">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-xs);">
@@ -260,6 +299,43 @@
           <p id="explanationCaveats" class="explanation-text" style="font-size: 12px; color: var(--color-text-muted);"></p>
         </div>
       </div>
+    </section>
+
+    <!-- Ask About This Analysis Chat Card -->
+    <section id="chatCard" class="card chat-card">
+      <div class="chat-header">
+        <h2 class="card-title" style="margin-bottom: var(--space-xs);">Ask about this analysis</h2>
+        <p class="chat-note">Ask specific questions about the measurements, 4 graph tracks, flagged regions, or practice tips.</p>
+      </div>
+
+      <!-- Suggested Questions -->
+      <div class="chat-suggestions-row">
+        <span class="chat-suggestions-label">Suggested:</span>
+        <button class="btn btn-secondary btn-xs btn-suggestion" type="button" data-question="What happened?" disabled>What happened?</button>
+        <button class="btn btn-secondary btn-xs btn-suggestion" type="button" data-question="Why was it flagged?" disabled>Why was it flagged?</button>
+        <button class="btn btn-secondary btn-xs btn-suggestion" type="button" data-question="How can I improve?" disabled>How can I improve?</button>
+        <button class="btn btn-secondary btn-xs btn-suggestion" type="button" data-question="What do the graphs show?" disabled>What do the graphs show?</button>
+        <button class="btn btn-secondary btn-xs btn-suggestion" type="button" data-question="What is a z-score?" disabled>What is a z-score?</button>
+      </div>
+
+      <!-- Chat History Log -->
+      <div id="chatMessagesContainer" class="chat-messages-container">
+        <div class="empty-state" id="chatEmptyState">No questions asked yet. Choose a suggested question or enter your own below.</div>
+      </div>
+
+      <!-- Chat Input Form -->
+      <form id="chatForm" class="chat-form-row">
+        <input
+          type="text"
+          id="chatInput"
+          class="form-input chat-input"
+          placeholder="Ask about these measurements (max 300 characters)..."
+          maxlength="300"
+          disabled
+        >
+        <button id="btnSendChat" class="btn btn-primary" type="submit" disabled>Send</button>
+      </form>
+      <div id="chatStatusText" class="chat-status-text" style="display: none;"></div>
     </section>
 
     <!-- Stress Test Card -->

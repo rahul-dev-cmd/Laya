@@ -1,0 +1,29 @@
+{
+  "source": "template",
+  "summary": "We analyzed 93.13 seconds of speech and identified 4 delivery variation region(s) involving pause, pitch, rate, with a peak deviation score of z = 4.70.",
+  "what_happened": [
+    "At timestamp 6.80s to 6.86s, the silence interval measured 0.06 s (tier 1 (slight)), deviating from the normal expected pause length of 0.48 s (deviation z = -2.24).",
+    "Between 53.90s and 57.02s (3.12 seconds duration), delivery pace reached 6.0 words/s (tier 5 (severe)), contrasting against the baseline speaking rate of 3.1802 words/s (deviation z = 4.70).",
+    "At timestamp 70.37s to 70.45s, the silence interval measured 0.08 s (tier 2 (mild)), deviating from the normal expected pause length of 0.54 s (deviation z = -2.45).",
+    "From 86.39s to 89.61s (3.22 seconds duration), the speaker's vocal inflection was exceptionally flat (tier 1 (slight)). Measured pitch standard deviation dropped to 1.527 semitones compared to the baseline average of 2.9295 semitones (deviation z = -2.17)."
+  ],
+  "why_it_matters": "Listeners depend on melodic pitch inflection and predictable pause boundaries to absorb spoken ideas effortlessly. Monotone stretches make it difficult for listeners to identify key takeaways, while unexpected rate rushes or clipped pauses disrupt comprehension.",
+  "practice_tips": {
+    "pitch": [
+      "Mark the central concept in each sentence and deliberately lift your pitch on that target word.",
+      "Practice reading a short paragraph aloud with exaggerated storytelling intonation before returning to conversational level.",
+      "Ensure the final word of declarative statements finishes on a gentle downward pitch cadence."
+    ],
+    "rate": [
+      "Aim for a steady conversational pace of approximately two to three words per second.",
+      "Slow down noticeably when introducing unfamiliar terms, numbers, or key definitions.",
+      "Rehearse transitions between paragraphs to prevent unconscious speedups."
+    ],
+    "pause": [
+      "Take a full breath pause between major topic transitions to let listeners digest key concepts.",
+      "Honor punctuation commas and periods without cutting off the silence prematurely.",
+      "Use silent pauses rather than vocalized filler sounds when collecting your next sentence."
+    ]
+  },
+  "caveats": "Analysis was compared directly against a paired reference take."
+}

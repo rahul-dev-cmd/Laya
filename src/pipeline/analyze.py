@@ -65,6 +65,7 @@ from src.features.extract import (
     compute_f0_contour,
     compute_speech_rate_and_pauses,
 )
+from src.scoring.rubric import score_analysis
 from src.utils.seed import set_seed
 
 
@@ -428,6 +429,7 @@ def analyze(
         - flaw_regions: list of {type, start, end, peak_z, severity, explanation, ...}
         - mode: "paired" or "experimental"
         - mode_note: Optional[str]
+        - rubric: dict with version, method, notes, dimensions, and overall score
     """
     set_seed(seed)
 
@@ -877,6 +879,9 @@ def analyze(
         "curves": curves_payload,
         "flaw_regions": flaw_regions,
     }
+
+    # 6. Compute delivery rubric score
+    result["rubric"] = score_analysis(result)
 
     return result
 

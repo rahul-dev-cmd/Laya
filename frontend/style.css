@@ -872,3 +872,301 @@ body {
   margin-top: var(--space-xs);
 }
 
+/* Interactive Chat Box */
+.chat-card {
+  margin-bottom: var(--space-xl);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.chat-header {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.chat-note {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.chat-suggestions-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.chat-suggestions-label {
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family-mono);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.btn-xs {
+  padding: 3px 8px;
+  font-size: 11px;
+}
+
+.chat-messages-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+  max-height: 480px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  padding: var(--space-md);
+  background-color: var(--color-bg);
+}
+
+.chat-msg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.chat-msg-user {
+  align-self: flex-end;
+  max-width: 85%;
+}
+
+.chat-msg-user .chat-msg-bubble {
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+  border: 1px solid var(--color-border-dark);
+}
+
+.chat-msg-assistant {
+  align-self: flex-start;
+  max-width: 90%;
+}
+
+.chat-msg-assistant .chat-msg-bubble {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  border: 1px solid var(--color-border);
+}
+
+.chat-msg-badge {
+  font-size: 10px;
+  font-family: var(--font-family-mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.chat-msg-badge.ai {
+  color: var(--color-accent);
+}
+
+.chat-msg-badge.template {
+  color: var(--color-text-muted);
+}
+
+.chat-msg-badge.user {
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+.chat-form-row {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.chat-input {
+  flex: 1;
+}
+
+.chat-status-text {
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family-mono);
+  color: var(--color-text-muted);
+  margin-top: var(--space-xs);
+}
+
+/* Delivery Score Card */
+.delivery-score-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+  border-bottom: var(--border-width-thin) solid var(--color-border);
+  padding-bottom: var(--space-sm);
+}
+
+.rubric-reliability-note {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-2xs);
+}
+
+.delivery-score-overall-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  background-color: var(--color-surface-alt);
+  border: var(--border-width-thick) solid var(--color-border-dark);
+  padding: var(--space-xs) var(--space-md);
+}
+
+.delivery-score-overall-label {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.delivery-score-overall-value {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: var(--line-height-tight);
+}
+
+.rubric-empty-state {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  padding: var(--space-md) 0;
+}
+
+.rubric-dimensions-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.rubric-dim-row {
+  background-color: var(--color-surface);
+  border: var(--border-width-thin) solid var(--color-border);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.rubric-dim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2xs);
+}
+
+.rubric-dim-name {
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+}
+
+.rubric-dim-score {
+  font-family: var(--font-family-mono);
+  font-weight: 700;
+  font-size: var(--font-size-md);
+  color: var(--color-text);
+}
+
+.rubric-dim-score.unscored {
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.rubric-bar-track {
+  height: 8px;
+  background-color: var(--color-surface-alt);
+  border: var(--border-width-thin) solid var(--color-border);
+  margin: var(--space-2xs) 0;
+  width: 100%;
+}
+
+.rubric-bar-fill {
+  height: 100%;
+  background-color: var(--color-header);
+}
+
+.rubric-dim-shortline {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--space-2xs);
+  line-height: var(--line-height-base);
+}
+
+.rubric-details {
+  border: var(--border-width-thin) solid var(--color-border);
+  background-color: var(--color-surface-alt);
+  padding: var(--space-sm);
+  margin-top: var(--space-xs);
+}
+
+.rubric-summary {
+  font-family: var(--font-family-sans);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  color: var(--color-text);
+  outline: none;
+}
+
+.rubric-calc-content {
+  margin-top: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.rubric-calc-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.rubric-calc-label {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.rubric-calc-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  line-height: var(--line-height-base);
+}
+
+.rubric-criteria-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  margin: 0;
+  padding: 0;
+}
+
+.rubric-criteria-item {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  padding-left: var(--space-sm);
+  border-left: var(--border-width-thick) solid var(--color-border-dark);
+  line-height: var(--line-height-base);
+}
+
+.rubric-calc-note {
+  font-size: var(--font-size-sm);
+  color: var(--color-accent);
+  font-style: italic;
+  line-height: var(--line-height-base);
+}
+
+
