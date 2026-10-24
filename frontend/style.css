@@ -383,6 +383,29 @@ body {
   background-color: var(--color-surface);
 }
 
+.plot-container.has-spectrum {
+  height: 860px;
+}
+
+.clarity-note {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-xs);
+  padding: var(--space-2xs) var(--space-xs);
+  border-left: var(--border-width-thick) solid var(--color-border);
+  line-height: 1.4;
+}
+
+.spectrum-empty-state {
+  padding: var(--space-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  background-color: var(--color-surface-alt);
+  border: var(--border-width-thin) dashed var(--color-border);
+  margin-top: var(--space-sm);
+}
+
 /* Region List & Why Flagged split */
 .details-grid {
   display: grid;
@@ -1011,6 +1034,14 @@ body {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   margin-top: var(--space-2xs);
+}
+
+.rubric-overall-note {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text);
+  margin-top: var(--space-2xs);
+  font-weight: 500;
 }
 
 .delivery-score-overall-box {

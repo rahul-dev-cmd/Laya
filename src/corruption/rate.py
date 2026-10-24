@@ -1,4 +1,4 @@
-"""Rate / Speech-tempo corruption module for Second Take.
+"""Rate / Speech-tempo corruption module for Laya.
 
 This module implements local articulation rate corruption:
 1. Selects a continuous phrase (~4 to 6 seconds) from the middle of the audio clip,
@@ -509,7 +509,7 @@ def main():
         )
     else:
         print("\n" + "=" * 60)
-        print(f"SECOND TAKE: RATE CORRUPTION (Factor {args.factor})")
+        print(f"Laya: RATE CORRUPTION (Factor {args.factor})")
         print("=" * 60)
 
         apply_rate_corruption(

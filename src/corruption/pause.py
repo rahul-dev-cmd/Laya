@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pause flaw corruption module for Second Take.
+"""Pause flaw corruption module for Laya.
 
 This module implements silence scaling at phrase boundaries:
 1. Identifies natural phrase boundaries (pauses >= 150 ms) within a chosen 3-4 s region.

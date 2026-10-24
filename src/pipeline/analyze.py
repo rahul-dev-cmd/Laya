@@ -65,6 +65,7 @@ from src.features.extract import (
     compute_f0_contour,
     compute_speech_rate_and_pauses,
 )
+from src.features.spectrum import compute_spectrogram, compute_voice_clarity
 from src.scoring.rubric import score_analysis
 from src.utils.seed import set_seed
 
@@ -430,6 +431,8 @@ def analyze(
         - mode: "paired" or "experimental"
         - mode_note: Optional[str]
         - rubric: dict with version, method, notes, dimensions, and overall score
+        - spectrogram: dict with times, frequencies, values
+        - clarity: dict with times, hnr_db, median_db, reference_median_db
     """
     set_seed(seed)
 
@@ -865,7 +868,15 @@ def analyze(
     # Sort all detected flaw regions chronologically by start timestamp
     flaw_regions.sort(key=lambda x: x["start"])
 
-    # 5. Assemble final dashboard JSON object
+    # 5. Extract spectrogram and voice clarity
+    spec_payload = compute_spectrogram(audio_path, target_sr=TARGET_SAMPLE_RATE)
+    clarity_payload = compute_voice_clarity(
+        audio_path,
+        target_sr=TARGET_SAMPLE_RATE,
+        reference_wav=ref_audio_path if is_paired else None,
+    )
+
+    # 6. Assemble final dashboard JSON object
     result = {
         "mode": mode,
         "mode_note": mode_note,
@@ -877,10 +888,12 @@ def analyze(
         "word_match_rate": word_match_rate,
         "words": words_list,
         "curves": curves_payload,
+        "spectrogram": spec_payload,
+        "clarity": clarity_payload,
         "flaw_regions": flaw_regions,
     }
 
-    # 6. Compute delivery rubric score
+    # 7. Compute delivery rubric score
     result["rubric"] = score_analysis(result)
 
     return result

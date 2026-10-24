@@ -51,6 +51,7 @@ def test_no_flags_gives_100():
 
     assert rubric["method_note"] == METHOD_NOTE
     assert rubric["reliability_note"] == RELIABILITY_NOTE_PAIRED
+    assert rubric["overall_note"] == "Overall uses 2 of 4 dimensions: Pace, Pitch variation"
 
 
 def test_one_flag_covering_whole_clip_gives_0():
@@ -253,6 +254,7 @@ def test_unscored_dimension_is_excluded():
 
     # Overall must be average of Pace (80.0) and Pitch (90.0) only
     assert rubric["overall"] == 85.0
+    assert rubric["overall_note"] == "Overall uses 2 of 4 dimensions: Pace, Pitch variation"
 
     # If pauses_examined is provided, pauses becomes scored and included in average
     result_with_pauses = dict(result)
@@ -263,6 +265,46 @@ def test_unscored_dimension_is_excluded():
     assert dims_p["Pauses"]["score"] == 90.0
     # Overall is average of 80.0, 90.0, 90.0 -> 260 / 3 = 86.666... -> 86.7
     assert rubric_with_pauses["overall"] == 86.7
+    assert rubric_with_pauses["overall_note"] == "Overall uses 3 of 4 dimensions: Pace, Pitch variation, Pauses"
+
+
+def test_overall_unrounded_average_round_half_up():
+    """Verify overall score averages unrounded dimension scores and rounds half up.
+    
+    Standard Python round(85.05, 1) rounds to 85.0 due to round-to-even.
+    Round half up must round 85.05 to 85.1.
+    """
+    duration = 1000.0
+    result = {
+        "duration": duration,
+        "mode": "paired",
+        "flaw_regions": [
+            {
+                "type": "rate",
+                "start": 0.0,
+                "end": 149.0,
+                "peak_z": 2.5,
+                "severity": "tier 2 (mild)",
+            },
+            {
+                "type": "pitch",
+                "start": 0.0,
+                "end": 150.0,
+                "peak_z": -2.5,
+                "severity": "tier 2 (mild)",
+            },
+        ],
+    }
+
+    rubric = score_analysis(result)
+    dims = {d["name"]: d for d in rubric["dimensions"]}
+    # Pace: 100 * (1 - 149 / 1000) = 85.10
+    # Pitch: 100 * (1 - 150 / 1000) = 85.00
+    # Unrounded average = 85.05 -> rounds half up to 85.1
+    assert dims["Pace"]["score"] == 85.1
+    assert dims["Pitch variation"]["score"] == 85.0
+    assert rubric["overall"] == 85.1
+
 
 
 def test_fewer_than_two_scored_dimensions_gives_null():

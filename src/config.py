@@ -1,4 +1,4 @@
-"""Configuration constants and paths for Second Take.
+"""Configuration constants and paths for Laya.
 
 Rules adhered to:
 - 16 kHz mono audio

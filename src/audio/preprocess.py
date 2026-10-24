@@ -1,4 +1,4 @@
-"""Audio preprocessing module for Second Take.
+"""Audio preprocessing module for Laya.
 
 Standard:
 - Mono audio

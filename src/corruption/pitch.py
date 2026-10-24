@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pitch / intonation flaw corruption module for Second Take.
+"""Pitch / intonation flaw corruption module for Laya.
 
 This module implements pitch dynamic range compression (monotone delivery flaw):
 1. Targets the same phrase as the rate ladder (words 174-191 in librivox_01.wav,

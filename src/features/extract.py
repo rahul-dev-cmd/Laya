@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Acoustic feature extraction module for Second Take.
+"""Acoustic feature extraction module for Laya.
 
 Extracts time-aligned speech features for a speech recording and its word alignment:
 1. F0 contour (parselmouth Praat pitch), converted to semitones relative to speaker median F0.

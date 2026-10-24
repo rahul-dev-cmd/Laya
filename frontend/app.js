@@ -39,6 +39,7 @@ const elements = {
   statPeakZ: document.getElementById("statPeakZ"),
   deliveryScoreCard: document.getElementById("deliveryScoreCard"),
   rubricReliabilityNote: document.getElementById("rubricReliabilityNote"),
+  rubricOverallNote: document.getElementById("rubricOverallNote"),
   rubricOverallScore: document.getElementById("rubricOverallScore"),
   rubricEmptyState: document.getElementById("rubricEmptyState"),
   rubricDimensionsList: document.getElementById("rubricDimensionsList"),
@@ -54,6 +55,8 @@ const elements = {
   audioTimeDisplay: document.getElementById("audioTimeDisplay"),
   audioStatusDisplay: document.getElementById("audioStatusDisplay"),
   stackedTracksPlot: document.getElementById("stackedTracksPlot"),
+  clarityNote: document.getElementById("clarityNote"),
+  spectrumEmptyState: document.getElementById("spectrumEmptyState"),
   regionsTableBody: document.getElementById("regionsTableBody"),
   whyFlaggedContainer: document.getElementById("whyFlaggedContainer"),
   tabPitchLadder: document.getElementById("tabPitchLadder"),
@@ -672,6 +675,7 @@ function renderDeliveryRubric(data) {
     if (elements.rubricCalculationDetails) elements.rubricCalculationDetails.style.display = "none";
     if (elements.rubricOverallScore) elements.rubricOverallScore.textContent = "-";
     if (elements.rubricReliabilityNote) elements.rubricReliabilityNote.textContent = "";
+    if (elements.rubricOverallNote) elements.rubricOverallNote.textContent = "";
     return;
   }
 
@@ -689,6 +693,11 @@ function renderDeliveryRubric(data) {
   // 2. Reliability note in plain text
   if (elements.rubricReliabilityNote) {
     elements.rubricReliabilityNote.textContent = rubric.reliability_note || "";
+  }
+
+  // 2b. Overall note in plain text
+  if (elements.rubricOverallNote) {
+    elements.rubricOverallNote.textContent = rubric.overall_note || "";
   }
 
   // 3. Dimensions list
@@ -901,6 +910,67 @@ function renderStackedTracksPlot(data) {
     hoverinfo: "x+y",
   });
 
+  // Spectrogram and Voice Clarity Tracks (Rows 5 and 6)
+  const spec = data.spectrogram;
+  const clarity = data.clarity;
+  const hasSpectrum = Boolean(
+    spec && Array.isArray(spec.times) && spec.times.length > 0 &&
+    Array.isArray(spec.values) && spec.values.length > 0 &&
+    clarity && Array.isArray(clarity.times) && clarity.times.length > 0
+  );
+
+  if (hasSpectrum) {
+    // Track 5: Spectrogram (frequency over time) as greyscale heatmap
+    traces.push({
+      x: spec.times,
+      y: spec.frequencies,
+      z: spec.values,
+      xaxis: "x",
+      yaxis: "y5",
+      name: "Spectrogram",
+      type: "heatmap",
+      colorscale: [
+        [0.0, "#ffffff"],
+        [0.25, "#d1d5db"],
+        [0.5, "#6b7280"],
+        [0.75, "#374151"],
+        [1.0, "#141a1e"],
+      ],
+      showscale: false,
+      hovertemplate: "Time: %{x:.2f} s<br>Freq: %{y:.0f} Hz<br>Power: %{z} dB<extra></extra>",
+    });
+
+    // Track 6: Voice Clarity (dB)
+    // Reference line (dashed)
+    if (clarity.reference_median_db !== null && clarity.reference_median_db !== undefined) {
+      traces.push({
+        x: [0, duration],
+        y: [clarity.reference_median_db, clarity.reference_median_db],
+        xaxis: "x",
+        yaxis: "y6",
+        name: "Reference Clarity (median dB)",
+        type: "scatter",
+        mode: "lines",
+        line: { color: "#888d92", dash: "dash", width: 1.5 },
+        hovertemplate: `Reference Median: ${clarity.reference_median_db.toFixed(1)} dB<extra></extra>`,
+      });
+    }
+
+    // Participant line
+    traces.push({
+      x: clarity.times,
+      y: clarity.hnr_db,
+      xaxis: "x",
+      yaxis: "y6",
+      name: "Voice Clarity (dB)",
+      type: "scatter",
+      mode: "lines",
+      connectgaps: false,
+      line: { color: "#141a1e", width: 1.5 },
+      hovertemplate: "Time: %{x:.2f} s<br>Clarity: %{y:.1f} dB<extra></extra>",
+    });
+  }
+
   // Shapes & Annotations for Flagged Regions and Injected Ground Truth
   const shapes = [];
   const annotations = [];
@@ -987,9 +1057,22 @@ function renderStackedTracksPlot(data) {
     line: { color: "#b84328", width: 2 },
   });
 
+  // Toggle empty state and clarity note visibility
+  const plotEl = document.getElementById("stackedTracksPlot");
+  if (hasSpectrum) {
+    if (elements.clarityNote) elements.clarityNote.style.display = "block";
+    if (elements.spectrumEmptyState) elements.spectrumEmptyState.style.display = "none";
+    if (plotEl) plotEl.classList.add("has-spectrum");
+  } else {
+    if (elements.clarityNote) elements.clarityNote.style.display = "none";
+    if (elements.spectrumEmptyState) elements.spectrumEmptyState.style.display = "block";
+    if (plotEl) plotEl.classList.remove("has-spectrum");
+  }
+
   // Plotly Subplots Layout
   const layout = {
-    grid: { rows: 4, columns: 1, pattern: "coupled", roworder: "top to bottom" },
+    grid: { rows: hasSpectrum ? 6 : 4, columns: 1, pattern: "coupled", roworder: "top to bottom" },
+    height: hasSpectrum ? 860 : 620,
     margin: { l: 70, r: 25, t: 30, b: 40 },
     showlegend: false,
     plot_bgcolor: "#ffffff",
@@ -1031,6 +1114,21 @@ function renderStackedTracksPlot(data) {
     shapes: shapes,
     annotations: annotations,
   };
+
+  if (hasSpectrum) {
+    layout.yaxis5 = {
+      title: { text: "Freq (Hz)", font: { size: 10, family: "monospace" } },
+      showgrid: true,
+      gridcolor: "#f0ece1",
+      zeroline: false,
+    };
+    layout.yaxis6 = {
+      title: { text: "Clarity (dB)", font: { size: 10, family: "monospace" } },
+      showgrid: true,
+      gridcolor: "#f0ece1",
+      zeroline: false,
+    };
+  }
 
   const config = {
     responsive: true,

@@ -55,3 +55,4 @@ scratch/
 dataset/features/
 dataset/backup/
 *_auto_alignment.csv
+old_examples/

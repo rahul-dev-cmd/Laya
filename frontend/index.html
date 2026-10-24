@@ -140,6 +140,7 @@
         <div>
           <h2 class="card-title" style="margin-bottom: var(--space-2xs); border-bottom: none;">Delivery Score</h2>
           <div id="rubricReliabilityNote" class="rubric-reliability-note"></div>
+          <div id="rubricOverallNote" class="rubric-overall-note"></div>
         </div>
         <div class="delivery-score-overall-box">
           <span class="delivery-score-overall-label">Overall Score</span>
@@ -214,6 +215,12 @@
 
       <!-- Plotly Subplots Target -->
       <div id="stackedTracksPlot" class="plot-container"></div>
+      <div id="clarityNote" class="clarity-note">
+        Clarity depends on the microphone and the room as well as the voice. It is shown, not used for flags.
+      </div>
+      <div id="spectrumEmptyState" class="spectrum-empty-state" style="display: none;">
+        Spectrogram and voice clarity data not available for this recording.
+      </div>
     </section>
 
     <!-- Flagged Regions Table and Why It Was Flagged Card -->

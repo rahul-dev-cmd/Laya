@@ -1,4 +1,4 @@
-"""WhisperX word alignment module for Second Take."""
+"""WhisperX word alignment module for Laya."""
 
 from src.alignment.aligner import align_speech
 

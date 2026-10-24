@@ -12,8 +12,8 @@ METHOD_FORMULA_TEXT: str = (
     "where overlapping flagged intervals are merged and clipped to audio duration. "
     "Pauses score = 100 * (1 - flagged_pauses / pauses_examined). "
     "Loudness is measured but unscored. "
-    "Overall score is the unweighted arithmetic mean of scored dimensions "
-    "(minimum 2 scored dimensions required, otherwise null)."
+    "Overall score is the unweighted arithmetic mean of the unrounded scored dimensions "
+    "rounded once to one decimal (round half up; minimum 2 scored dimensions required, otherwise null)."
 )
 
 METHOD_NOTE: str = (
@@ -50,10 +50,7 @@ REASON_LOUDNESS_UNSCORED: str = (
 )
 
 REASON_PAUSES_UNSCORED: str = (
-    "The pause detector examines natural baseline phrase boundaries "
-    "(>= 150 ms) and test gaps >= 150 ms, but the examined boundary "
-    "count is not preserved in analysis results and cannot be determined "
-    "without changing the detector."
+    "Pauses are shown but not scored yet, because the number of gaps checked is not recorded."
 )
 
 MIN_SCORED_DIMENSIONS: int = 2

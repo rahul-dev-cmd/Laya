@@ -1,1 +1,1 @@
-"""Utility functions for Second Take."""
+"""Utility functions for Laya."""

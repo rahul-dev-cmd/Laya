@@ -40,6 +40,8 @@ result = analyze(
 | `curves` | `object` | Frame-level continuous acoustic feature curves at a uniform 10 ms hop (100 Hz). |
 | `flaw_regions` | `array[object]` | Temporal flaw intervals identified by frozen detector rules ($|z| \ge 2.0$). |
 | `rubric` | `object` | Delivery rubric score payload with overall and dimensional scores. |
+| `spectrogram` | `object` | Log-magnitude spectrogram representation (times, frequencies, values in whole dB). |
+| `clarity` | `object` | Voice clarity (HNR in dB) track and median summary metrics. |
 
 ---
 
@@ -156,10 +158,11 @@ Structured delivery rubric scoring evaluated across delivery dimensions (Pace, P
 ```json
 {
   "version": "1.0.0",
-  "method": "Pace and Pitch variation scores = 100 * (1 - flagged_seconds / duration), where overlapping flagged intervals are merged and clipped to audio duration. Pauses score = 100 * (1 - flagged_pauses / pauses_examined). Loudness is measured but unscored. Overall score is the unweighted arithmetic mean of scored dimensions (minimum 2 scored dimensions required, otherwise null).",
+  "method": "Pace and Pitch variation scores = 100 * (1 - flagged_seconds / duration), where overlapping flagged intervals are merged and clipped to audio duration. Pauses score = 100 * (1 - flagged_pauses / pauses_examined). Loudness is measured but unscored. Overall score is the unweighted arithmetic mean of unrounded scored dimensions rounded once to 1 decimal place (round half up, minimum 2 scored dimensions required, otherwise null).",
   "method_note": "A score of 100 means the detectors flagged nothing. It does not prove the delivery was good.",
   "mode": "paired",
   "reliability_note": "Compared with an ideal recording of the same speech",
+  "overall_note": "Overall uses 2 of 4 dimensions: Pace, Pitch variation",
   "dimensions": [
     {
       "name": "Pace",
@@ -190,7 +193,7 @@ Structured delivery rubric scoring evaluated across delivery dimensions (Pace, P
       "score": null,
       "scored": false,
       "measured": true,
-      "reason": "The pause detector examines natural baseline phrase boundaries (>= 150 ms) and test gaps >= 150 ms, but the examined boundary count is not preserved in analysis results and cannot be determined without changing the detector.",
+      "reason": "Pauses are shown but not scored yet, because the number of gaps checked is not recorded.",
       "region_count": 2,
       "flagged_pauses": 2,
       "pauses_examined": null,
@@ -211,7 +214,7 @@ Structured delivery rubric scoring evaluated across delivery dimensions (Pace, P
       "criterion": "Evaluates volume stability and energy dynamics across spoken phrases."
     }
   ],
-  "overall": 96.5
+  "overall": 96.6
 }
 ```
 
@@ -221,6 +224,7 @@ Structured delivery rubric scoring evaluated across delivery dimensions (Pace, P
 * `method_note` (`string`): Explanatory caveat: `"A score of 100 means the detectors flagged nothing. It does not prove the delivery was good."`
 * `mode` (`string`): Analysis mode (`"paired"` or `"experimental"`).
 * `reliability_note` (`string`): Mode-specific baseline comparison context note (`"Compared with an ideal recording of the same speech"` or `"Compared with a general baseline, so less reliable"`).
+* `overall_note` (`string`): Human-readable note summarizing the number and names of scored dimensions (e.g. `"Overall uses 2 of 4 dimensions: Pace, Pitch variation"`).
 * `dimensions` (`array[object]`): List of dimension score objects:
   * `name` (`string`): Dimension name (`"Pace"`, `"Pitch variation"`, `"Pauses"`, or `"Loudness"`).
   * `score` (`float | null`): Computed dimension score rounded to one decimal place, or `null` if unscored.
@@ -234,7 +238,52 @@ Structured delivery rubric scoring evaluated across delivery dimensions (Pace, P
   * `worst_z` (`float | null`): Normalized deviation of the worst flagged region in this dimension, or `null` if no flags.
   * `worst_severity` (`string | null`): Standardized severity tier classification of the worst flagged region, or `null`.
   * `criterion` (`string`): One sentence describing what delivery characteristic the dimension checks.
-* `overall` (`float | null`): Unweighted arithmetic mean of scored dimensions rounded to one decimal place, or `null` if fewer than 2 dimensions are scored.
+* `overall` (`float | null`): Unweighted arithmetic mean of unrounded scored dimensions rounded once to one decimal place (round half up), or `null` if fewer than 2 dimensions are scored.
+
+> [!NOTE]
+> Technical Detail on Pauses: The pause detector examines natural baseline phrase boundaries (>= 150 ms) and test gaps >= 150 ms, but the examined boundary count is not preserved in analysis results and cannot be determined without changing the detector. Therefore, the reason presented in the rubric states: "Pauses are shown but not scored yet, because the number of gaps checked is not recorded."
+
+---
+
+### 5. `spectrogram` (Log-Magnitude Spectrogram)
+Computed from short-time Fourier transform (25 ms window, 10 ms initial hop downsampled to a hop of about 40 ms, and 48 frequency bands up to 8 kHz, rounded to whole decibels). Kept compact (< 600 KB payload size).
+
+```json
+{
+  "times": [0.000, 0.040, 0.080, 0.120],
+  "frequencies": [0.0, 170.2, 340.4, 510.6],
+  "values": [
+    [-45, -38, -32, -40],
+    [-42, -35, -30, -38],
+    [-40, -33, -29, -36]
+  ]
+}
+```
+
+#### Field Specifications:
+* `times` (`array[float]`): Downsampled time slice timestamps in seconds (~40 ms step).
+* `frequencies` (`array[float]`): Center frequencies in Hz for the 48 frequency bands up to 8000 Hz.
+* `values` (`array[array[integer]]`): 2D matrix of log-magnitude power in whole decibels (`int`), with shape `[len(times), len(frequencies)]`.
+
+---
+
+### 6. `clarity` (Voice Clarity / Harmonics-to-Noise Ratio)
+Voice clarity contour evaluated using Parselmouth's Harmonics-to-Noise Ratio (HNR in dB) sampled at 10 ms intervals.
+
+```json
+{
+  "times": [0.000, 0.010, 0.020, 0.030],
+  "hnr_db": [null, 14.2, 14.5, null],
+  "median_db": 13.1,
+  "reference_median_db": 12.9
+}
+```
+
+#### Field Specifications:
+* `times` (`array[float]`): Time in seconds sampled every 10 ms (0.010 s step).
+* `hnr_db` (`array[float | null]`): Harmonics-to-noise ratio in decibels where voiced, or `null` where unvoiced or silent.
+* `median_db` (`float | null`): Median clarity across all voiced frames of the participant audio, rounded to one decimal place.
+* `reference_median_db` (`float | null`): Median clarity across all voiced frames of the reference audio take in `"paired"` mode, or `null` in `"experimental"` mode.
 
 ---
 
@@ -309,10 +358,11 @@ Structured delivery rubric scoring evaluated across delivery dimensions (Pace, P
   ],
   "rubric": {
     "version": "1.0.0",
-    "method": "Pace and Pitch variation scores = 100 * (1 - flagged_seconds / duration), where overlapping flagged intervals are merged and clipped to audio duration. Pauses score = 100 * (1 - flagged_pauses / pauses_examined). Loudness is measured but unscored. Overall score is the unweighted arithmetic mean of scored dimensions (minimum 2 scored dimensions required, otherwise null).",
+    "method": "Pace and Pitch variation scores = 100 * (1 - flagged_seconds / duration), where overlapping flagged intervals are merged and clipped to audio duration. Pauses score = 100 * (1 - flagged_pauses / pauses_examined). Loudness is measured but unscored. Overall score is the unweighted arithmetic mean of unrounded scored dimensions rounded once to 1 decimal place (round half up, minimum 2 scored dimensions required, otherwise null).",
     "method_note": "A score of 100 means the detectors flagged nothing. It does not prove the delivery was good.",
     "mode": "paired",
     "reliability_note": "Compared with an ideal recording of the same speech",
+    "overall_note": "Overall uses 2 of 4 dimensions: Pace, Pitch variation",
     "dimensions": [
       {
         "name": "Pace",
@@ -343,7 +393,7 @@ Structured delivery rubric scoring evaluated across delivery dimensions (Pace, P
         "score": null,
         "scored": false,
         "measured": true,
-        "reason": "The pause detector examines natural baseline phrase boundaries (>= 150 ms) and test gaps >= 150 ms, but the examined boundary count is not preserved in analysis results and cannot be determined without changing the detector.",
+        "reason": "Pauses are shown but not scored yet, because the number of gaps checked is not recorded.",
         "region_count": 0,
         "flagged_pauses": 0,
         "pauses_examined": null,
@@ -365,6 +415,21 @@ Structured delivery rubric scoring evaluated across delivery dimensions (Pace, P
       }
     ],
     "overall": 84.8
+  },
+  "spectrogram": {
+    "times": [0.000, 0.040, 0.080, 0.120],
+    "frequencies": [0.0, 170.2, 340.4, 510.6],
+    "values": [
+      [-45, -38, -32, -40],
+      [-42, -35, -30, -38],
+      [-40, -33, -29, -36]
+    ]
+  },
+  "clarity": {
+    "times": [0.000, 0.010, 0.020, 0.030, 0.040],
+    "hnr_db": [null, 14.2, 14.5, null, 15.1],
+    "median_db": 14.5,
+    "reference_median_db": 14.8
   }
 }
 ```

@@ -6,6 +6,7 @@ and loudness, along with an overall delivery score.
 No long dashes in any text or comments.
 """
 
+from decimal import Decimal, ROUND_HALF_UP
 from typing import Any, Dict, List, Optional, Tuple
 
 from src.scoring.config import (
@@ -22,6 +23,13 @@ from src.scoring.config import (
     RELIABILITY_NOTE_PAIRED,
     RUBRIC_VERSION,
 )
+
+
+def round_half_up(val: float, decimals: int = 1) -> float:
+    """Round a float half-up to specified decimal places."""
+    d = Decimal(f"{val:.9f}")
+    target = Decimal("10") ** (-decimals)
+    return float(d.quantize(target, rounding=ROUND_HALF_UP))
 
 
 def merge_and_clip_regions(
@@ -89,7 +97,7 @@ def find_worst_deviation(
     if raw_z is None:
         raw_z = worst_reg.get("z")
 
-    worst_z = round(float(raw_z), 2) if raw_z is not None else None
+    worst_z = round_half_up(float(raw_z), 2) if raw_z is not None else None
     worst_severity = worst_reg.get("severity")
     return worst_z, worst_severity
 
@@ -111,8 +119,9 @@ def score_analysis(result: Dict[str, Any]) -> Dict[str, Any]:
             - method_note: explicit caveat on score interpretation
             - mode: analysis mode
             - reliability_note: baseline comparison context note
+            - overall_note: note stating how many dimensions are used
             - dimensions: list of dimension score objects
-            - overall: unweighted mean of scored dimensions, or null
+            - overall: unweighted mean of unrounded scored dimensions rounded once, or null
     """
     duration = float(result.get("duration", 0.0))
     flaw_regions = result.get("flaw_regions", []) or []
@@ -123,17 +132,22 @@ def score_analysis(result: Dict[str, Any]) -> Dict[str, Any]:
     else:
         reliability_note = RELIABILITY_NOTE_EXPERIMENTAL
 
+    unrounded_scored: List[float] = []
+
     # 1. Pace (rate flaw regions)
     rate_regions = [r for r in flaw_regions if r.get("type") == "rate"]
     _, rate_flagged_sec = merge_and_clip_regions(rate_regions, duration)
     rate_worst_z, rate_worst_sev = find_worst_deviation(rate_regions)
 
     if duration > 0:
-        rate_score = 100.0 * (1.0 - (rate_flagged_sec / duration))
-        rate_score = max(0.0, min(100.0, rate_score))
-        rate_score = round(rate_score, 1)
+        unrounded_rate_score = 100.0 * (1.0 - (rate_flagged_sec / duration))
+        unrounded_rate_score = max(0.0, min(100.0, unrounded_rate_score))
+        rate_score = round_half_up(unrounded_rate_score, 1)
     else:
-        rate_score = 100.0 if not rate_regions else 0.0
+        unrounded_rate_score = 100.0 if not rate_regions else 0.0
+        rate_score = unrounded_rate_score
+
+    unrounded_scored.append(unrounded_rate_score)
 
     pace_dim = {
         "name": "Pace",
@@ -142,7 +156,7 @@ def score_analysis(result: Dict[str, Any]) -> Dict[str, Any]:
         "measured": True,
         "reason": None,
         "region_count": len(rate_regions),
-        "flagged_seconds": round(rate_flagged_sec, 1),
+        "flagged_seconds": round_half_up(rate_flagged_sec, 1),
         "worst_z": rate_worst_z,
         "worst_severity": rate_worst_sev,
         "criterion": CRITERION_PACE,
@@ -154,11 +168,14 @@ def score_analysis(result: Dict[str, Any]) -> Dict[str, Any]:
     pitch_worst_z, pitch_worst_sev = find_worst_deviation(pitch_regions)
 
     if duration > 0:
-        pitch_score = 100.0 * (1.0 - (pitch_flagged_sec / duration))
-        pitch_score = max(0.0, min(100.0, pitch_score))
-        pitch_score = round(pitch_score, 1)
+        unrounded_pitch_score = 100.0 * (1.0 - (pitch_flagged_sec / duration))
+        unrounded_pitch_score = max(0.0, min(100.0, unrounded_pitch_score))
+        pitch_score = round_half_up(unrounded_pitch_score, 1)
     else:
-        pitch_score = 100.0 if not pitch_regions else 0.0
+        unrounded_pitch_score = 100.0 if not pitch_regions else 0.0
+        pitch_score = unrounded_pitch_score
+
+    unrounded_scored.append(unrounded_pitch_score)
 
     pitch_dim = {
         "name": "Pitch variation",
@@ -167,7 +184,7 @@ def score_analysis(result: Dict[str, Any]) -> Dict[str, Any]:
         "measured": True,
         "reason": None,
         "region_count": len(pitch_regions),
-        "flagged_seconds": round(pitch_flagged_sec, 1),
+        "flagged_seconds": round_half_up(pitch_flagged_sec, 1),
         "worst_z": pitch_worst_z,
         "worst_severity": pitch_worst_sev,
         "criterion": CRITERION_PITCH,
@@ -181,12 +198,13 @@ def score_analysis(result: Dict[str, Any]) -> Dict[str, Any]:
     pauses_examined = result.get("pauses_examined")
     if isinstance(pauses_examined, (int, float)) and pauses_examined > 0:
         p_examined_int = int(pauses_examined)
-        p_score = 100.0 * (1.0 - (flagged_pauses / p_examined_int))
-        p_score = max(0.0, min(100.0, p_score))
-        p_score = round(p_score, 1)
+        unrounded_pause_score = 100.0 * (1.0 - (flagged_pauses / p_examined_int))
+        unrounded_pause_score = max(0.0, min(100.0, unrounded_pause_score))
+        pause_score = round_half_up(unrounded_pause_score, 1)
+        unrounded_scored.append(unrounded_pause_score)
         pauses_dim = {
             "name": "Pauses",
-            "score": p_score,
+            "score": pause_score,
             "scored": True,
             "measured": True,
             "reason": None,
@@ -233,14 +251,22 @@ def score_analysis(result: Dict[str, Any]) -> Dict[str, Any]:
     # Dimension grouping
     dimensions = [pace_dim, pitch_dim, pauses_dim, loudness_dim]
 
-    # Overall score: plain average of scored dimensions
+    # Scored dimensions
     scored_dims = [
         d for d in dimensions if d.get("scored") and d.get("score") is not None
     ]
-    if len(scored_dims) >= MIN_SCORED_DIMENSIONS:
-        overall_score: Optional[float] = round(
-            sum(d["score"] for d in scored_dims) / len(scored_dims), 1
-        )
+
+    # Overall note listing which dimensions are scored
+    if scored_dims:
+        names_str = ", ".join(d["name"] for d in scored_dims)
+        overall_note = f"Overall uses {len(scored_dims)} of 4 dimensions: {names_str}"
+    else:
+        overall_note = "Overall uses 0 of 4 dimensions"
+
+    # Overall score: average of unrounded scored dimensions, rounded once (round half up)
+    if len(unrounded_scored) >= MIN_SCORED_DIMENSIONS:
+        avg_unrounded = sum(unrounded_scored) / len(unrounded_scored)
+        overall_score: Optional[float] = round_half_up(avg_unrounded, 1)
     else:
         overall_score = None
 
@@ -250,6 +276,7 @@ def score_analysis(result: Dict[str, Any]) -> Dict[str, Any]:
         "method_note": METHOD_NOTE,
         "mode": mode,
         "reliability_note": reliability_note,
+        "overall_note": overall_note,
         "dimensions": dimensions,
         "overall": overall_score,
     }
