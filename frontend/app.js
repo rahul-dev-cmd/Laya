@@ -21,6 +21,18 @@ const state = {
   currentReport: null,
   chatHistory: [],
   chatSessionId: Math.random().toString(36).substring(2, 10),
+  passages: [],
+  selectedPassage: null,
+  mediaRecorder: null,
+  mediaStream: null,
+  recordedChunks: [],
+  recordedBlob: null,
+  recordedAudioUrl: null,
+  isRecording: false,
+  recordStartTime: 0,
+  recordTimerInterval: null,
+  lastRecordedBlob: null,
+  lastPassageId: null,
 };
 
 // DOM element references
@@ -31,6 +43,25 @@ const elements = {
   uploadForm: document.getElementById("uploadForm"),
   btnSubmitAnalyze: document.getElementById("btnSubmitAnalyze"),
   uploadStatus: document.getElementById("uploadStatus"),
+  passageSelect: document.getElementById("passageSelect"),
+  passageMetaContainer: document.getElementById("passageMetaContainer"),
+  passageDurationDisplay: document.getElementById("passageDurationDisplay"),
+  passageSourceDisplay: document.getElementById("passageSourceDisplay"),
+  passagePairedNote: document.getElementById("passagePairedNote"),
+  passageTextGroup: document.getElementById("passageTextGroup"),
+  passageTextDisplay: document.getElementById("passageTextDisplay"),
+  btnPlayPassageRef: document.getElementById("btnPlayPassageRef"),
+  passageRefAudio: document.getElementById("passageRefAudio"),
+  passageNoSelectionNote: document.getElementById("passageNoSelectionNote"),
+  recordErrorBox: document.getElementById("recordErrorBox"),
+  btnRecordToggle: document.getElementById("btnRecordToggle"),
+  recordStatusDisplay: document.getElementById("recordStatusDisplay"),
+  recordTimerDisplay: document.getElementById("recordTimerDisplay"),
+  recordReviewRow: document.getElementById("recordReviewRow"),
+  recordedAudioPreview: document.getElementById("recordedAudioPreview"),
+  btnAnalyzeRecording: document.getElementById("btnAnalyzeRecording"),
+  btnRecordAgain: document.getElementById("btnRecordAgain"),
+  recordUploadStatus: document.getElementById("recordUploadStatus"),
   resultSentenceText: document.getElementById("resultSentenceText"),
   statRegionCount: document.getElementById("statRegionCount"),
   statRegionType: document.getElementById("statRegionType"),
@@ -148,6 +179,7 @@ function formatTime(sec) {
 document.addEventListener("DOMContentLoaded", () => {
   setupEventListeners();
   loadExamplesList();
+  loadPassagesList();
   loadLaddersData();
 });
 
@@ -163,6 +195,30 @@ function setupEventListeners() {
     state.currentExample = e.target.value;
     loadExample(state.currentExample);
   });
+
+  // Practice passage listeners
+  if (elements.passageSelect) {
+    elements.passageSelect.addEventListener("change", handlePassageSelect);
+  }
+  if (elements.btnPlayPassageRef) {
+    elements.btnPlayPassageRef.addEventListener("click", togglePassageRefPlayback);
+  }
+  if (elements.passageRefAudio) {
+    elements.passageRefAudio.addEventListener("ended", () => {
+      if (elements.btnPlayPassageRef) elements.btnPlayPassageRef.textContent = "Play ideal recording";
+    });
+  }
+
+  // Audio recording listeners
+  if (elements.btnRecordToggle) {
+    elements.btnRecordToggle.addEventListener("click", toggleRecording);
+  }
+  if (elements.btnRecordAgain) {
+    elements.btnRecordAgain.addEventListener("click", handleRecordAgain);
+  }
+  if (elements.btnAnalyzeRecording) {
+    elements.btnAnalyzeRecording.addEventListener("click", handleAnalyzeRecording);
+  }
 
   // Upload analysis form
   elements.uploadForm.addEventListener("submit", handleUploadSubmit);
@@ -222,7 +278,7 @@ function setupEventListeners() {
 }
 
 /**
- * Load available examples from backend API.
+ * Load available examples from backend API reading manifest.json.
  */
 async function loadExamplesList() {
   try {
@@ -232,11 +288,12 @@ async function loadExamplesList() {
     if (Array.isArray(list) && list.length > 0) {
       elements.exampleSelect.innerHTML = "";
       list.forEach((item) => {
-        const id = typeof item === "string" ? item : item.id;
-        const name = typeof item === "string" ? item : item.name;
+        if (item.visible === false) return;
+        const id = item.name || item.id;
+        const title = item.title || item.name || item.id;
         const opt = document.createElement("option");
         opt.value = id;
-        opt.textContent = name;
+        opt.textContent = title;
         if (id === "librivox_01_pitch_tier5") {
           opt.selected = true;
         }
@@ -252,10 +309,296 @@ async function loadExamplesList() {
 }
 
 /**
+ * Load practice passages list from /api/passages.
+ */
+async function loadPassagesList() {
+  try {
+    const res = await fetch("/api/passages");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const passages = await res.json();
+    state.passages = passages;
+
+    if (elements.passageSelect) {
+      elements.passageSelect.innerHTML = '<option value="">None (Free speech without passage)</option>';
+      passages.forEach((p) => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = `${p.title} (${p.duration.toFixed(1)}s)`;
+        elements.passageSelect.appendChild(opt);
+      });
+    }
+  } catch (err) {
+    console.error("Failed to load practice passages:", err);
+  }
+}
+
+/**
+ * Handle passage selection change.
+ */
+function handlePassageSelect() {
+  const selectedId = elements.passageSelect.value;
+  const passage = state.passages.find((p) => p.id === selectedId);
+
+  if (passage) {
+    state.selectedPassage = passage;
+    if (elements.passageMetaContainer) elements.passageMetaContainer.style.display = "block";
+    if (elements.passageDurationDisplay) elements.passageDurationDisplay.textContent = passage.duration.toFixed(1);
+    if (elements.passageSourceDisplay) elements.passageSourceDisplay.textContent = passage.source;
+    if (elements.passageTextGroup) elements.passageTextGroup.style.display = "block";
+    if (elements.passageTextDisplay) elements.passageTextDisplay.textContent = passage.text;
+    if (elements.passageNoSelectionNote) elements.passageNoSelectionNote.style.display = "none";
+    if (elements.passageRefAudio) {
+      elements.passageRefAudio.src = `/api/audio?path=dataset/sources/${encodeURIComponent(passage.wav_file)}`;
+    }
+    if (elements.btnPlayPassageRef) elements.btnPlayPassageRef.textContent = "Play ideal recording";
+  } else {
+    state.selectedPassage = null;
+    if (elements.passageMetaContainer) elements.passageMetaContainer.style.display = "none";
+    if (elements.passageTextGroup) elements.passageTextGroup.style.display = "none";
+    if (elements.passageNoSelectionNote) elements.passageNoSelectionNote.style.display = "block";
+    if (elements.passageRefAudio) {
+      elements.passageRefAudio.pause();
+      elements.passageRefAudio.currentTime = 0;
+    }
+    if (elements.btnPlayPassageRef) elements.btnPlayPassageRef.textContent = "Play ideal recording";
+  }
+}
+
+/**
+ * Toggle playback of the practice passage reference take.
+ */
+function togglePassageRefPlayback() {
+  if (!elements.passageRefAudio || !elements.passageRefAudio.src) return;
+  if (elements.passageRefAudio.paused) {
+    elements.passageRefAudio.play().then(() => {
+      if (elements.btnPlayPassageRef) elements.btnPlayPassageRef.textContent = "Pause ideal recording";
+    }).catch((err) => {
+      console.error("Passage audio playback error:", err);
+    });
+  } else {
+    elements.passageRefAudio.pause();
+    if (elements.btnPlayPassageRef) elements.btnPlayPassageRef.textContent = "Play ideal recording";
+  }
+}
+
+/**
+ * Toggle microphone recording via MediaRecorder API.
+ */
+async function toggleRecording() {
+  if (state.isRecording) {
+    stopRecording();
+    return;
+  }
+
+  // Check browser support
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+    if (elements.recordErrorBox) {
+      elements.recordErrorBox.textContent = "Your browser does not support audio recording via MediaRecorder. Please use a modern browser such as Chrome, Firefox, or Edge.";
+      elements.recordErrorBox.style.display = "block";
+    }
+    return;
+  }
+
+  if (elements.recordErrorBox) elements.recordErrorBox.style.display = "none";
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    state.mediaStream = stream;
+    state.recordedChunks = [];
+
+    let mimeType = "audio/webm";
+    if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
+      mimeType = "audio/webm;codecs=opus";
+    } else if (MediaRecorder.isTypeSupported("audio/ogg;codecs=opus")) {
+      mimeType = "audio/ogg;codecs=opus";
+    } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
+      mimeType = "audio/mp4";
+    }
+
+    const recorder = new MediaRecorder(stream, { mimeType: mimeType });
+    state.mediaRecorder = recorder;
+
+    recorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) {
+        state.recordedChunks.push(e.data);
+      }
+    };
+
+    recorder.onstop = () => {
+      finalizeRecording();
+    };
+
+    recorder.start(250);
+    state.isRecording = true;
+    state.recordStartTime = Date.now();
+
+    if (elements.btnRecordToggle) {
+      elements.btnRecordToggle.textContent = "Stop";
+      elements.btnRecordToggle.className = "btn btn-danger";
+    }
+    if (elements.recordStatusDisplay) elements.recordStatusDisplay.style.display = "flex";
+    if (elements.recordReviewRow) elements.recordReviewRow.style.display = "none";
+    if (elements.recordTimerDisplay) elements.recordTimerDisplay.textContent = "0:00.0 / 2:00.0";
+
+    // Auto-stop at 120s timer
+    state.recordTimerInterval = setInterval(() => {
+      const elapsedSec = (Date.now() - state.recordStartTime) / 1000.0;
+      if (elements.recordTimerDisplay) {
+        elements.recordTimerDisplay.textContent = `${formatTime(elapsedSec)} / 2:00.0`;
+      }
+
+      if (elapsedSec >= 120.0) {
+        stopRecording();
+      }
+    }, 100);
+
+  } catch (err) {
+    console.error("Microphone access error:", err);
+    let msg = "Microphone access failed: " + err.message;
+    if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError" || err.name === "SecurityError") {
+      msg = "Microphone access is blocked. Please click the permissions icon in your browser address bar to allow microphone access, then refresh the page.";
+    }
+    if (elements.recordErrorBox) {
+      elements.recordErrorBox.textContent = msg;
+      elements.recordErrorBox.style.display = "block";
+    }
+  }
+}
+
+/**
+ * Stop active recording.
+ */
+function stopRecording() {
+  if (!state.isRecording) return;
+  state.isRecording = false;
+
+  if (state.recordTimerInterval) {
+    clearInterval(state.recordTimerInterval);
+    state.recordTimerInterval = null;
+  }
+
+  if (state.mediaRecorder && state.mediaRecorder.state !== "inactive") {
+    state.mediaRecorder.stop();
+  }
+
+  if (state.mediaStream) {
+    state.mediaStream.getTracks().forEach((track) => track.stop());
+    state.mediaStream = null;
+  }
+
+  if (elements.btnRecordToggle) {
+    elements.btnRecordToggle.textContent = "Record";
+    elements.btnRecordToggle.className = "btn btn-primary";
+  }
+  if (elements.recordStatusDisplay) elements.recordStatusDisplay.style.display = "none";
+}
+
+/**
+ * Process finished recorded chunks into a Blob and display preview player.
+ */
+function finalizeRecording() {
+  const mime = (state.mediaRecorder && state.mediaRecorder.mimeType) || "audio/webm";
+  const blob = new Blob(state.recordedChunks, { type: mime });
+  state.recordedBlob = blob;
+
+  if (state.recordedAudioUrl) {
+    URL.revokeObjectURL(state.recordedAudioUrl);
+  }
+  state.recordedAudioUrl = URL.createObjectURL(blob);
+
+  if (elements.recordedAudioPreview) {
+    elements.recordedAudioPreview.src = state.recordedAudioUrl;
+  }
+  if (elements.recordReviewRow) elements.recordReviewRow.style.display = "block";
+  if (elements.recordUploadStatus) elements.recordUploadStatus.textContent = "";
+}
+
+/**
+ * Reset recording view to record again.
+ */
+function handleRecordAgain() {
+  if (elements.recordReviewRow) elements.recordReviewRow.style.display = "none";
+  if (elements.recordedAudioPreview) {
+    elements.recordedAudioPreview.pause();
+    elements.recordedAudioPreview.src = "";
+  }
+  if (elements.recordTimerDisplay) elements.recordTimerDisplay.textContent = "0:00.0 / 2:00.0";
+  state.recordedBlob = null;
+  if (elements.recordErrorBox) elements.recordErrorBox.style.display = "none";
+}
+
+/**
+ * Submit recorded audio to POST /api/analyze.
+ */
+async function handleAnalyzeRecording() {
+  if (!state.recordedBlob) {
+    alert("No recording available to analyse.");
+    return;
+  }
+
+  const formData = new FormData();
+  const mime = state.recordedBlob.type || "audio/webm";
+  let ext = "webm";
+  if (mime.includes("ogg")) ext = "ogg";
+  else if (mime.includes("mp4")) ext = "mp4";
+  formData.append("audio_file", state.recordedBlob, `recording.${ext}`);
+
+  if (state.selectedPassage) {
+    formData.append("passage_id", state.selectedPassage.id);
+    formData.append("transcript_text", state.selectedPassage.text);
+    formData.append("transcript_source", "provided");
+  } else {
+    const whisperModelEl = elements.whisperModel || document.getElementById("whisperModel");
+    if (whisperModelEl) {
+      formData.append("whisper_model", whisperModelEl.value);
+    }
+    formData.append("transcript_source", "auto");
+  }
+
+  if (elements.btnAnalyzeRecording) elements.btnAnalyzeRecording.disabled = true;
+  if (elements.recordUploadStatus) elements.recordUploadStatus.textContent = "Running forced alignment and flaw detection...";
+
+  try {
+    const res = await fetch("/api/analyze", {
+      method: "POST",
+      body: formData,
+    });
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => ({}));
+      throw new Error(errJson.detail || `HTTP ${res.status}`);
+    }
+    const result = await res.json();
+    state.data = result;
+    state.lastRecordedBlob = state.recordedBlob;
+    state.lastPassageId = state.selectedPassage ? state.selectedPassage.id : null;
+    state.selectedRegionIndex = 0;
+
+    renderDashboard(result);
+
+    // Bind playback player in stacked plot to recorded audio URL
+    if (state.recordedAudioUrl) {
+      elements.audioPlayer.src = state.recordedAudioUrl;
+      elements.audioPlayer.load();
+      elements.audioStatusDisplay.textContent = "Recording loaded";
+    }
+
+    if (elements.recordUploadStatus) elements.recordUploadStatus.textContent = "Analysis complete.";
+    prefetchExampleReport("user_recording");
+  } catch (err) {
+    if (elements.recordUploadStatus) elements.recordUploadStatus.textContent = "Analysis failed: " + err.message;
+    alert("Analysis failed: " + err.message);
+  } finally {
+    if (elements.btnAnalyzeRecording) elements.btnAnalyzeRecording.disabled = false;
+  }
+}
+
+/**
  * Load example data from backend API.
  */
 async function loadExample(name) {
   try {
+    state.lastRecordedBlob = null;
+    state.lastPassageId = null;
     elements.uploadStatus.textContent = "Loading " + name + "...";
     const res = await fetch(`/api/example/${encodeURIComponent(name)}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -276,6 +619,8 @@ async function loadExample(name) {
  */
 async function handleUploadSubmit(e) {
   e.preventDefault();
+  state.lastRecordedBlob = null;
+  state.lastPassageId = null;
   const fileAudio = document.getElementById("fileAudio").files[0];
   const fileRef = document.getElementById("fileReference").files[0];
   const transcriptText = document.getElementById("transcriptText").value.trim();
@@ -343,7 +688,16 @@ async function handleRerun() {
     formData.append("whisper_model", whisperModelEl.value);
   }
 
-  if (fileAudioInput.files && fileAudioInput.files.length > 0) {
+  if (state.lastRecordedBlob) {
+    const mime = state.lastRecordedBlob.type || "audio/webm";
+    let ext = "webm";
+    if (mime.includes("ogg")) ext = "ogg";
+    else if (mime.includes("mp4")) ext = "mp4";
+    formData.append("audio_file", state.lastRecordedBlob, `recording.${ext}`);
+    if (state.lastPassageId) {
+      formData.append("passage_id", state.lastPassageId);
+    }
+  } else if (fileAudioInput.files && fileAudioInput.files.length > 0) {
     formData.append("audio_file", fileAudioInput.files[0]);
     if (fileRefInput.files && fileRefInput.files.length > 0) {
       formData.append("reference_file", fileRefInput.files[0]);
@@ -393,6 +747,13 @@ async function handleRerun() {
     state.data = result;
     state.selectedRegionIndex = 0;
     renderDashboard(result);
+
+    if (state.lastRecordedBlob && state.recordedAudioUrl) {
+      elements.audioPlayer.src = state.recordedAudioUrl;
+      elements.audioPlayer.load();
+      elements.audioStatusDisplay.textContent = "Recording loaded";
+    }
+
     elements.uploadStatus.textContent = "Re-run complete.";
   } catch (err) {
     elements.uploadStatus.textContent = "Re-run failed: " + err.message;

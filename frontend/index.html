@@ -29,27 +29,89 @@
     <!-- Controls Row: Example Picker + Upload Panel -->
     <div class="controls-grid">
       
-      <!-- Example Picker Card -->
+      <!-- Card 1: Practice with a Passage -->
+      <section class="card">
+        <h2 class="card-title">Practice with a passage</h2>
+        <div class="form-group">
+          <label for="passageSelect" class="form-label">Select Practice Passage</label>
+          <select id="passageSelect" class="form-select">
+            <option value="">None (Free speech without passage)</option>
+          </select>
+        </div>
+        <div id="passageMetaContainer" style="display: none; margin-bottom: var(--space-xs);">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: var(--font-size-xs); color: var(--color-text-muted); font-family: var(--font-family-mono); flex-wrap: wrap; gap: 4px;">
+            <span>Duration: <strong id="passageDurationDisplay">-</strong> s</span>
+            <span id="passageSourceDisplay" style="word-break: break-all;">-</span>
+          </div>
+          <div class="passage-paired-note" id="passagePairedNote">
+            Compared with the ideal recording of this passage.
+          </div>
+        </div>
+        <div class="form-group" id="passageTextGroup" style="display: none; margin-bottom: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <label class="form-label" style="margin: 0;">Passage Text</label>
+            <button id="btnPlayPassageRef" type="button" class="btn btn-secondary btn-sm">Play ideal recording</button>
+          </div>
+          <div id="passageTextDisplay" class="passage-text-box"></div>
+          <audio id="passageRefAudio" preload="none" style="display: none;"></audio>
+        </div>
+        <div id="passageNoSelectionNote" style="font-size: var(--font-size-xs); color: var(--color-text-muted); font-family: var(--font-family-mono);">
+          Select a verified speech passage to practice with reference grounding.
+        </div>
+      </section>
+
+      <!-- Card 2: Record Speech -->
+      <section class="card">
+        <h2 class="card-title">Record Speech</h2>
+        
+        <!-- Error box for blocked mic / lack of support -->
+        <div id="recordErrorBox" class="record-error-box" style="display: none;"></div>
+
+        <!-- Initial & Recording state -->
+        <div id="recordActiveRow" style="display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap; margin-bottom: var(--space-xs);">
+          <button id="btnRecordToggle" class="btn btn-primary" type="button">Record</button>
+          <div id="recordStatusDisplay" style="display: none; align-items: center; gap: var(--space-xs); font-family: var(--font-family-mono); font-size: var(--font-size-sm);">
+            <span class="rec-dot"></span>
+            <span id="recordTimerDisplay">0:00.0 / 2:00.0</span>
+          </div>
+        </div>
+
+        <!-- Stopped / Review state -->
+        <div id="recordReviewRow" style="display: none; margin-top: var(--space-xs); margin-bottom: var(--space-xs);">
+          <audio id="recordedAudioPreview" controls class="recorded-preview-player"></audio>
+          <div style="display: flex; align-items: center; gap: var(--space-sm); margin-top: var(--space-xs); flex-wrap: wrap;">
+            <button id="btnAnalyzeRecording" class="btn btn-primary" type="button">Analyse this recording</button>
+            <button id="btnRecordAgain" class="btn btn-secondary" type="button">Record again</button>
+            <span id="recordUploadStatus" class="form-label" style="margin: 0; color: var(--color-text);"></span>
+          </div>
+        </div>
+
+        <!-- Privacy note directly under record button -->
+        <div class="record-privacy-note">
+          Your recording is analysed on the computer running this app and is deleted after the analysis. If you switch on the optional explanation, only the measurements are sent, never the audio.
+        </div>
+      </section>
+
+      <!-- Card 3: Precomputed Examples -->
       <section class="card">
         <h2 class="card-title">Precomputed Examples</h2>
         <div class="form-group">
           <label for="exampleSelect" class="form-label">Select Dataset Clip</label>
           <select id="exampleSelect" class="form-select">
             <option value="librivox_01_pitch_tier5">librivox_01_pitch_tier5</option>
-            <option value="librivox_01_rate_tier4">librivox_01_rate_tier4</option>
           </select>
         </div>
         <button id="btnLoadExample" class="btn btn-primary" type="button">Load Example</button>
       </section>
 
-      <!-- Upload Panel Card -->
+      <!-- Card 4: Upload Panel Card -->
       <section class="card">
         <h2 class="card-title">Analyze Speech Recording</h2>
         <form id="uploadForm">
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm);">
             <div class="form-group">
-              <label for="fileAudio" class="form-label">Audio WAV (Participant)</label>
-              <input type="file" id="fileAudio" name="audio_file" accept=".wav,.mpeg,.mp3" class="form-input" required>
+              <label for="fileAudio" class="form-label">Audio WAV, WebM, Ogg, MP4</label>
+              <input type="file" id="fileAudio" name="audio_file" accept=".wav,.webm,.ogg,.mp4,.mpeg,.mp3" class="form-input" required>
             </div>
             <div class="form-group">
               <label for="fileReference" class="form-label">Reference WAV (Optional)</label>

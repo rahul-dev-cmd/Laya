@@ -10,13 +10,23 @@ Endpoints:
 - POST /api/analyze: Runs forced alignment, feature extraction, and flaw detection
 """
 
+import csv
 import json
 import os
+import secrets
 import shutil
 import sys
 import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+import soundfile as sf
+
+from src.audio.convert import (
+    MAX_UPLOAD_BYTES,
+    MAX_DURATION_SECONDS,
+    validate_audio_content,
+    convert_to_wav16k_mono,
+)
 
 # Ensure project root is in sys.path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -43,6 +53,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from backend.chat import router as chat_router
 from backend.report import router as report_router
 from src.pipeline.analyze import analyze
 
@@ -61,8 +72,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount AI report explanation endpoints
+# Mount AI report and chat endpoints
 app.include_router(report_router)
+app.include_router(chat_router)
 
 FRONTEND_DIR = PROJECT_ROOT / "frontend"
 EXAMPLES_DIR = PROJECT_ROOT / "dataset" / "examples"
@@ -73,10 +85,15 @@ SCRATCH_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def find_audio_file(file_str: str) -> Optional[Path]:
-    """Resolve an audio file path against corrupted and sources directories."""
-    clean_name = Path(file_str).name
+    """Resolve an audio file path against scratch, corrupted, sources, and examples directories."""
+    raw_path = Path(file_str)
+    if raw_path.exists() and raw_path.is_file():
+        return raw_path
+
+    clean_name = raw_path.name
     candidates = [
         PROJECT_ROOT / file_str,
+        SCRATCH_DIR / clean_name,
         CORRUPTED_DIR / clean_name,
         SOURCES_DIR / clean_name,
         PROJECT_ROOT / "dataset" / "examples" / clean_name,
@@ -84,6 +101,10 @@ def find_audio_file(file_str: str) -> Optional[Path]:
     for cand in candidates:
         if cand.exists() and cand.is_file():
             return cand
+    if SCRATCH_DIR.exists():
+        for sub in SCRATCH_DIR.rglob(clean_name):
+            if sub.is_file():
+                return sub
     return None
 
 
@@ -118,18 +139,119 @@ def get_javascript():
 
 
 @app.get("/api/examples")
-def list_examples() -> List[Dict[str, str]]:
-    """List all available example JSON datasets in dataset/examples/."""
+def list_examples(include_hidden: bool = False) -> List[Dict[str, Any]]:
+    """List available example JSON datasets from dataset/examples/manifest.json."""
+    manifest_path = EXAMPLES_DIR / "manifest.json"
+    if manifest_path.exists():
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            manifest = json.load(f)
+        examples = []
+        for item in manifest:
+            if not include_hidden and not item.get("visible", True):
+                continue
+            ex = dict(item)
+            ex.setdefault("id", item["name"])
+            ex.setdefault("filename", f"{item['name']}.json")
+            examples.append(ex)
+        return examples
+
     if not EXAMPLES_DIR.exists():
         return []
     examples = []
     for p in sorted(EXAMPLES_DIR.glob("*.json")):
+        if p.name == "manifest.json":
+            continue
         stem = p.stem
-        # Clean title for selector
         parts = stem.split("_")
         title = " ".join(parts).title()
-        examples.append({"id": stem, "name": title, "filename": p.name})
+        examples.append({"id": stem, "name": title, "filename": p.name, "visible": True})
     return examples
+
+
+@app.get("/api/passages")
+def list_passages() -> List[Dict[str, Any]]:
+    """List practice passages having verified transcript (.txt) and reference WAV in dataset/sources/."""
+    if not SOURCES_DIR.exists():
+        return []
+
+    # Map clip_id to raw_mp3 and duration from dataset/sources_table.csv
+    clip_to_raw = {}
+    clip_to_dur = {}
+    table_csv = PROJECT_ROOT / "dataset" / "sources_table.csv"
+    if table_csv.exists():
+        try:
+            with open(table_csv, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    cid = row.get("clip_id", "").strip()
+                    raw = row.get("raw_mp3", "").strip()
+                    dur_str = row.get("duration_seconds", "").strip()
+                    if cid:
+                        clip_to_raw[cid] = raw
+                        if dur_str:
+                            try:
+                                clip_to_dur[cid] = round(float(dur_str), 1)
+                            except ValueError:
+                                pass
+        except Exception:
+            pass
+
+    # Map raw_mp3 to source description from dataset/raw_sources_audit.csv
+    raw_to_source = {}
+    audit_csv = PROJECT_ROOT / "dataset" / "raw_sources_audit.csv"
+    if audit_csv.exists():
+        try:
+            with open(audit_csv, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    raw_file = row.get("file", "").strip()
+                    url = row.get("url", "").strip()
+                    notes = row.get("notes", "").strip()
+                    book = ""
+                    for part in notes.split(";"):
+                        if "Book:" in part:
+                            book = part.split("Book:")[-1].strip()
+                    source_str = book or (url if url != "UNKNOWN" else "") or "unknown"
+                    if raw_file:
+                        raw_to_source[raw_file] = source_str
+        except Exception:
+            pass
+
+    passages = []
+    for wav_path in sorted(SOURCES_DIR.glob("librivox_*.wav")):
+        txt_path = wav_path.with_suffix(".txt")
+        # Only include passages that have BOTH wav and txt
+        if not txt_path.exists():
+            continue
+
+        clip_id = wav_path.stem
+        dur = clip_to_dur.get(clip_id)
+        if dur is None:
+            try:
+                info = sf.info(str(wav_path))
+                dur = round(float(info.duration), 1)
+            except Exception:
+                dur = 0.0
+
+        try:
+            with open(txt_path, "r", encoding="utf-8") as f:
+                text_content = f.read().strip()
+        except Exception:
+            text_content = ""
+
+        raw_mp3 = clip_to_raw.get(clip_id, "")
+        source_val = raw_to_source.get(raw_mp3, "unknown")
+
+        passages.append({
+            "id": clip_id,
+            "title": clip_id,
+            "source": source_val,
+            "duration": dur,
+            "text": text_content,
+            "wav_file": wav_path.name,
+        })
+
+    return passages
 
 
 @app.get("/api/example/{name}")
@@ -220,49 +342,108 @@ def get_audio(path: str = Query(..., description="File path or filename of WAV a
 
 @app.post("/api/analyze")
 async def run_analysis(
-    audio_file: UploadFile = File(..., description="Participant audio WAV file"),
+    audio_file: UploadFile = File(..., description="Participant audio WAV, WebM, Ogg, or MP4 file"),
+    passage_id: Optional[str] = Form(None, description="Optional practice passage identifier"),
+    reference_passage: Optional[str] = Form(None, description="Alias for passage_id"),
     transcript_text: Optional[str] = Form(None, description="Transcript text content"),
     transcript_file: Optional[UploadFile] = File(None, description="Transcript text TXT file"),
     reference_file: Optional[UploadFile] = File(None, description="Optional reference WAV file"),
     whisper_model: str = Form("small.en", description="Whisper model size: tiny.en, base.en, small.en, medium.en"),
     transcript_source: Optional[str] = Form(None, description="Transcript provenance label: provided, auto, edited"),
 ):
-    """Run full analysis pipeline on uploaded audio and transcript."""
+    """Run full analysis pipeline on uploaded audio and transcript.
+    
+    Accepts WAV, WebM, Ogg, and MP4. Validates file content and duration (<= 150 s, <= 25 MB).
+    Converts audio with ffmpeg to 16 kHz mono WAV.
+    Temporary files are generated with random names and deleted immediately after analysis.
+    """
     valid_models = {"tiny.en", "base.en", "small.en", "medium.en"}
     if whisper_model not in valid_models:
         whisper_model = "small.en"
 
-    # Create isolated temp folder for this upload
-    temp_dir = Path(tempfile.mkdtemp(dir=str(SCRATCH_DIR)))
+    # 1. Read uploaded audio bytes with 25 MB limit check
+    raw_bytes = await audio_file.read()
+    if len(raw_bytes) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Audio file exceeds {MAX_UPLOAD_BYTES // (1024 * 1024)} MB upload limit."
+        )
+
+    # 2. Create isolated random temp folder for this upload
+    random_id = secrets.token_hex(12)
+    temp_dir = Path(tempfile.mkdtemp(prefix=f"rec_{random_id}_", dir=str(SCRATCH_DIR)))
+
     try:
-        # 1. Save participant audio
-        audio_path = temp_dir / audio_file.filename
-        with open(audio_path, "wb") as f:
-            shutil.copyfileobj(audio_file.file, f)
+        # Determine suffix from original filename or default based on magic bytes
+        orig_suffix = Path(audio_file.filename or "").suffix.lower()
+        if not orig_suffix:
+            orig_suffix = ".webm" if raw_bytes.startswith(b"\x1a\x45\xdf\xa3") else ".audio"
 
-        # 2. Save transcript if provided (optional)
-        txt_path = None
-        if transcript_file and transcript_file.filename:
-            candidate_path = temp_dir / "transcript.txt"
-            with open(candidate_path, "wb") as f:
-                shutil.copyfileobj(transcript_file.file, f)
-            txt_path = candidate_path
-        elif transcript_text and transcript_text.strip():
-            candidate_path = temp_dir / "transcript.txt"
-            with open(candidate_path, "w", encoding="utf-8") as f:
-                f.write(transcript_text.strip())
-            txt_path = candidate_path
+        temp_raw = temp_dir / f"upload_{secrets.token_hex(8)}{orig_suffix}"
+        temp_raw.write_bytes(raw_bytes)
 
-        # 3. Optional reference audio
+        # 3. Content and duration validation
+        is_valid, duration, err_msg = validate_audio_content(
+            temp_raw,
+            max_bytes=MAX_UPLOAD_BYTES,
+            max_duration=MAX_DURATION_SECONDS,
+        )
+        if not is_valid:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Audio validation failed: {err_msg}"
+            )
+
+        # 4. Check ffmpeg availability and convert to 16 kHz mono WAV
+        if not shutil.which("ffmpeg"):
+            raise HTTPException(
+                status_code=500,
+                detail="ffmpeg is required for audio conversion but was not found on PATH. Please install ffmpeg."
+            )
+
+        converted_wav = temp_dir / f"conv_{secrets.token_hex(8)}.wav"
+        try:
+            convert_to_wav16k_mono(temp_raw, converted_wav)
+        except RuntimeError as conv_err:
+            raise HTTPException(status_code=500, detail=str(conv_err))
+
+        # Remove raw upload file after conversion
+        if temp_raw.exists():
+            temp_raw.unlink()
+
+        # 5. Handle transcript and reference audio (passage vs uploaded)
+        pid = passage_id or reference_passage
         ref_path = None
-        if reference_file and reference_file.filename:
-            ref_path = temp_dir / reference_file.filename
-            with open(ref_path, "wb") as f:
-                shutil.copyfileobj(reference_file.file, f)
+        txt_path = None
 
-        # 4. Run pipeline analysis
+        if pid:
+            passage_wav = SOURCES_DIR / f"{pid}.wav"
+            passage_txt = SOURCES_DIR / f"{pid}.txt"
+            if passage_wav.exists() and passage_wav.is_file():
+                ref_path = passage_wav
+            if not transcript_text and passage_txt.exists() and passage_txt.is_file():
+                txt_path = passage_txt
+                transcript_source = transcript_source or "provided"
+
+        if not ref_path and reference_file and reference_file.filename:
+            ref_bytes = await reference_file.read()
+            ref_path = temp_dir / f"ref_{secrets.token_hex(8)}.wav"
+            ref_path.write_bytes(ref_bytes)
+
+        if not txt_path:
+            if transcript_file and transcript_file.filename:
+                t_bytes = await transcript_file.read()
+                candidate_path = temp_dir / f"transcript_{secrets.token_hex(8)}.txt"
+                candidate_path.write_bytes(t_bytes)
+                txt_path = candidate_path
+            elif transcript_text and transcript_text.strip():
+                candidate_path = temp_dir / f"transcript_{secrets.token_hex(8)}.txt"
+                candidate_path.write_text(transcript_text.strip(), encoding="utf-8")
+                txt_path = candidate_path
+
+        # 6. Run pipeline analysis
         result = analyze(
-            audio_wav=audio_path,
+            audio_wav=converted_wav,
             transcript_txt=txt_path,
             reference_wav=ref_path,
             whisper_model=whisper_model,
@@ -270,10 +451,14 @@ async def run_analysis(
         )
 
         return JSONResponse(result)
+    except HTTPException:
+        raise
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Analysis pipeline error: {str(e)}")
     finally:
-        # Cleanup uploaded files from disk
+        # Delete temporary files after the analysis; never store recordings permanently
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 

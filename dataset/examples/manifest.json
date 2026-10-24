@@ -1,0 +1,14 @@
+[
+  {
+    "name": "librivox_01_pitch_tier5",
+    "title": "librivox_01_pitch_tier5",
+    "visible": true,
+    "note": null
+  },
+  {
+    "name": "librivox_01_rate_tier4",
+    "title": "librivox_01_rate_tier4",
+    "visible": false,
+    "note": "Hidden: the full pipeline raised flags outside the damaged region, still being investigated."
+  }
+]
