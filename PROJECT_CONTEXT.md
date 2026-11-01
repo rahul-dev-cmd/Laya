@@ -36,3 +36,5 @@ with start/end times -> template-based explanations -> dashboard overlay.
 Pitch and pause detectors built; rate ladder built on clip 01. Adding speeches 03 to 10 using
 scripts/prep_clip.py. Next: more flaw types (energy), Mode B baselines, explanations.
 Do not build the frontend yet.
+
+Adding features: rubric score, spectrogram and clarity track, record button, retake comparison. Detectors and thresholds stay frozen.

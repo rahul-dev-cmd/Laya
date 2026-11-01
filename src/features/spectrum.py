@@ -153,24 +153,27 @@ def compute_voice_clarity(
     pitch = snd.to_pitch(time_step=hop_sec, pitch_floor=pitch_floor, pitch_ceiling=pitch_ceiling)
     harm = snd.to_harmonicity(time_step=hop_sec, minimum_pitch=pitch_floor)
 
-    hnr_db: List[Optional[float]] = []
-    voiced_hnrs: List[float] = []
+    # Vectorized extraction: get all pitch and HNR values at once via numpy
+    times_arr = np.array(times, dtype=np.float64)
+    pitch_values = np.array(
+        [pitch.get_value_at_time(t) for t in times_arr], dtype=np.float64
+    )
+    harm_values = np.array(
+        [harm.get_value(t) for t in times_arr], dtype=np.float64
+    )
 
-    for t in times:
-        p_val = pitch.get_value_at_time(t)
-        if p_val is None or np.isnan(p_val) or p_val <= 0.0:
-            hnr_db.append(None)
-        else:
-            h_val = harm.get_value(t)
-            if h_val is None or np.isnan(h_val) or h_val <= -100.0:
-                hnr_db.append(None)
-            else:
-                rounded_val = round(float(h_val), 1)
-                hnr_db.append(rounded_val)
-                voiced_hnrs.append(rounded_val)
+    # Build masks for voiced frames with valid HNR
+    voiced_mask = ~np.isnan(pitch_values) & (pitch_values > 0.0)
+    valid_hnr_mask = voiced_mask & ~np.isnan(harm_values) & (harm_values > -100.0)
+
+    hnr_db: List[Optional[float]] = [None] * num_frames
+    for idx in np.where(valid_hnr_mask)[0]:
+        hnr_db[idx] = round(float(harm_values[idx]), 1)
+
+    voiced_hnrs = harm_values[valid_hnr_mask]
 
     median_db: Optional[float] = (
-        round(float(np.median(voiced_hnrs)), 1) if voiced_hnrs else None
+        round(float(np.median(voiced_hnrs)), 1) if len(voiced_hnrs) > 0 else None
     )
 
     # Reference audio median clarity (if provided in paired mode)

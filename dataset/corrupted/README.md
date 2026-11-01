@@ -1,4 +1,4 @@
-# Second Take: Rate Flaw Ladder (`librivox_01`)
+# Laya: Rate Flaw Ladder (`librivox_01`)
 
 This directory contains the synthetic speech rate / tempo flaw ladder generated for **Track C (Contrastive Speech Analytics & Temporal Flaw Grounding)** using the reference speaker clip `librivox_01.wav`.
 

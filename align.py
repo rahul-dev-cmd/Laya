@@ -48,6 +48,7 @@ def align_transcript_to_audio(
     seed: int = 42,
     initial_prompt: str = "Um, uh, so, I mean, like, you know.",
     condition_on_previous_text: bool = False,
+    whisper_model: "faster_whisper.WhisperModel | None" = None,
 ) -> Tuple[List[Dict[str, Any]], List[str]]:
     """Align reference transcript words to audio using Whisper word timestamps.
     
@@ -62,6 +63,7 @@ def align_transcript_to_audio(
         seed: Random seed for reproducibility (default: 42).
         initial_prompt: Prompt encouraging retention of disfluencies.
         condition_on_previous_text: Whether to condition on preceding text (default: False).
+        whisper_model: Optional pre-loaded WhisperModel instance to reuse.
         
     Returns:
         Tuple of (aligned_words_list, unplaced_words_list)
@@ -84,8 +86,13 @@ def align_transcript_to_audio(
     except (ImportError, AttributeError):
         pass
 
-    print(f"[Aligner] Loading Whisper model '{model_size}' on {device} ({compute_type})...")
-    model = faster_whisper.WhisperModel(model_size, device=device, compute_type=compute_type)
+    # Reuse pre-loaded model if provided, otherwise load a new one
+    if whisper_model is not None:
+        model = whisper_model
+        print(f"[Aligner] Reusing cached Whisper model on {device}...")
+    else:
+        print(f"[Aligner] Loading Whisper model '{model_size}' on {device} ({compute_type})...")
+        model = faster_whisper.WhisperModel(model_size, device=device, compute_type=compute_type)
 
     print(f"[Aligner] Transcribing audio '{wav_path.name}' with word-level timestamps...")
     segments, info = model.transcribe(

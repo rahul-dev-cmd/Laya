@@ -55,7 +55,7 @@ from fastapi.staticfiles import StaticFiles
 
 from backend.chat import router as chat_router
 from backend.report import router as report_router
-from src.pipeline.analyze import analyze
+from src.pipeline.analyze import analyze, warmup_whisper_model
 
 app = FastAPI(
     title="Laya",
@@ -82,6 +82,11 @@ CORRUPTED_DIR = PROJECT_ROOT / "dataset" / "corrupted"
 SOURCES_DIR = PROJECT_ROOT / "dataset" / "sources"
 SCRATCH_DIR = PROJECT_ROOT / "scratch" / "uploads"
 SCRATCH_DIR.mkdir(parents=True, exist_ok=True)
+
+# Pre-load Whisper model at startup so first upload is fast
+print("[Laya] Warming up Whisper model...")
+warmup_whisper_model()
+print("[Laya] Whisper model ready.")
 
 
 def find_audio_file(file_str: str) -> Optional[Path]:
@@ -348,7 +353,7 @@ async def run_analysis(
     transcript_text: Optional[str] = Form(None, description="Transcript text content"),
     transcript_file: Optional[UploadFile] = File(None, description="Transcript text TXT file"),
     reference_file: Optional[UploadFile] = File(None, description="Optional reference WAV file"),
-    whisper_model: str = Form("small.en", description="Whisper model size: tiny.en, base.en, small.en, medium.en"),
+    whisper_model: str = Form("tiny.en", description="Whisper model size: tiny.en, base.en, small.en, medium.en"),
     transcript_source: Optional[str] = Form(None, description="Transcript provenance label: provided, auto, edited"),
 ):
     """Run full analysis pipeline on uploaded audio and transcript.

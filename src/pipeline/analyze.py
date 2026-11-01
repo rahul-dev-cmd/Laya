@@ -22,8 +22,10 @@ Pipeline steps:
 import argparse
 import csv
 import difflib
+import hashlib
 import json
 import os
+import shutil
 import sys
 import tempfile
 from pathlib import Path
@@ -37,6 +39,8 @@ import soundfile as sf
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
+
+ALIGN_CACHE_DIR = PROJECT_ROOT / "scratch" / "align_cache"
 
 from align import align_transcript_to_audio, clean_token
 from src.audio.preprocess import load_audio
@@ -72,9 +76,12 @@ from src.utils.seed import set_seed
 
 _CACHED_WHISPER_MODELS: Dict[Tuple[str, str, str], faster_whisper.WhisperModel] = {}
 
+# Default model for live uploads (tiny.en is ~10x faster than small.en on CPU)
+DEFAULT_LIVE_MODEL = "tiny.en"
+
 
 def get_whisper_model(
-    model_size: str = "small.en",
+    model_size: str = DEFAULT_LIVE_MODEL,
     device: str = "cpu",
     compute_type: str = "int8",
 ) -> faster_whisper.WhisperModel:
@@ -82,18 +89,25 @@ def get_whisper_model(
     global _CACHED_WHISPER_MODELS
     key = (model_size, device, compute_type)
     if key not in _CACHED_WHISPER_MODELS:
+        print(f"[Analyze] Loading Whisper model '{model_size}' (first load)...")
         _CACHED_WHISPER_MODELS[key] = faster_whisper.WhisperModel(
             model_size, device=device, compute_type=compute_type
         )
+        print(f"[Analyze] Model '{model_size}' loaded and cached.")
     return _CACHED_WHISPER_MODELS[key]
+
+
+def warmup_whisper_model(model_size: str = DEFAULT_LIVE_MODEL) -> None:
+    """Pre-load Whisper model at server startup so first request is fast."""
+    get_whisper_model(model_size=model_size)
 
 
 def transcribe_audio_whisper(
     wav_path: Union[str, Path],
-    model_size: str = "small.en",
+    model_size: str = DEFAULT_LIVE_MODEL,
     device: str = "cpu",
     compute_type: str = "int8",
-    beam_size: int = 5,
+    beam_size: int = 1,
     seed: int = RANDOM_SEED,
     initial_prompt: str = "Um, uh, so, I mean, like, you know.",
     condition_on_previous_text: bool = False,
@@ -218,7 +232,7 @@ def get_reference_time_for_participant_window(
         )
         overlapping = [closest_i]
 
-    mapped_r = [p_to_r[i] for i in overlapping if i in p_to_r]
+    mapped_r = [p_to_r[i] for i in overlapping if i in p_to_r and 0 <= p_to_r[i] < len(reference_words)]
     if not mapped_r:
         return None
 
@@ -239,7 +253,7 @@ def build_mapped_orig_words(
     mapped = []
     last_r_idx = 0
     for i, pw in enumerate(participant_words):
-        if i in p_to_r:
+        if i in p_to_r and 0 <= p_to_r[i] < len(orig_words):
             r_idx = p_to_r[i]
             last_r_idx = r_idx
             mapped.append(dict(orig_words[r_idx]))
@@ -324,11 +338,13 @@ def find_or_compute_alignment(
         )
 
     out_csv = parent / f"{stem}_alignment.csv"
+    cached_model = get_whisper_model(model_size=model_size)
     aligned_rows, _ = align_transcript_to_audio(
         wav_path=wav_path,
         transcript_path=Path(transcript_path).resolve(),
         output_csv_path=out_csv,
         model_size=model_size,
+        whisper_model=cached_model,
     )
     words = load_alignment_csv(out_csv)
     # If aligned_rows has confidence, attach it to words
@@ -338,6 +354,109 @@ def find_or_compute_alignment(
         else:
             w["confidence"] = 1.0
     return words, out_csv
+
+
+def get_file_hash(file_path: Union[str, Path]) -> str:
+    """Compute SHA-256 hash of a file."""
+    h = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        while chunk := f.read(65536):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def get_or_compute_forced_alignment(
+    wav_path: Union[str, Path],
+    transcript_path: Union[str, Path],
+    model_size: str = "small.en",
+) -> Tuple[List[Dict[str, Any]], Path]:
+    """Compute word alignment with faster-whisper or load from scratch/align_cache/."""
+    wav_path = Path(wav_path).resolve()
+    transcript_path = Path(transcript_path).resolve()
+    ALIGN_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+    wav_hash = get_file_hash(wav_path)
+    cache_csv = ALIGN_CACHE_DIR / f"{wav_hash}_{model_size}_aligned.csv"
+    fallback_csv = ALIGN_CACHE_DIR / f"{wav_hash}.csv"
+
+    for cand_csv in [cache_csv, fallback_csv]:
+        if cand_csv.exists():
+            words = load_alignment_csv(cand_csv)
+            try:
+                with open(cand_csv, "r", encoding="utf-8") as f:
+                    reader = csv.DictReader(f)
+                    for i, row in enumerate(reader):
+                        if i < len(words) and "confidence" in row and row["confidence"]:
+                            words[i]["confidence"] = float(row["confidence"])
+                        elif i < len(words):
+                            words[i]["confidence"] = 1.0
+            except Exception:
+                pass
+            return words, cand_csv
+
+    out_csv = cache_csv
+    cached_model = get_whisper_model(model_size=model_size)
+    aligned_rows, _ = align_transcript_to_audio(
+        wav_path=wav_path,
+        transcript_path=transcript_path,
+        output_csv_path=out_csv,
+        model_size=model_size,
+        whisper_model=cached_model,
+    )
+    try:
+        shutil.copyfile(out_csv, fallback_csv)
+    except Exception:
+        pass
+
+    words = load_alignment_csv(out_csv)
+    for i, w in enumerate(words):
+        if i < len(aligned_rows) and "confidence" in aligned_rows[i]:
+            w["confidence"] = aligned_rows[i]["confidence"]
+        else:
+            w["confidence"] = 1.0
+    return words, out_csv
+
+
+def get_or_compute_auto_alignment(
+    wav_path: Union[str, Path],
+    model_size: str = "small.en",
+    seed: int = RANDOM_SEED,
+) -> Tuple[List[Dict[str, Any]], str, Path]:
+    """Transcribe audio with faster-whisper or load from scratch/align_cache/."""
+    wav_path = Path(wav_path).resolve()
+    ALIGN_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+    wav_hash = get_file_hash(wav_path)
+    cache_csv = ALIGN_CACHE_DIR / f"{wav_hash}_{model_size}_auto.csv"
+    cache_txt = ALIGN_CACHE_DIR / f"{wav_hash}_{model_size}_auto.txt"
+
+    if cache_csv.exists() and cache_txt.exists():
+        words = load_alignment_csv(cache_csv)
+        try:
+            with open(cache_csv, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for i, row in enumerate(reader):
+                    if i < len(words) and "confidence" in row and row["confidence"]:
+                        words[i]["confidence"] = float(row["confidence"])
+                    elif i < len(words):
+                        words[i]["confidence"] = 1.0
+        except Exception:
+            pass
+        transcript_text = cache_txt.read_text(encoding="utf-8")
+        return words, transcript_text, cache_csv
+
+    words_loaded, transcript_text, out_csv = transcribe_audio_whisper(
+        wav_path=wav_path,
+        model_size=model_size,
+        seed=seed,
+    )
+    try:
+        shutil.copyfile(out_csv, cache_csv)
+        cache_txt.write_text(transcript_text, encoding="utf-8")
+    except Exception:
+        pass
+
+    return words_loaded, transcript_text, cache_csv
 
 
 def extract_curves_10ms(
@@ -400,8 +519,9 @@ def analyze(
     transcript_txt: Optional[Union[str, Path]] = None,
     reference_wav: Optional[Union[str, Path]] = None,
     seed: int = RANDOM_SEED,
-    whisper_model: str = "small.en",
+    whisper_model: str = DEFAULT_LIVE_MODEL,
     transcript_source: Optional[str] = None,
+    use_precomputed_alignment: bool = False,
 ) -> Dict[str, Any]:
     """Run full speech analysis and temporal flaw detection for dashboard visualization.
     
@@ -414,6 +534,7 @@ def analyze(
         seed: Random seed for deterministic reproducibility (default: 42).
         whisper_model: Whisper model size for automatic transcription (default: small.en).
         transcript_source: Optional label for transcript provenance (auto, provided, edited).
+        use_precomputed_alignment: Whether to use precomputed alignment CSVs (default: False).
         
     Returns:
         Dictionary conforming to Laya dashboard data contract:
@@ -467,9 +588,14 @@ def analyze(
     if has_transcript and transcript_path is not None:
         with open(transcript_path, "r", encoding="utf-8") as f:
             transcript_text = f.read().strip()
-        participant_words_raw, participant_align_csv = find_or_compute_alignment(
-            audio_path, transcript_path, model_size=whisper_model
-        )
+        if use_precomputed_alignment:
+            participant_words_raw, participant_align_csv = find_or_compute_alignment(
+                audio_path, transcript_path, model_size=whisper_model
+            )
+        else:
+            participant_words_raw, participant_align_csv = get_or_compute_forced_alignment(
+                audio_path, transcript_path, model_size=whisper_model
+            )
     else:
         (
             participant_words_raw,
@@ -527,9 +653,14 @@ def analyze(
         ref_duration = round(float(ref_info.duration), 3)
 
         if has_transcript and transcript_path is not None:
-            ref_words_raw, ref_align_csv = find_or_compute_alignment(
-                ref_audio_path, transcript_path, model_size=whisper_model
-            )
+            if use_precomputed_alignment:
+                ref_words_raw, ref_align_csv = find_or_compute_alignment(
+                    ref_audio_path, transcript_path, model_size=whisper_model
+                )
+            else:
+                ref_words_raw, ref_align_csv = get_or_compute_forced_alignment(
+                    ref_audio_path, transcript_path, model_size=whisper_model
+                )
             p_to_r, word_match_rate = map_words_difflib(
                 participant_words_raw, ref_words_raw
             )
@@ -537,15 +668,26 @@ def analyze(
             mode = "paired"
         else:
             # Paired mode without a transcript: transcribe reference as well
-            (
-                ref_words_raw,
-                _,
-                ref_align_csv,
-            ) = transcribe_audio_whisper(
-                ref_audio_path,
-                model_size=whisper_model,
-                seed=seed,
-            )
+            if use_precomputed_alignment:
+                (
+                    ref_words_raw,
+                    _,
+                    ref_align_csv,
+                ) = transcribe_audio_whisper(
+                    ref_audio_path,
+                    model_size=whisper_model,
+                    seed=seed,
+                )
+            else:
+                (
+                    ref_words_raw,
+                    _,
+                    ref_align_csv,
+                ) = get_or_compute_auto_alignment(
+                    ref_audio_path,
+                    model_size=whisper_model,
+                    seed=seed,
+                )
             # Map participant words to reference words by sequence alignment (difflib)
             p_to_r, word_match_rate = map_words_difflib(
                 participant_words_raw, ref_words_raw
@@ -592,15 +734,15 @@ def analyze(
         b_mean, b_std, orig_words = compute_baseline_stats(
             ref_align_csv, ref_duration
         )
-        # Map reference words to participant word positions for contrastive check
-        mapped_orig = build_mapped_orig_words(participant_words_raw, orig_words, p_to_r)
-        detected_rate = detect_flaw_regions(
+        detected_rate, skipped_rate_wins = detect_flaw_regions(
             test_words=participant_words_raw,
             total_duration=participant_duration,
             baseline_mean=b_mean,
             baseline_std=b_std,
-            orig_words=mapped_orig,
+            orig_words=orig_words,
             z_threshold=Z_SCORE_THRESHOLD,
+            p_to_r=p_to_r,
+            return_skipped=True,
         )
         ref_rate_wins = compute_sliding_window_rates(orig_words, ref_duration)
     else:
@@ -616,6 +758,7 @@ def analyze(
             orig_words=participant_words_raw,
             z_threshold=Z_SCORE_THRESHOLD,
         )
+        skipped_rate_wins = 0
         ref_rate_wins = None
 
     test_rate_wins = compute_sliding_window_rates(
@@ -707,6 +850,7 @@ def analyze(
             z_threshold=PITCH_Z_SCORE_THRESHOLD,
             word_z_threshold=PITCH_WORD_Z_THRESHOLD,
             disable_contrastive_gate=False,
+            p_to_r=p_to_r,
         )
     else:
         # Experimental Mode B: speaker internal intonation spread
@@ -799,22 +943,26 @@ def analyze(
     # 4c. Pause Flaw Detection
     # ------------------------------------------------------------------
     if is_paired and ref_align_csv is not None:
-        pause_base = compute_pause_baseline(ref_align_csv)
+        pause_base = compute_pause_baseline(ref_words_raw if ref_words_raw is not None else ref_align_csv)
         pause_res = detect_pause_flaws(
-            test_alignment_csv_path=participant_align_csv,
+            test_alignment_csv_path=participant_words_raw,
             baseline_stats=pause_base,
             z_threshold=Z_SCORE_THRESHOLD,
             eval_mode="A",
+            p_to_r=p_to_r,
         )
     else:
         # Experimental Mode B: speaker population norm
-        pause_base = compute_pause_baseline(participant_align_csv)
+        pause_base = compute_pause_baseline(participant_words_raw)
         pause_res = detect_pause_flaws(
-            test_alignment_csv_path=participant_align_csv,
+            test_alignment_csv_path=participant_words_raw,
             baseline_stats=pause_base,
             z_threshold=Z_SCORE_THRESHOLD,
             eval_mode="B",
         )
+
+    skipped_pause_boundaries = pause_res.get("skipped_boundaries", 0)
+
 
     for b in pause_res.get("flagged_boundaries", []):
         pk_z = round(float(b["active_z_score"]), 3)
@@ -876,16 +1024,36 @@ def analyze(
         reference_wav=ref_audio_path if is_paired else None,
     )
 
+    # Word count mismatch check and mapping confidence
+    if is_paired and ref_words_raw is not None:
+        p_len = len(participant_words_raw)
+        r_len = len(ref_words_raw)
+        mapping_confidence = round(float(len(p_to_r)) / max(p_len, r_len, 1), 4)
+        if p_len != r_len:
+            word_count_warning = (
+                f"Word count mismatch: participant has {p_len} words, reference has {r_len} words."
+            )
+        else:
+            word_count_warning = None
+    else:
+        mapping_confidence = 1.0
+        word_count_warning = None
+
     # 6. Assemble final dashboard JSON object
     result = {
         "mode": mode,
         "mode_note": mode_note,
+        "alignment_source": "precomputed" if use_precomputed_alignment else "live",
         "duration": participant_duration,
         "audio_file": str(audio_path).replace("\\", "/"),
         "reference_file": str(ref_audio_path).replace("\\", "/") if ref_audio_path else None,
         "transcript_source": active_transcript_source,
         "transcript": transcript_text,
         "word_match_rate": word_match_rate,
+        "mapping_confidence": mapping_confidence,
+        "warning": word_count_warning,
+        "skipped_boundaries": skipped_pause_boundaries,
+        "skipped_windows": skipped_rate_wins,
         "words": words_list,
         "curves": curves_payload,
         "spectrogram": spec_payload,
@@ -920,6 +1088,12 @@ def main() -> None:
         default=None,
         help="Transcript provenance label (provided, auto, edited)",
     )
+    parser.add_argument(
+        "--use-precomputed-alignment",
+        action="store_true",
+        default=False,
+        help="Use precomputed alignment CSVs if available (default: False)",
+    )
 
     args = parser.parse_args()
 
@@ -930,6 +1104,7 @@ def main() -> None:
         seed=args.seed,
         whisper_model=args.model,
         transcript_source=args.transcript_source,
+        use_precomputed_alignment=args.use_precomputed_alignment,
     )
 
     if args.output:

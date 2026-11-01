@@ -79,7 +79,7 @@ def load_alignment_csv(csv_path: Union[str, Path]) -> List[Dict[str, Any]]:
 
 
 def compute_pause_baseline(
-    alignment_csv_path: Union[str, Path],
+    alignment_csv_path: Union[str, Path, List[Dict[str, Any]]],
     min_pause_sec: float = PAUSE_MIN_DURATION_SECONDS,
 ) -> Dict[str, Any]:
     """Compute baseline pause distribution from the uncorrupted audio alignment.
@@ -87,7 +87,13 @@ def compute_pause_baseline(
     Identifies all natural pauses >= min_pause_sec and computes mean, standard deviation,
     median, and Median Absolute Deviation (MAD).
     """
-    words = load_alignment_csv(alignment_csv_path)
+    if isinstance(alignment_csv_path, list):
+        words = alignment_csv_path
+        csv_path_str = "in-memory"
+    else:
+        words = load_alignment_csv(alignment_csv_path)
+        csv_path_str = str(alignment_csv_path)
+
     natural_pauses: List[Dict[str, Any]] = []
 
     for i in range(len(words) - 1):
@@ -114,7 +120,7 @@ def compute_pause_baseline(
     boundary_map = {p["boundary_index"]: p for p in natural_pauses}
 
     return {
-        "alignment_csv": str(alignment_csv_path),
+        "alignment_csv": csv_path_str,
         "total_words": len(words),
         "words": words,
         "natural_pauses": natural_pauses,
@@ -128,25 +134,35 @@ def compute_pause_baseline(
     }
 
 
+
 def detect_pause_flaws(
-    test_alignment_csv_path: Union[str, Path],
+    test_alignment_csv_path: Union[str, Path, List[Dict[str, Any]]],
     baseline_stats: Dict[str, Any],
     z_threshold: float = Z_SCORE_THRESHOLD,
     eval_mode: str = PRIMARY_MODE,
+    p_to_r: Optional[Dict[int, int]] = None,
 ) -> Dict[str, Any]:
     """Detect pause flaws in test audio by z-scoring each phrase boundary against baseline.
     
     IMPORTANT: This function does NOT read label JSONs. Detection is performed strictly
     from the test alignment timestamps and precomputed baseline statistics.
     """
-    test_words = load_alignment_csv(test_alignment_csv_path)
+    if isinstance(test_alignment_csv_path, list):
+        test_words = test_alignment_csv_path
+        csv_path_str = "in-memory"
+    else:
+        test_words = load_alignment_csv(test_alignment_csv_path)
+        csv_path_str = str(test_alignment_csv_path)
+
     base_b_map = baseline_stats["boundary_map"]
     b_std = baseline_stats["std_seconds"]
     b_median = baseline_stats["median_seconds"]
     b_scaled_mad = baseline_stats["scaled_mad_seconds"]
 
+
     evaluated_boundaries: List[Dict[str, Any]] = []
     flagged_boundaries: List[Dict[str, Any]] = []
+    skipped_boundaries = 0
 
     # Iterate over all word boundaries present in the clip
     for i in range(len(test_words) - 1):
@@ -154,8 +170,17 @@ def detect_pause_flaws(
         w_next = test_words[i + 1]
         t_gap = round(max(0.0, w_next["start"] - w_curr["end"]), 4)
 
-        is_base_phrase = (i in base_b_map)
-        base_dur = base_b_map[i]["duration_seconds"] if is_base_phrase else 0.0
+        if eval_mode == "A" and p_to_r is not None:
+            # 1:1 match check: both adjacent words must be mapped to consecutive reference words
+            if i not in p_to_r or (i + 1) not in p_to_r or p_to_r[i + 1] != p_to_r[i] + 1:
+                skipped_boundaries += 1
+                continue
+            r_idx = p_to_r[i]
+            is_base_phrase = (r_idx in base_b_map)
+            base_dur = base_b_map[r_idx]["duration_seconds"] if is_base_phrase else 0.0
+        else:
+            is_base_phrase = (i in base_b_map)
+            base_dur = base_b_map[i]["duration_seconds"] if is_base_phrase else 0.0
 
         # Only evaluate boundaries that were natural phrase boundaries in baseline
         # or exhibit a substantial pause in test audio
@@ -166,7 +191,7 @@ def detect_pause_flaws(
         diff_A = round(t_gap - base_dur, 4)
         z_A = round(diff_A / b_std, 3) if b_std > 0 else 0.0
 
-        # Mode B: Non-contrastive z-score against speaker median & MAD
+        # Mode B: Non-contrastive z-score against speaker median and MAD
         diff_B = round(t_gap - b_median, 4)
         z_B = round(diff_B / b_scaled_mad, 3) if b_scaled_mad > 0 else 0.0
 
@@ -210,13 +235,15 @@ def detect_pause_flaws(
         peak_z = max(evaluated_boundaries, key=lambda b: abs(b["active_z_score"]))["active_z_score"]
 
     return {
-        "test_alignment_csv": str(test_alignment_csv_path),
+        "test_alignment_csv": csv_path_str,
         "total_evaluated_boundaries": len(evaluated_boundaries),
         "evaluated_boundaries": evaluated_boundaries,
         "flagged_boundaries": flagged_boundaries,
         "flagged_count": len(flagged_boundaries),
+        "skipped_boundaries": skipped_boundaries,
         "peak_z": peak_z,
     }
+
 
 
 def score_against_label_json(

@@ -122,15 +122,15 @@
             <div class="form-group">
               <label for="whisperModel" class="form-label">Whisper Model Size</label>
               <select id="whisperModel" name="whisper_model" class="form-select">
-                <option value="small.en" selected>small.en (default)</option>
-                <option value="tiny.en">tiny.en</option>
+                <option value="tiny.en" selected>tiny.en (fast, default)</option>
                 <option value="base.en">base.en</option>
-                <option value="medium.en">medium.en</option>
+                <option value="small.en">small.en (accurate)</option>
+                <option value="medium.en">medium.en (slow)</option>
               </select>
             </div>
             <div class="form-group" style="display: flex; flex-direction: column; justify-content: flex-end;">
               <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: 8px;">
-                CPU, int8, beam size 5, seed 42
+                CPU, int8, beam size 1, seed 42
               </div>
             </div>
           </div>

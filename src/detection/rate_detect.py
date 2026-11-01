@@ -164,7 +164,9 @@ def detect_flaw_regions(
     z_threshold: float = Z_SCORE_THRESHOLD,
     window_duration: float = WINDOW_DURATION,
     hop_duration: float = HOP_DURATION,
-) -> List[Dict[str, Any]]:
+    p_to_r: Optional[Dict[int, int]] = None,
+    return_skipped: bool = False,
+) -> Union[List[Dict[str, Any]], Tuple[List[Dict[str, Any]], int]]:
     """Detect rate flaw regions by z-scoring sliding windows against baseline.
     
     A window is flagged as flawed if:
@@ -184,9 +186,11 @@ def detect_flaw_regions(
         z_threshold: Anomaly threshold (default: 2.0).
         window_duration: Window size (default: 3.0s).
         hop_duration: Hop size (default: 0.1s).
+        p_to_r: Optional participant-to-reference word index mapping dict.
+        return_skipped: If True, returns tuple (detected_regions, skipped_windows).
         
     Returns:
-        List of detected flaw region dicts with start, end, and z-score metrics.
+        List of detected flaw region dicts, or tuple of (detected_regions, skipped_windows).
     """
     windows = compute_sliding_window_rates(
         test_words, total_duration, window_duration=window_duration, hop_duration=hop_duration
@@ -194,17 +198,42 @@ def detect_flaw_regions(
     mids = np.array([w["mid"] for w in test_words], dtype=np.float64)
 
     flagged_windows: List[Dict[str, Any]] = []
+    skipped_windows = 0
 
     for w in windows:
+        idxs = w["word_indices"]
+
+        if p_to_r is not None and len(idxs) > 0:
+            is_1to1 = True
+            for j in range(len(idxs)):
+                k = idxs[j]
+                if k not in p_to_r:
+                    is_1to1 = False
+                    break
+                r_k = p_to_r[k]
+                if r_k < 0 or r_k >= len(orig_words):
+                    is_1to1 = False
+                    break
+                if j > 0 and r_k != p_to_r[idxs[j - 1]] + 1:
+                    is_1to1 = False
+                    break
+            if not is_1to1:
+                skipped_windows += 1
+                continue
+
         z = (w["rate"] - baseline_mean) / baseline_std
 
         if abs(z) >= z_threshold:
             # Contrastive check against reference baseline delivery:
             # For speed-up (z >= z_threshold), delivery tempo must be accelerated (ratio >= 1.10).
             # For slow-down (z <= -z_threshold), delivery tempo must be decelerated (ratio >= 1.10).
-            idxs = w["word_indices"]
             if len(idxs) > 0:
-                b_dur = orig_words[idxs[-1]]["end"] - orig_words[idxs[0]]["start"]
+                if p_to_r is not None:
+                    r_start = p_to_r[idxs[0]]
+                    r_end = p_to_r[idxs[-1]]
+                    b_dur = orig_words[r_end]["end"] - orig_words[r_start]["start"]
+                else:
+                    b_dur = orig_words[idxs[-1]]["end"] - orig_words[idxs[0]]["start"]
                 t_dur = test_words[idxs[-1]]["end"] - test_words[idxs[0]]["start"]
                 if z >= z_threshold:
                     ratio = b_dur / max(0.01, t_dur)
@@ -230,6 +259,8 @@ def detect_flaw_regions(
                         })
 
     if not flagged_windows:
+        if return_skipped:
+            return [], skipped_windows
         return []
 
     # Merge adjacent or closely spaced flagged windows of same direction
@@ -267,7 +298,15 @@ def detect_flaw_regions(
                 p_s = pauses[b_i]
                 p_e = pauses[b_i + 1] - 1
                 if p_e >= p_s:
-                    b_d = orig_words[p_e]["end"] - orig_words[p_s]["start"]
+                    if p_to_r is not None:
+                        if p_s in p_to_r and p_e in p_to_r:
+                            r_ps = p_to_r[p_s]
+                            r_pe = p_to_r[p_e]
+                            b_d = orig_words[r_pe]["end"] - orig_words[r_ps]["start"]
+                        else:
+                            b_d = orig_words[min(p_e, len(orig_words) - 1)]["end"] - orig_words[min(p_s, len(orig_words) - 1)]["start"]
+                    else:
+                        b_d = orig_words[p_e]["end"] - orig_words[p_s]["start"]
                     t_d = test_words[p_e]["end"] - test_words[p_s]["start"]
                     ratio = (b_d / max(0.01, t_d)) if direction == "fast" else (t_d / max(0.01, b_d))
                     if ratio >= 1.10:
@@ -303,7 +342,10 @@ def detect_flaw_regions(
             "window_span_seconds": [round(grp[0]["start"], 3), round(grp[-1]["end"], 3)],
         })
 
+    if return_skipped:
+        return detected_regions, skipped_windows
     return detected_regions
+
 
 
 def compute_iou(

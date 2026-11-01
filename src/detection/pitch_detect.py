@@ -293,6 +293,7 @@ def detect_pitch_flaw_regions(
     hop_duration: float = HOP_DURATION,
     disable_contrastive_gate: bool = False,
     cross_baseline_stats: Optional[Dict[str, Any]] = None,
+    p_to_r: Optional[Dict[int, int]] = None,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]], float]:
     """Two-stage pitch anomaly detector: window flagging followed by per-word edge placement.
     
@@ -405,10 +406,20 @@ def detect_pitch_flaw_regions(
             
             comp_indices = []
             for i in search_words:
-                diff = test_word_ranges[i] - base_word_ranges[i]
-                z_w = diff / b_std
-                if z_w <= word_z_threshold:
-                    comp_indices.append(i)
+                if p_to_r is not None:
+                    if i in p_to_r:
+                        r_idx = p_to_r[i]
+                        if 0 <= r_idx < len(base_word_ranges):
+                            diff = test_word_ranges[i] - base_word_ranges[r_idx]
+                            z_w = diff / b_std
+                            if z_w <= word_z_threshold:
+                                comp_indices.append(i)
+                else:
+                    if 0 <= i < len(base_word_ranges):
+                        diff = test_word_ranges[i] - base_word_ranges[i]
+                        z_w = diff / b_std
+                        if z_w <= word_z_threshold:
+                            comp_indices.append(i)
                     
             runs = find_consecutive_runs(comp_indices)
             if runs:
