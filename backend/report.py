@@ -451,8 +451,9 @@ def generate_template_report(analysis_data: Dict[str, Any]) -> Dict[str, Any]:
         "key takeaways, while unexpected rate rushes or clipped pauses disrupt comprehension."
     )
 
-    # 4. Practice tips: fixed vetted table, never from model
-    practice_tips = get_practice_tips_for_regions(regions)
+    # 4. Practice tips: fixed table (unreviewed by a native speaker), never from model
+    lang_val = analysis_data.get("language_mode", analysis_data.get("language", "english"))
+    practice_tips = get_practice_tips_for_regions(regions, language=lang_val)
 
     # 5. Clear caveats
     caveats = build_caveats_text(mode, transcript_source)
@@ -660,8 +661,10 @@ def generate_report(
                 print(f"Meaning check rejected AI reply: {reason}. Falling back to template.")
             else:
                 # Attach fixed practice tips and clear caveats
+                lang_val = analysis_data.get("language_mode", analysis_data.get("language", "english"))
                 raw_ai["practice_tips"] = get_practice_tips_for_regions(
-                    analysis_data.get("flaw_regions", [])
+                    analysis_data.get("flaw_regions", []),
+                    language=lang_val,
                 )
                 raw_ai["caveats"] = build_caveats_text(
                     analysis_data.get("mode"), analysis_data.get("transcript_source")

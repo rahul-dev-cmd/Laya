@@ -67,6 +67,25 @@
         <!-- Error box for blocked mic / lack of support -->
         <div id="recordErrorBox" class="record-error-box" style="display: none;"></div>
 
+        <!-- Language Mode Selector in Record Panel -->
+        <div class="form-group" style="margin-bottom: var(--space-sm);">
+          <label class="form-label">Language Mode</label>
+          <div class="lang-pill-row" id="recordLangPillRow">
+            <button type="button" class="lang-pill-btn active" data-lang="english" id="btnRecLangEnglish">English (Whisper)</button>
+            <button type="button" class="lang-pill-btn" data-lang="hinglish" id="btnRecLangHinglish">Hinglish (Prisma v3)</button>
+            <button type="button" class="lang-pill-btn" data-lang="hindi" id="btnRecLangHindi">Hindi (हिन्दी)</button>
+          </div>
+        </div>
+
+        <!-- Hindi/Hinglish Keyterms Input Box in Record Panel -->
+        <div id="recordIndicKeytermsGroup" class="form-group" style="display: none; margin-bottom: var(--space-sm);">
+          <label for="recordKeytermsInput" class="form-label">Words to recognise (names, topic words)</label>
+          <textarea id="recordKeytermsInput" class="form-textarea" rows="2" placeholder="One word per line&#10;e.g. Laya&#10;Rahul&#10;DevTools"></textarea>
+          <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: 4px;">
+            Defaults (Laya, Gnani, Prisma, Timbre) are always included automatically.
+          </div>
+        </div>
+
         <!-- Initial & Recording state -->
         <div id="recordActiveRow" style="display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap; margin-bottom: var(--space-xs);">
           <button id="btnRecordToggle" class="btn btn-primary" type="button">Record</button>
@@ -375,6 +394,7 @@
 
         <div class="explanation-btn-row">
           <button id="btnExplainReport" class="btn btn-secondary btn-sm" type="button">Explain in simple words</button>
+          <button id="btnListenTipsMain" class="btn btn-secondary btn-sm" type="button">Listen to the tips</button>
           <span id="explainLoadingSpinner" class="explain-spinner" style="display: none;">Loading plain-language explanation...</span>
         </div>
       </section>
@@ -420,7 +440,11 @@
 
         <!-- Practice Tips -->
         <div class="explanation-block">
-          <h3 class="explanation-subtitle">Practice Tips</h3>
+          <div class="practice-tips-header-row">
+            <h3 class="explanation-subtitle" style="margin-bottom: 0;">Practice Tips</h3>
+            <button id="btnListenTips" class="btn btn-secondary btn-sm" type="button">Listen to the tips</button>
+          </div>
+          <div id="tipsAudioPlayerContainer" class="tips-audio-player-container" style="display: none;"></div>
           <div id="explanationPracticeTips" class="practice-tips-container"></div>
         </div>
 

@@ -16,6 +16,7 @@ Adheres strictly to the following rules:
    "Transcript is automatic and can contain mistakes. You can edit it."
 """
 
+import hashlib
 import json
 import os
 import re
@@ -27,6 +28,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+import numpy as np
 import requests
 import soundfile as sf
 
@@ -41,6 +43,13 @@ DEFAULT_KEYTERMS: List[str] = ["Laya", "Gnani", "Prisma", "Timbre"]
 MAX_CHUNK_DURATION_SEC: float = 25.0
 STT_V3_URL: str = "https://api.vachana.ai/stt/v3"
 TTS_INFERENCE_URL: str = "https://api.vachana.ai/api/v1/tts/inference"
+
+# Persistent cache directories keyed by SHA-256 per Stage 3 specification
+CACHE_DIR: Path = PROJECT_ROOT / "scratch" / "cache"
+REGION_TEXT_CACHE_DIR: Path = CACHE_DIR / "region_text"
+SPEAK_CACHE_DIR: Path = CACHE_DIR / "speak"
+REGION_TEXT_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+SPEAK_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def load_gnani_api_key() -> str:
@@ -482,4 +491,252 @@ def transcribe_audio_gnani(
 
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+def extract_region_audio(
+    audio_path: Union[str, Path],
+    start_sec: float,
+    end_sec: float,
+    max_cap_sec: float = 8.0,
+) -> Tuple[np.ndarray, int, float, float]:
+    """Slice audio from 1 s before start to 1 s after end, capped at max_cap_sec.
+
+    Returns:
+        Tuple of (audio_samples, sample_rate, cut_start, cut_end).
+    """
+    audio_path = Path(audio_path)
+    if not audio_path.exists():
+        raise FileNotFoundError(f"Audio file '{audio_path}' not found.")
+
+    with sf.SoundFile(str(audio_path)) as sf_file:
+        sr = sf_file.samplerate
+        total_frames = len(sf_file)
+        total_duration = total_frames / float(sr)
+
+        # Cut 1 s before start to 1 s after end per Stage 3 rule
+        cut_start = max(0.0, float(start_sec) - 1.0)
+        cut_end = min(total_duration, float(end_sec) + 1.0)
+
+        # Cap total slice duration at 8 s
+        if (cut_end - cut_start) > max_cap_sec:
+            cut_end = min(total_duration, cut_start + max_cap_sec)
+
+        start_frame = int(cut_start * sr)
+        end_frame = max(start_frame + 1, int(cut_end * sr))
+
+        sf_file.seek(start_frame)
+        samples = sf_file.read(end_frame - start_frame, dtype="float32")
+
+    # Ensure mono
+    if samples.ndim > 1:
+        samples = np.mean(samples, axis=1)
+
+    return samples, sr, cut_start, cut_end
+
+
+def get_region_text(
+    audio_path: Union[str, Path],
+    start_sec: float,
+    end_sec: float,
+    language_mode: str = "hindi",
+    custom_keyterms: Optional[Union[List[str], str]] = None,
+    api_key: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Transcribe a cut speech interval around a flaw flag with SHA-256 caching.
+
+    Rules applied:
+    - Cut 1 s before start to 1 s after end, capped at 8 s.
+    - Cached by SHA-256 of clip bytes plus language.
+    - Temporary audio deleted immediately after use.
+    - Sent to Prisma v3.0 REST with keyterms.
+    """
+    samples, sr, cut_start, cut_end = extract_region_audio(
+        audio_path=audio_path,
+        start_sec=start_sec,
+        end_sec=end_sec,
+        max_cap_sec=8.0,
+    )
+
+    clip_duration = round(cut_end - cut_start, 3)
+
+    # Compute cache key from SHA-256 of raw clip samples + language mode
+    hasher = hashlib.sha256()
+    hasher.update(samples.tobytes())
+    hasher.update(language_mode.lower().strip().encode("utf-8"))
+    clip_hash = hasher.hexdigest()
+
+    cache_file = REGION_TEXT_CACHE_DIR / f"{clip_hash}.json"
+    if cache_file.exists():
+        try:
+            with open(cache_file, "r", encoding="utf-8") as f:
+                cached_data = json.load(f)
+            cached_data["cached"] = True
+            return cached_data
+        except Exception:
+            pass
+
+    # Temporary file for sending to Prisma STT
+    temp_dir = Path(tempfile.mkdtemp(prefix="region_stt_"))
+    temp_wav = temp_dir / f"region_{clip_hash[:12]}.wav"
+
+    try:
+        sf.write(str(temp_wav), samples, sr)
+
+        key = api_key or load_gnani_api_key()
+        if not key:
+            return {
+                "success": False,
+                "error": "GNANI_API_KEY is not configured",
+                "text": "",
+                "start": round(cut_start, 3),
+                "end": round(cut_end, 3),
+                "duration": clip_duration,
+                "language_mode": language_mode,
+                "cached": False,
+                "cache_key": clip_hash,
+            }
+
+        is_hindi = language_mode.lower() == "hindi"
+        lang_code = "hi-IN" if is_hindi else "hi-IN,en-IN"
+        keyterms = merge_keyterms(custom_keyterms)
+
+        res = transcribe_prisma_chunk(
+            api_key=key,
+            wav_path=temp_wav,
+            language_code=lang_code,
+            format_style="codemix",
+            keyterms=keyterms,
+        )
+
+        if not res.get("success"):
+            return {
+                "success": False,
+                "error": res.get("error", "Prisma region transcription failed"),
+                "text": "",
+                "start": round(cut_start, 3),
+                "end": round(cut_end, 3),
+                "duration": clip_duration,
+                "language_mode": language_mode,
+                "cached": False,
+                "cache_key": clip_hash,
+            }
+
+        text = res.get("transcript", "").strip()
+        result_payload = {
+            "success": True,
+            "text": text,
+            "start": round(cut_start, 3),
+            "end": round(cut_end, 3),
+            "duration": clip_duration,
+            "language_mode": language_mode,
+            "cached": False,
+            "cache_key": clip_hash,
+        }
+
+        # Store in persistent cache
+        try:
+            with open(cache_file, "w", encoding="utf-8") as f:
+                json.dump(result_payload, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
+
+        return result_payload
+
+    finally:
+        # Delete temporary audio after use
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+def synthesize_timbre_speech(
+    text: str,
+    language: str = "hi-IN",
+    voice: str = "Shivani",
+    api_key: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Synthesize speech using Timbre REST endpoint with SHA-256 caching.
+
+    Rules applied:
+    - Caches output audio by SHA-256 of text plus language.
+    - Duration measured via ffprobe (never from WAV header).
+    - Temporary conversion audio deleted immediately after use.
+    """
+    text_clean = text.strip()
+    if not text_clean:
+        return {"success": False, "error": "Text cannot be empty"}
+
+    lang = language.strip() or "hi-IN"
+    v = voice.strip() or "Shivani"
+
+    # Compute cache key from SHA-256 of text + language + voice
+    hasher = hashlib.sha256()
+    hasher.update(text_clean.encode("utf-8"))
+    hasher.update(lang.lower().encode("utf-8"))
+    hasher.update(v.lower().encode("utf-8"))
+    speak_hash = hasher.hexdigest()
+
+    cache_path = SPEAK_CACHE_DIR / f"{speak_hash}.wav"
+    if cache_path.exists():
+        duration = get_timbre_duration_ffprobe(cache_path)
+        return {
+            "success": True,
+            "audio_path": str(cache_path),
+            "duration": duration,
+            "cached": True,
+            "cache_key": speak_hash,
+            "voice": v,
+            "language": lang,
+        }
+
+    key = api_key or load_gnani_api_key()
+    if not key:
+        return {"success": False, "error": "GNANI_API_KEY is not configured"}
+
+    headers = {
+        "Content-Type": "application/json",
+        "X-API-Key-ID": key,
+    }
+    payload = {
+        "text": text_clean,
+        "voice": v,
+        "model": "timbre-v3.0",
+        "language": lang,
+        "speed": 1.0,
+        "audio_config": {
+            "sample_rate": 48000,
+            "num_channels": 1,
+            "sample_width": 2,
+            "encoding": "linear_pcm",
+            "container": "wav",
+        },
+    }
+
+    t0 = time.time()
+    r, err = request_with_retry("POST", TTS_INFERENCE_URL, headers=headers, json_data=payload)
+    call_time = time.time() - t0
+
+    if err or r is None or not r.ok:
+        return {"success": False, "error": err or "Timbre TTS request failed", "call_time": call_time}
+
+    # Write synthesized WAV to cache
+    temp_dir = Path(tempfile.mkdtemp(prefix="timbre_tts_"))
+    temp_file = temp_dir / f"timbre_{speak_hash[:12]}.wav"
+    try:
+        temp_file.write_bytes(r.content)
+        # Move or copy into permanent cache
+        shutil.copyfile(str(temp_file), str(cache_path))
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+    duration = get_timbre_duration_ffprobe(cache_path)
+
+    return {
+        "success": True,
+        "audio_path": str(cache_path),
+        "duration": duration,
+        "call_time": call_time,
+        "cached": False,
+        "cache_key": speak_hash,
+        "voice": v,
+        "language": lang,
+    }
 

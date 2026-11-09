@@ -48,7 +48,7 @@ if venv_python.exists() and sys.executable.lower() != str(venv_python).lower():
     elif argv0:
         sys.exit(subprocess.call([str(venv_python)] + sys.argv))
 
-from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -57,10 +57,14 @@ from backend.chat import router as chat_router
 from backend.gnani_stt import (
     DEFAULT_KEYTERMS,
     compute_script_mix,
+    extract_region_audio,
+    get_region_text,
     merge_keyterms,
+    synthesize_timbre_speech,
     transcribe_audio_gnani,
 )
 from backend.report import router as report_router
+from backend.tips import get_practice_tips_for_regions, get_tips_speech_text
 from src.pipeline.analyze import analyze, warmup_whisper_model
 
 app = FastAPI(
@@ -531,6 +535,38 @@ async def run_analysis(
             # Keep only chunk level times (chunk start and end from our own chunking).
             result["words"] = [{"word": w["word"] if isinstance(w, dict) else str(w)} for w in result.get("words", [])]
 
+            # Stage 2: Hindi and Hinglish run only the pitch variation detector
+            # plus the plain note that pace and pause checks are English only.
+            result["flaw_regions"] = [r for r in result.get("flaw_regions", []) if r.get("type") == "pitch"]
+            result["pace_pause_note"] = "Pace and pause checks are English only."
+
+            # The rubric must score only the dimensions that ran and say which ones.
+            rubric = result.get("rubric", {})
+            if rubric and "dimensions" in rubric:
+                pitch_dim = next((d for d in rubric["dimensions"] if d.get("name") == "Pitch variation"), None)
+                pitch_score = pitch_dim.get("score") if pitch_dim else None
+
+                for d in rubric["dimensions"]:
+                    if d.get("name") in ("Pace", "Pauses"):
+                        d["scored"] = False
+                        d["measured"] = False
+                        d["score"] = None
+                        d["reason"] = "Pace and pause checks are English only."
+                        if d.get("name") == "Pace":
+                            d["region_count"] = 0
+                            d["flagged_seconds"] = 0.0
+                            d["worst_z"] = None
+                            d["worst_severity"] = None
+                        elif d.get("name") == "Pauses":
+                            d["region_count"] = 0
+                            d["flagged_pauses"] = 0
+                            d["pauses_examined"] = None
+                            d["worst_z"] = None
+                            d["worst_severity"] = None
+
+                rubric["overall"] = pitch_score
+                rubric["overall_note"] = "Overall uses 1 of 4 dimensions: Pitch variation. Pace and pause checks are English only."
+
         return JSONResponse(result)
     except HTTPException:
         raise
@@ -580,6 +616,256 @@ async def transcribe_gnani_endpoint(
         return JSONResponse(res)
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+@app.post("/api/region_text")
+async def get_region_text_endpoint(
+    request: Request,
+    audio_file: Optional[UploadFile] = File(None),
+    audio_path: Optional[str] = Form(None),
+    start: Optional[float] = Form(None),
+    end: Optional[float] = Form(None),
+    language_mode: Optional[str] = Form(None),
+    keyterms: Optional[str] = Form(None),
+):
+    """Cut audio 1 s before start to 1 s after end (cap 8 s) and transcribe with Prisma.
+
+    Caches results by SHA-256 of clip bytes plus language mode.
+    Deletes temporary audio files immediately after use.
+    """
+    content_type = request.headers.get("content-type", "")
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+        audio_path = body.get("audio_path") or audio_path
+        start = float(body.get("start", 0.0) if start is None else start)
+        end = float(body.get("end", 0.0) if end is None else end)
+        language_mode = body.get("language_mode") or language_mode or "hindi"
+        keyterms = body.get("keyterms") or keyterms
+    else:
+        start = float(start if start is not None else 0.0)
+        end = float(end if end is not None else 0.0)
+        language_mode = language_mode or "hindi"
+
+    temp_dir = None
+    resolved_wav = None
+
+    try:
+        if audio_file and audio_file.filename:
+            raw_bytes = await audio_file.read()
+            temp_dir = Path(tempfile.mkdtemp(prefix="reg_upload_", dir=str(SCRATCH_DIR)))
+            temp_raw = temp_dir / f"upload_{secrets.token_hex(8)}.audio"
+            temp_raw.write_bytes(raw_bytes)
+            resolved_wav = temp_dir / f"conv_{secrets.token_hex(8)}.wav"
+            convert_to_wav16k_mono(temp_raw, resolved_wav)
+            if temp_raw.exists():
+                temp_raw.unlink()
+        elif audio_path:
+            resolved_wav = find_audio_file(audio_path)
+            if not resolved_wav or not resolved_wav.exists():
+                raise HTTPException(status_code=404, detail=f"Audio file '{audio_path}' not found.")
+        else:
+            raise HTTPException(status_code=400, detail="Either audio_path or audio_file must be provided.")
+
+        res = get_region_text(
+            audio_path=resolved_wav,
+            start_sec=start,
+            end_sec=end,
+            language_mode=language_mode,
+            custom_keyterms=keyterms,
+        )
+
+        if not res.get("success"):
+            raise HTTPException(status_code=502, detail=res.get("error", "Prisma region transcription failed."))
+
+        return JSONResponse(res)
+
+    finally:
+        if temp_dir and temp_dir.exists():
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+@app.post("/api/speak")
+async def speak_endpoint(
+    request: Request,
+    text: Optional[str] = Form(None),
+    language: Optional[str] = Form(None),
+    language_mode: Optional[str] = Form(None),
+    voice: Optional[str] = Form(None),
+    format: Optional[str] = Form("audio"),
+):
+    """Synthesize text into speech using Gnani Timbre REST endpoint.
+
+    Caches synthesized audio by SHA-256 of text plus language.
+    Labeled 'Model voice, not your voice'.
+    """
+    content_type = request.headers.get("content-type", "")
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+        text = body.get("text") or text
+        language = body.get("language") or language
+        language_mode = body.get("language_mode") or language_mode
+        voice = body.get("voice") or voice
+        format = body.get("format") or format
+
+    if not text or not text.strip():
+        raise HTTPException(status_code=400, detail="Text cannot be empty.")
+
+    lang = language or ("hi-IN" if (language_mode or "").lower() in ("hindi", "hinglish") else "en-IN")
+    v = voice or "Shivani"
+
+    res = synthesize_timbre_speech(text=text.strip(), language=lang, voice=v)
+    if not res.get("success"):
+        raise HTTPException(status_code=502, detail=res.get("error", "Timbre TTS synthesis failed."))
+
+    audio_file_path = Path(res["audio_path"])
+    accept_header = request.headers.get("accept", "")
+
+    if format == "json" or "application/json" in accept_header:
+        return JSONResponse({
+            "status": "ok",
+            "audio_url": f"/api/audio?path={audio_file_path.as_posix()}",
+            "duration": res.get("duration", 0.0),
+            "cached": res.get("cached", False),
+            "cache_key": res.get("cache_key"),
+            "label": "Model voice, not your voice",
+        })
+    else:
+        return FileResponse(
+            audio_file_path,
+            media_type="audio/wav",
+            headers={
+                "X-Model-Voice": "Model voice, not your voice",
+                "X-Cached": str(res.get("cached", False)),
+                "Accept-Ranges": "bytes",
+            },
+        )
+
+
+@app.get("/api/speak")
+def speak_get_endpoint(
+    text: str = Query(..., description="Text to synthesize with Timbre"),
+    language: Optional[str] = Query(None),
+    language_mode: Optional[str] = Query("hindi"),
+    voice: Optional[str] = Query("Shivani"),
+    format: Optional[str] = Query("audio"),
+):
+    """GET endpoint for Timbre TTS streaming."""
+    if not text or not text.strip():
+        raise HTTPException(status_code=400, detail="Text cannot be empty.")
+
+    lang = language or ("hi-IN" if (language_mode or "").lower() in ("hindi", "hinglish") else "en-IN")
+    v = voice or "Shivani"
+
+    res = synthesize_timbre_speech(text=text.strip(), language=lang, voice=v)
+    if not res.get("success"):
+        raise HTTPException(status_code=502, detail=res.get("error", "Timbre TTS synthesis failed."))
+
+    audio_file_path = Path(res["audio_path"])
+    return FileResponse(
+        audio_file_path,
+        media_type="audio/wav",
+        headers={
+            "X-Model-Voice": "Model voice, not your voice",
+            "X-Cached": str(res.get("cached", False)),
+            "Accept-Ranges": "bytes",
+        },
+    )
+
+
+@app.post("/api/tips/speak")
+async def tips_speak_endpoint(request: Request):
+    """Synthesize Timbre speech reading fixed practice tips in the selected language.
+
+    No AI model writes advice at run time. Tips come directly from backend/tips.py.
+    Caches audio by SHA-256 of text, language and voice.
+    """
+    content_type = request.headers.get("content-type", "")
+    body = {}
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+
+    flaw_regions = body.get("flaw_regions") or []
+    language_mode = body.get("language_mode") or "english"
+    language = body.get("language")
+    voice = body.get("voice") or "Shivani"
+    custom_text = body.get("text")
+
+    is_hi = (language_mode or "").lower() in ("hindi", "hinglish") or (language or "").lower().startswith("hi")
+    target_lang = "hi-IN" if is_hi else "en-IN"
+
+    if custom_text and custom_text.strip():
+        text_to_speak = custom_text.strip()
+    else:
+        text_to_speak = get_tips_speech_text(flaw_regions, language="hindi" if is_hi else "english")
+
+    if not text_to_speak:
+        raise HTTPException(status_code=400, detail="No tips available to synthesize.")
+
+    res = synthesize_timbre_speech(text=text_to_speak, language=target_lang, voice=voice)
+    if not res.get("success"):
+        raise HTTPException(status_code=502, detail=res.get("error", "Timbre TTS synthesis failed."))
+
+    audio_file_path = Path(res["audio_path"])
+    accept_header = request.headers.get("accept", "")
+    format_param = body.get("format")
+
+    if format_param == "json" or "application/json" in accept_header:
+        return JSONResponse({
+            "status": "ok",
+            "audio_url": f"/api/audio?path={audio_file_path.as_posix()}",
+            "text": text_to_speak,
+            "duration": res.get("duration", 0.0),
+            "cached": res.get("cached", False),
+            "cache_key": res.get("cache_key"),
+            "language": target_lang,
+            "voice": voice,
+            "label": "Model voice, not your voice",
+        })
+    else:
+        return FileResponse(
+            audio_file_path,
+            media_type="audio/wav",
+            headers={
+                "X-Model-Voice": "Model voice, not your voice",
+                "X-Cached": str(res.get("cached", False)),
+                "Accept-Ranges": "bytes",
+            },
+        )
+
+
+@app.get("/api/tips/speak")
+def tips_speak_get_endpoint(
+    language_mode: str = Query("english"),
+    language: Optional[str] = Query(None),
+    voice: Optional[str] = Query("Shivani"),
+):
+    """GET streaming endpoint for Timbre practice tips speech."""
+    is_hi = (language_mode or "").lower() in ("hindi", "hinglish") or (language or "").lower().startswith("hi")
+    target_lang = "hi-IN" if is_hi else "en-IN"
+    text_to_speak = get_tips_speech_text([], language="hindi" if is_hi else "english")
+
+    res = synthesize_timbre_speech(text=text_to_speak, language=target_lang, voice=voice or "Shivani")
+    if not res.get("success"):
+        raise HTTPException(status_code=502, detail=res.get("error", "Timbre TTS synthesis failed."))
+
+    return FileResponse(
+        Path(res["audio_path"]),
+        media_type="audio/wav",
+        headers={
+            "X-Model-Voice": "Model voice, not your voice",
+            "X-Cached": str(res.get("cached", False)),
+            "Accept-Ranges": "bytes",
+        },
+    )
 
 
 # Mount static assets if frontend folder has extra files
