@@ -95,15 +95,32 @@ const elements = {
   stressLadderPlot: document.getElementById("stressLadderPlot"),
   stressTableHead: document.getElementById("stressTableHead"),
   stressTableBody: document.getElementById("stressTableBody"),
+  btnLangEnglish: document.getElementById("btnLangEnglish"),
+  btnLangHinglish: document.getElementById("btnLangHinglish"),
+  btnLangHindi: document.getElementById("btnLangHindi"),
+  languageModeInput: document.getElementById("languageModeInput"),
+  whisperModelGroup: document.getElementById("whisperModelGroup"),
+  indicKeytermsGroup: document.getElementById("indicKeytermsGroup"),
+  keytermsInput: document.getElementById("keytermsInput"),
   transcriptReviewCard: document.getElementById("transcriptReviewCard"),
   transcriptReviewLabel: document.getElementById("transcriptReviewLabel"),
   transcriptReviewText: document.getElementById("transcriptReviewText"),
+  transcriptDisclaimer: document.getElementById("transcriptDisclaimer"),
   btnRerun: document.getElementById("btnRerun"),
   whisperModel: document.getElementById("whisperModel"),
   transcriptSourceBadge: document.getElementById("transcriptSourceBadge"),
   lowConfidenceSection: document.getElementById("lowConfidenceSection"),
   lowConfidenceCount: document.getElementById("lowConfidenceCount"),
   lowConfidenceChips: document.getElementById("lowConfidenceChips"),
+  chunkTimingsSection: document.getElementById("chunkTimingsSection"),
+  chunkTimingsList: document.getElementById("chunkTimingsList"),
+  scriptMixSection: document.getElementById("scriptMixSection"),
+  scriptMixBadge: document.getElementById("scriptMixBadge"),
+  scriptMixDevanagariBar: document.getElementById("scriptMixDevanagariBar"),
+  scriptMixLatinBar: document.getElementById("scriptMixLatinBar"),
+  scriptMixStatsText: document.getElementById("scriptMixStatsText"),
+  scriptMixSwitchesGroup: document.getElementById("scriptMixSwitchesGroup"),
+  scriptMixSwitchesList: document.getElementById("scriptMixSwitchesList"),
   btnExplainReport: document.getElementById("btnExplainReport"),
   explainLoadingSpinner: document.getElementById("explainLoadingSpinner"),
   explanationCard: document.getElementById("explanationCard"),
@@ -219,6 +236,15 @@ function setupEventListeners() {
   if (elements.btnAnalyzeRecording) {
     elements.btnAnalyzeRecording.addEventListener("click", handleAnalyzeRecording);
   }
+
+  // Language mode selection
+  [elements.btnLangEnglish, elements.btnLangHinglish, elements.btnLangHindi].forEach((btn) => {
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      const mode = btn.getAttribute("data-lang");
+      setLanguageMode(mode);
+    });
+  });
 
   // Upload analysis form
   elements.uploadForm.addEventListener("submit", handleUploadSubmit);
@@ -555,6 +581,12 @@ async function handleAnalyzeRecording() {
     formData.append("transcript_source", "auto");
   }
 
+  const langMode = elements.languageModeInput ? elements.languageModeInput.value : "english";
+  formData.append("language_mode", langMode);
+  if (elements.keytermsInput && elements.keytermsInput.value.trim()) {
+    formData.append("keyterms", elements.keytermsInput.value.trim());
+  }
+
   if (elements.btnAnalyzeRecording) elements.btnAnalyzeRecording.disabled = true;
   if (elements.recordUploadStatus) elements.recordUploadStatus.textContent = "Running forced alignment and flaw detection...";
 
@@ -589,6 +621,32 @@ async function handleAnalyzeRecording() {
     alert("Analysis failed: " + err.message);
   } finally {
     if (elements.btnAnalyzeRecording) elements.btnAnalyzeRecording.disabled = false;
+  }
+}
+
+/**
+ * Switch language mode between English, Hinglish, and Hindi.
+ */
+function setLanguageMode(mode) {
+  if (elements.languageModeInput) {
+    elements.languageModeInput.value = mode;
+  }
+  const buttons = [elements.btnLangEnglish, elements.btnLangHinglish, elements.btnLangHindi];
+  buttons.forEach((btn) => {
+    if (!btn) return;
+    if (btn.getAttribute("data-lang") === mode) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
+
+  const isIndic = mode === "hindi" || mode === "hinglish";
+  if (elements.whisperModelGroup) {
+    elements.whisperModelGroup.style.display = isIndic ? "none" : "grid";
+  }
+  if (elements.indicKeytermsGroup) {
+    elements.indicKeytermsGroup.style.display = isIndic ? "block" : "none";
   }
 }
 
@@ -643,10 +701,17 @@ async function handleUploadSubmit(e) {
     formData.append("whisper_model", whisperModelEl.value);
   }
 
+  const langMode = elements.languageModeInput ? elements.languageModeInput.value : "english";
+  formData.append("language_mode", langMode);
+  if (elements.keytermsInput && elements.keytermsInput.value.trim()) {
+    formData.append("keyterms", elements.keytermsInput.value.trim());
+  }
+
   elements.btnSubmitAnalyze.disabled = true;
+  const isIndic = langMode === "hindi" || langMode === "hinglish";
   elements.uploadStatus.textContent = transcriptText
     ? "Running forced alignment and flaw detection..."
-    : "Transcribing audio with Whisper and detecting flaws...";
+    : (isIndic ? "Transcribing audio with Gnani Prisma and detecting flaws..." : "Transcribing audio with Whisper and detecting flaws...");
 
   try {
     const res = await fetch("/api/analyze", {
@@ -686,6 +751,12 @@ async function handleRerun() {
   formData.append("transcript_source", "edited");
   if (whisperModelEl) {
     formData.append("whisper_model", whisperModelEl.value);
+  }
+
+  const rerunLangMode = (state.data && state.data.language_mode) || (elements.languageModeInput ? elements.languageModeInput.value : "english");
+  formData.append("language_mode", rerunLangMode);
+  if (elements.keytermsInput && elements.keytermsInput.value.trim()) {
+    formData.append("keyterms", elements.keytermsInput.value.trim());
   }
 
   if (state.lastRecordedBlob) {
@@ -852,6 +923,39 @@ function renderDashboard(data) {
         elements.lowConfidenceChips.innerHTML = "";
       }
     }
+    // For Hindi and Hinglish: Prisma returns no word times.
+    // Hide word-level confidence pills and render chunk level times only.
+    const isIndic = data.language_mode === "hindi" || data.language_mode === "hinglish";
+    if (isIndic && elements.lowConfidenceSection) {
+      elements.lowConfidenceSection.style.display = "none";
+    }
+
+    if (elements.chunkTimingsSection && elements.chunkTimingsList) {
+      if (isIndic && data.chunks && data.chunks.length > 0) {
+        elements.chunkTimingsSection.style.display = "block";
+        elements.chunkTimingsList.innerHTML = "";
+        data.chunks.forEach((c, idx) => {
+          const chip = document.createElement("span");
+          chip.className = "script-switch-chip";
+          const startT = (c.chunk_start != null ? c.chunk_start : (c.start_seconds != null ? c.start_seconds : 0));
+          const endT = (c.chunk_end != null ? c.chunk_end : (c.end_seconds != null ? c.end_seconds : 0));
+          chip.innerHTML = `<strong>Chunk ${idx + 1}:</strong>&nbsp;${startT.toFixed(1)}s &ndash; ${endT.toFixed(1)}s`;
+          elements.chunkTimingsList.appendChild(chip);
+        });
+      } else {
+        elements.chunkTimingsSection.style.display = "none";
+      }
+    }
+
+    if (elements.transcriptDisclaimer) {
+      elements.transcriptDisclaimer.style.display = "block";
+    }
+  }
+
+  // 1c. Script Mix Strip (Correction #4)
+  renderScriptMix(data);
+  if (data.language_mode) {
+    setLanguageMode(data.language_mode);
   }
 
   // 2. Audio Player setup
@@ -876,6 +980,65 @@ function renderDashboard(data) {
 
   // 7. Why It Was Flagged Card
   renderWhyFlagged(data);
+}
+
+/**
+ * Render the script mix strip (Devanagari vs Latin) for Hindi/Hinglish transcripts.
+ * Adheres strictly to Correction #4: computes directly from transcript tokens.
+ */
+function renderScriptMix(data) {
+  if (!elements.scriptMixSection) return;
+
+  const mix = data.script_mix;
+  const isIndic = data.language_mode === "hindi" || data.language_mode === "hinglish" || (mix && mix.devanagari_count > 0);
+
+  if (mix && mix.total_words > 0 && isIndic) {
+    elements.scriptMixSection.style.display = "block";
+    const devPct = Number(mix.devanagari_pct) || 0;
+    const latPct = Number(mix.latin_pct) || 0;
+
+    if (elements.scriptMixBadge) {
+      elements.scriptMixBadge.textContent = `${devPct}% Devanagari / ${latPct}% Latin`;
+    }
+
+    if (elements.scriptMixDevanagariBar) {
+      elements.scriptMixDevanagariBar.style.width = `${devPct}%`;
+      elements.scriptMixDevanagariBar.textContent = devPct >= 10 ? `Devanagari ${devPct}%` : (devPct > 0 ? `${devPct}%` : "");
+      elements.scriptMixDevanagariBar.title = `Devanagari: ${mix.devanagari_count} words (${devPct}%)`;
+    }
+
+    if (elements.scriptMixLatinBar) {
+      elements.scriptMixLatinBar.style.width = `${latPct}%`;
+      elements.scriptMixLatinBar.textContent = latPct >= 10 ? `Latin ${latPct}%` : (latPct > 0 ? `${latPct}%` : "");
+      elements.scriptMixLatinBar.title = `Latin: ${mix.latin_count} words (${latPct}%)`;
+    }
+
+    if (elements.scriptMixStatsText) {
+      const switchWord = mix.switch_count === 1 ? "switch" : "switches";
+      elements.scriptMixStatsText.textContent = 
+        `${mix.devanagari_count} Devanagari words (${devPct}%), ${mix.latin_count} Latin words (${latPct}%), ${mix.switch_count} script ${switchWord}.`;
+    }
+
+    if (elements.scriptMixSwitchesGroup && elements.scriptMixSwitchesList) {
+      if (mix.switches && mix.switches.length > 0) {
+        elements.scriptMixSwitchesGroup.style.display = "block";
+        elements.scriptMixSwitchesList.innerHTML = "";
+        mix.switches.forEach((s) => {
+          const chip = document.createElement("span");
+          chip.className = "script-switch-chip";
+          const fromText = s.from_script === "devanagari" ? "Dev" : "Lat";
+          const toText = s.to_script === "devanagari" ? "Dev" : "Lat";
+          chip.innerHTML = `<span><strong>${escapeHtml(s.word)}</strong></span><span class="switch-arrow">(${fromText} &rarr; ${toText})</span>`;
+          elements.scriptMixSwitchesList.appendChild(chip);
+        });
+      } else {
+        elements.scriptMixSwitchesGroup.style.display = "none";
+        elements.scriptMixSwitchesList.innerHTML = "";
+      }
+    }
+  } else {
+    elements.scriptMixSection.style.display = "none";
+  }
 }
 
 /**

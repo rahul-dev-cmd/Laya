@@ -108,6 +108,18 @@
       <section class="card">
         <h2 class="card-title">Analyze Speech Recording</h2>
         <form id="uploadForm">
+
+          <!-- Language Mode Selector -->
+          <div class="form-group" style="margin-bottom: var(--space-sm);">
+            <label class="form-label">Language Mode</label>
+            <div class="lang-pill-row">
+              <button type="button" class="lang-pill-btn active" data-lang="english" id="btnLangEnglish">English (Whisper)</button>
+              <button type="button" class="lang-pill-btn" data-lang="hinglish" id="btnLangHinglish">Hinglish (Prisma v3)</button>
+              <button type="button" class="lang-pill-btn" data-lang="hindi" id="btnLangHindi">Hindi (हिन्दी)</button>
+            </div>
+            <input type="hidden" id="languageModeInput" name="language_mode" value="english">
+          </div>
+
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm);">
             <div class="form-group">
               <label for="fileAudio" class="form-label">Audio WAV, WebM, Ogg, MP4</label>
@@ -118,7 +130,9 @@
               <input type="file" id="fileReference" name="reference_file" accept=".wav,.mpeg,.mp3" class="form-input">
             </div>
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm);">
+
+          <!-- English Whisper Model Options -->
+          <div id="whisperModelGroup" style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm);">
             <div class="form-group">
               <label for="whisperModel" class="form-label">Whisper Model Size</label>
               <select id="whisperModel" name="whisper_model" class="form-select">
@@ -134,6 +148,16 @@
               </div>
             </div>
           </div>
+
+          <!-- Hindi/Hinglish Keyterms Input Box (Correction #2) -->
+          <div id="indicKeytermsGroup" class="form-group" style="display: none;">
+            <label for="keytermsInput" class="form-label">Words to recognise (names, topic words)</label>
+            <textarea id="keytermsInput" name="keyterms" class="form-textarea" rows="3" placeholder="One word per line&#10;e.g. Laya&#10;Rahul&#10;DevTools"></textarea>
+            <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: 4px;">
+              Defaults (Laya, Gnani, Prisma, Timbre) are always included automatically.
+            </div>
+          </div>
+
           <div class="form-group">
             <label for="transcriptText" class="form-label">Transcript Text (Optional)</label>
             <textarea id="transcriptText" name="transcript_text" class="form-textarea" placeholder="Leave empty to transcribe automatically"></textarea>
@@ -170,6 +194,44 @@
       <div class="form-group" style="margin: 0;">
         <label for="transcriptReviewText" class="form-label">Editable Transcript</label>
         <textarea id="transcriptReviewText" class="form-textarea" rows="4"></textarea>
+        <!-- Correction #6: plain line under transcript -->
+        <div id="transcriptDisclaimer" class="transcript-disclaimer-line">Transcript is automatic and can contain mistakes. You can edit it.</div>
+        <!-- Chunk Timings for Hindi and Hinglish (no word-level timings) -->
+        <div id="chunkTimingsSection" style="display: none; margin-top: var(--space-sm);">
+          <div style="font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin-bottom: 4px;">
+            Chunk Timings
+          </div>
+          <div id="chunkTimingsList" style="display: flex; flex-wrap: wrap; gap: var(--space-xs);"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Script Mix Strip: Correction #4 (Computed from transcript, not detected_language_code) -->
+    <section class="card script-mix-card" id="scriptMixSection" style="display: none; margin-bottom: var(--space-lg);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
+        <div>
+          <h2 class="card-title" style="margin: 0; border-bottom: none;">Script mix of the transcript</h2>
+          <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: 2px;">
+            Classified directly from transcript tokens into Devanagari and Latin scripts
+          </div>
+        </div>
+        <span id="scriptMixBadge" class="mode-badge">0% Devanagari / 0% Latin</span>
+      </div>
+
+      <div class="script-mix-bar-container">
+        <div id="scriptMixDevanagariBar" class="script-mix-bar-segment devanagari" style="width: 50%;">Devanagari 50%</div>
+        <div id="scriptMixLatinBar" class="script-mix-bar-segment latin" style="width: 50%;">Latin 50%</div>
+      </div>
+
+      <div id="scriptMixStatsText" style="font-size: var(--font-size-sm); color: var(--color-text); margin-top: 8px;">
+        0 Devanagari words (0%), 0 Latin words (0%), 0 script switches.
+      </div>
+
+      <div id="scriptMixSwitchesGroup" style="margin-top: 10px; display: none;">
+        <div style="font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin-bottom: 6px;">
+          Script switches in transcript:
+        </div>
+        <div id="scriptMixSwitchesList" class="script-switches-chips"></div>
       </div>
     </section>
 

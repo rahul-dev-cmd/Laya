@@ -1276,3 +1276,108 @@ textarea:focus-visible {
 }
 
 
+
+
+/* Language Mode Selector (Hindi / Hinglish / English) */
+.lang-pill-row {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.lang-pill-btn {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+}
+
+.lang-pill-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+.lang-pill-btn.active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-header-text);
+  font-weight: 600;
+}
+
+/* Script Mix Strip (Correction #4) */
+.script-mix-card {
+  border-left: 4px solid var(--color-border-dark);
+}
+
+.script-mix-bar-container {
+  display: flex;
+  height: 22px;
+  width: 100%;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-alt);
+}
+
+.script-mix-bar-segment {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-family: var(--font-family-mono);
+  font-weight: 600;
+  color: #ffffff;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.script-mix-bar-segment.devanagari {
+  background-color: #1e6987;
+}
+
+.script-mix-bar-segment.latin {
+  background-color: #1f6b4d;
+}
+
+.script-switches-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.script-switch-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  padding: 2px 8px;
+  border-radius: var(--border-radius-sm);
+}
+
+.script-switch-chip .switch-arrow {
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.transcript-disclaimer-line {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-top: 6px;
+  padding: 4px 8px;
+  background-color: var(--color-surface-alt);
+  border-radius: var(--border-radius-sm);
+  display: inline-block;
+}

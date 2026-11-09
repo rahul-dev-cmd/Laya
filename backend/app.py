@@ -54,6 +54,12 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend.chat import router as chat_router
+from backend.gnani_stt import (
+    DEFAULT_KEYTERMS,
+    compute_script_mix,
+    merge_keyterms,
+    transcribe_audio_gnani,
+)
 from backend.report import router as report_router
 from src.pipeline.analyze import analyze, warmup_whisper_model
 
@@ -355,6 +361,8 @@ async def run_analysis(
     reference_file: Optional[UploadFile] = File(None, description="Optional reference WAV file"),
     whisper_model: str = Form("tiny.en", description="Whisper model size: tiny.en, base.en, small.en, medium.en"),
     transcript_source: Optional[str] = Form(None, description="Transcript provenance label: provided, auto, edited"),
+    language_mode: str = Form("english", description="Language mode: english, hindi, hinglish"),
+    keyterms: Optional[str] = Form(None, description="Newline-delimited user keyterms for Hindi/Hinglish"),
 ):
     """Run full analysis pipeline on uploaded audio and transcript.
     
@@ -435,16 +443,73 @@ async def run_analysis(
             ref_path = temp_dir / f"ref_{secrets.token_hex(8)}.wav"
             ref_path.write_bytes(ref_bytes)
 
-        if not txt_path:
-            if transcript_file and transcript_file.filename:
-                t_bytes = await transcript_file.read()
-                candidate_path = temp_dir / f"transcript_{secrets.token_hex(8)}.txt"
-                candidate_path.write_bytes(t_bytes)
-                txt_path = candidate_path
-            elif transcript_text and transcript_text.strip():
-                candidate_path = temp_dir / f"transcript_{secrets.token_hex(8)}.txt"
-                candidate_path.write_text(transcript_text.strip(), encoding="utf-8")
-                txt_path = candidate_path
+        is_indic = language_mode.lower() in ("hindi", "hinglish")
+        gnani_chunks = []
+
+        if is_indic and not txt_path:
+            # Transcribe via Gnani STT with chunking (<= 25s) and keyterms
+            gnani_res = transcribe_audio_gnani(
+                wav_path=converted_wav,
+                language_mode=language_mode,
+                custom_keyterms=keyterms,
+            )
+            if not gnani_res.get("success"):
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"Gnani STT transcription failed: {gnani_res.get('error')}"
+                )
+
+            t_text = gnani_res["transcript"]
+            candidate_path = temp_dir / f"transcript_{secrets.token_hex(8)}.txt"
+            candidate_path.write_text(t_text, encoding="utf-8")
+            txt_path = candidate_path
+            transcript_source = "auto"
+            gnani_chunks = gnani_res.get("chunks", [])
+
+            # Write internal alignment CSV only for acoustic curve generation
+            raw_words = t_text.split()
+            if raw_words and duration > 0:
+                step = duration / len(raw_words)
+                align_csv = temp_dir / f"{converted_wav.stem}_alignment.csv"
+                csv_lines = ["word,start_seconds,end_seconds,confidence"]
+                for i, w in enumerate(raw_words):
+                    csv_lines.append(f"{w},{round(i * step, 3)},{round((i + 1) * step, 3)},0.95")
+                align_csv.write_text("\n".join(csv_lines), encoding="utf-8")
+
+        elif is_indic and txt_path:
+            # User edited transcript or provided text for Hindi/Hinglish
+            with open(txt_path, "r", encoding="utf-8") as f:
+                edited_text = f.read().strip()
+            transcript_source = transcript_source or "edited"
+            raw_words = edited_text.split()
+            if raw_words and duration > 0:
+                step = duration / len(raw_words)
+                align_csv = temp_dir / f"{converted_wav.stem}_alignment.csv"
+                csv_lines = ["word,start_seconds,end_seconds,confidence"]
+                for i, w in enumerate(raw_words):
+                    csv_lines.append(f"{w},{round(i * step, 3)},{round((i + 1) * step, 3)},0.95")
+                align_csv.write_text("\n".join(csv_lines), encoding="utf-8")
+
+            # Build chunk level times from audio duration (at most 25s chunks)
+            chunk_list = []
+            c_start = 0.0
+            c_idx = 0
+            while c_start < duration:
+                c_end = min(c_start + 25.0, duration)
+                chunk_list.append({
+                    "chunk_index": c_idx,
+                    "chunk_start": round(c_start, 3),
+                    "chunk_end": round(c_end, 3),
+                    "chunk_duration": round(c_end - c_start, 3),
+                    "chunk_start_seconds": round(c_start, 3),
+                    "chunk_end_seconds": round(c_end, 3),
+                    "chunk_duration_seconds": round(c_end - c_start, 3),
+                    "transcript": edited_text,
+                    "words": [{"word": w} for w in raw_words],
+                })
+                c_start = c_end
+                c_idx += 1
+            gnani_chunks = chunk_list
 
         # 6. Run pipeline analysis
         result = analyze(
@@ -453,7 +518,18 @@ async def run_analysis(
             reference_wav=ref_path,
             whisper_model=whisper_model,
             transcript_source=transcript_source,
+            use_precomputed_alignment=is_indic,
         )
+
+        if is_indic:
+            result["language_mode"] = language_mode.lower()
+            result["script_mix"] = compute_script_mix(result.get("transcript", ""))
+            result["keyterms"] = merge_keyterms(keyterms)
+            result["chunks"] = gnani_chunks
+            result["timing_level"] = "chunk"
+            # Prisma returns no word times. Remove any per-word start or end times for Hindi and Hinglish.
+            # Keep only chunk level times (chunk start and end from our own chunking).
+            result["words"] = [{"word": w["word"] if isinstance(w, dict) else str(w)} for w in result.get("words", [])]
 
         return JSONResponse(result)
     except HTTPException:
@@ -464,6 +540,45 @@ async def run_analysis(
         raise HTTPException(status_code=500, detail=f"Analysis pipeline error: {str(e)}")
     finally:
         # Delete temporary files after the analysis; never store recordings permanently
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+@app.post("/api/transcribe-gnani")
+async def transcribe_gnani_endpoint(
+    audio_file: UploadFile = File(..., description="Audio file for Gnani STT"),
+    language_mode: str = Form("hinglish", description="Language mode: hindi or hinglish"),
+    keyterms: Optional[str] = Form(None, description="Optional user keyterms (one per line)"),
+):
+    """Direct STT transcription via Gnani Prisma v3.0 REST with chunking (<= 25s)."""
+    raw_bytes = await audio_file.read()
+    if len(raw_bytes) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Audio file exceeds {MAX_UPLOAD_BYTES // (1024 * 1024)} MB upload limit."
+        )
+
+    random_id = secrets.token_hex(12)
+    temp_dir = Path(tempfile.mkdtemp(prefix=f"stt_{random_id}_", dir=str(SCRATCH_DIR)))
+    try:
+        orig_suffix = Path(audio_file.filename or "").suffix.lower() or ".audio"
+        temp_raw = temp_dir / f"upload_{secrets.token_hex(8)}{orig_suffix}"
+        temp_raw.write_bytes(raw_bytes)
+
+        if not shutil.which("ffmpeg"):
+            raise HTTPException(status_code=500, detail="ffmpeg is required for audio conversion.")
+
+        converted_wav = temp_dir / f"conv_{secrets.token_hex(8)}.wav"
+        convert_to_wav16k_mono(temp_raw, converted_wav)
+
+        res = transcribe_audio_gnani(
+            wav_path=converted_wav,
+            language_mode=language_mode,
+            custom_keyterms=keyterms,
+        )
+        if not res.get("success"):
+            raise HTTPException(status_code=502, detail=res.get("error", "Gnani STT failed."))
+        return JSONResponse(res)
+    finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 
