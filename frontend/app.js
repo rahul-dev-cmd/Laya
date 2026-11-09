@@ -95,16 +95,41 @@ const elements = {
   stressLadderPlot: document.getElementById("stressLadderPlot"),
   stressTableHead: document.getElementById("stressTableHead"),
   stressTableBody: document.getElementById("stressTableBody"),
+  btnLangEnglish: document.getElementById("btnLangEnglish"),
+  btnLangHinglish: document.getElementById("btnLangHinglish"),
+  btnLangHindi: document.getElementById("btnLangHindi"),
+  btnRecLangEnglish: document.getElementById("btnRecLangEnglish"),
+  btnRecLangHinglish: document.getElementById("btnRecLangHinglish"),
+  btnRecLangHindi: document.getElementById("btnRecLangHindi"),
+  recordIndicKeytermsGroup: document.getElementById("recordIndicKeytermsGroup"),
+  recordKeytermsInput: document.getElementById("recordKeytermsInput"),
+  languageModeInput: document.getElementById("languageModeInput"),
+  whisperModelGroup: document.getElementById("whisperModelGroup"),
+  indicKeytermsGroup: document.getElementById("indicKeytermsGroup"),
+  keytermsInput: document.getElementById("keytermsInput"),
   transcriptReviewCard: document.getElementById("transcriptReviewCard"),
   transcriptReviewLabel: document.getElementById("transcriptReviewLabel"),
   transcriptReviewText: document.getElementById("transcriptReviewText"),
+  transcriptDisclaimer: document.getElementById("transcriptDisclaimer"),
   btnRerun: document.getElementById("btnRerun"),
   whisperModel: document.getElementById("whisperModel"),
   transcriptSourceBadge: document.getElementById("transcriptSourceBadge"),
   lowConfidenceSection: document.getElementById("lowConfidenceSection"),
   lowConfidenceCount: document.getElementById("lowConfidenceCount"),
   lowConfidenceChips: document.getElementById("lowConfidenceChips"),
+  chunkTimingsSection: document.getElementById("chunkTimingsSection"),
+  chunkTimingsList: document.getElementById("chunkTimingsList"),
+  scriptMixSection: document.getElementById("scriptMixSection"),
+  scriptMixBadge: document.getElementById("scriptMixBadge"),
+  scriptMixDevanagariBar: document.getElementById("scriptMixDevanagariBar"),
+  scriptMixLatinBar: document.getElementById("scriptMixLatinBar"),
+  scriptMixStatsText: document.getElementById("scriptMixStatsText"),
+  scriptMixSwitchesGroup: document.getElementById("scriptMixSwitchesGroup"),
+  scriptMixSwitchesList: document.getElementById("scriptMixSwitchesList"),
   btnExplainReport: document.getElementById("btnExplainReport"),
+  btnListenTipsMain: document.getElementById("btnListenTipsMain"),
+  btnListenTips: document.getElementById("btnListenTips"),
+  tipsAudioPlayerContainer: document.getElementById("tipsAudioPlayerContainer"),
   explainLoadingSpinner: document.getElementById("explainLoadingSpinner"),
   explanationCard: document.getElementById("explanationCard"),
   explanationCardTitle: document.getElementById("explanationCardTitle"),
@@ -220,6 +245,22 @@ function setupEventListeners() {
     elements.btnAnalyzeRecording.addEventListener("click", handleAnalyzeRecording);
   }
 
+  // Language mode selection in both upload and record panels
+  [
+    elements.btnLangEnglish,
+    elements.btnLangHinglish,
+    elements.btnLangHindi,
+    elements.btnRecLangEnglish,
+    elements.btnRecLangHinglish,
+    elements.btnRecLangHindi,
+  ].forEach((btn) => {
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      const mode = btn.getAttribute("data-lang");
+      setLanguageMode(mode);
+    });
+  });
+
   // Upload analysis form
   elements.uploadForm.addEventListener("submit", handleUploadSubmit);
 
@@ -235,6 +276,14 @@ function setupEventListeners() {
   // Explain in simple words button
   if (elements.btnExplainReport) {
     elements.btnExplainReport.addEventListener("click", handleExplainClick);
+  }
+
+  // Listen to the tips buttons
+  if (elements.btnListenTipsMain) {
+    elements.btnListenTipsMain.addEventListener("click", handleListenTipsClick);
+  }
+  if (elements.btnListenTips) {
+    elements.btnListenTips.addEventListener("click", handleListenTipsClick);
   }
 
   // Chat form submit
@@ -555,6 +604,15 @@ async function handleAnalyzeRecording() {
     formData.append("transcript_source", "auto");
   }
 
+  const langMode = elements.languageModeInput ? elements.languageModeInput.value : "english";
+  formData.append("language_mode", langMode);
+  const recKeyterms = (elements.recordKeytermsInput && elements.recordKeytermsInput.value.trim()) || "";
+  const uploadKeyterms = (elements.keytermsInput && elements.keytermsInput.value.trim()) || "";
+  const effectiveKeyterms = recKeyterms || uploadKeyterms;
+  if (effectiveKeyterms) {
+    formData.append("keyterms", effectiveKeyterms);
+  }
+
   if (elements.btnAnalyzeRecording) elements.btnAnalyzeRecording.disabled = true;
   if (elements.recordUploadStatus) elements.recordUploadStatus.textContent = "Running forced alignment and flaw detection...";
 
@@ -589,6 +647,42 @@ async function handleAnalyzeRecording() {
     alert("Analysis failed: " + err.message);
   } finally {
     if (elements.btnAnalyzeRecording) elements.btnAnalyzeRecording.disabled = false;
+  }
+}
+
+/**
+ * Switch language mode between English, Hinglish, and Hindi.
+ */
+function setLanguageMode(mode) {
+  if (elements.languageModeInput) {
+    elements.languageModeInput.value = mode;
+  }
+  const buttons = [
+    elements.btnLangEnglish,
+    elements.btnLangHinglish,
+    elements.btnLangHindi,
+    elements.btnRecLangEnglish,
+    elements.btnRecLangHinglish,
+    elements.btnRecLangHindi,
+  ];
+  buttons.forEach((btn) => {
+    if (!btn) return;
+    if (btn.getAttribute("data-lang") === mode) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
+
+  const isIndic = mode === "hindi" || mode === "hinglish";
+  if (elements.whisperModelGroup) {
+    elements.whisperModelGroup.style.display = isIndic ? "none" : "grid";
+  }
+  if (elements.indicKeytermsGroup) {
+    elements.indicKeytermsGroup.style.display = isIndic ? "block" : "none";
+  }
+  if (elements.recordIndicKeytermsGroup) {
+    elements.recordIndicKeytermsGroup.style.display = isIndic ? "block" : "none";
   }
 }
 
@@ -643,10 +737,20 @@ async function handleUploadSubmit(e) {
     formData.append("whisper_model", whisperModelEl.value);
   }
 
+  const langMode = elements.languageModeInput ? elements.languageModeInput.value : "english";
+  formData.append("language_mode", langMode);
+  const recKeyterms = (elements.recordKeytermsInput && elements.recordKeytermsInput.value.trim()) || "";
+  const uploadKeyterms = (elements.keytermsInput && elements.keytermsInput.value.trim()) || "";
+  const effectiveKeyterms = recKeyterms || uploadKeyterms;
+  if (effectiveKeyterms) {
+    formData.append("keyterms", effectiveKeyterms);
+  }
+
   elements.btnSubmitAnalyze.disabled = true;
+  const isIndic = langMode === "hindi" || langMode === "hinglish";
   elements.uploadStatus.textContent = transcriptText
     ? "Running forced alignment and flaw detection..."
-    : "Transcribing audio with Whisper and detecting flaws...";
+    : (isIndic ? "Transcribing audio with Gnani Prisma and detecting flaws..." : "Transcribing audio with Whisper and detecting flaws...");
 
   try {
     const res = await fetch("/api/analyze", {
@@ -686,6 +790,12 @@ async function handleRerun() {
   formData.append("transcript_source", "edited");
   if (whisperModelEl) {
     formData.append("whisper_model", whisperModelEl.value);
+  }
+
+  const rerunLangMode = (state.data && state.data.language_mode) || (elements.languageModeInput ? elements.languageModeInput.value : "english");
+  formData.append("language_mode", rerunLangMode);
+  if (elements.keytermsInput && elements.keytermsInput.value.trim()) {
+    formData.append("keyterms", elements.keytermsInput.value.trim());
   }
 
   if (state.lastRecordedBlob) {
@@ -852,6 +962,58 @@ function renderDashboard(data) {
         elements.lowConfidenceChips.innerHTML = "";
       }
     }
+    // For Hindi and Hinglish: Prisma returns no word times.
+    // Hide word-level confidence pills and render chunk level times only.
+    const isIndic = data.language_mode === "hindi" || data.language_mode === "hinglish";
+    if (isIndic && elements.lowConfidenceSection) {
+      elements.lowConfidenceSection.style.display = "none";
+    }
+
+    if (elements.chunkTimingsSection && elements.chunkTimingsList) {
+      if (isIndic && data.chunks && data.chunks.length > 0) {
+        elements.chunkTimingsSection.style.display = "block";
+        elements.chunkTimingsList.innerHTML = "";
+        data.chunks.forEach((c, idx) => {
+          const chip = document.createElement("span");
+          chip.className = "script-switch-chip";
+          const startT = (c.chunk_start != null ? c.chunk_start : (c.start_seconds != null ? c.start_seconds : 0));
+          const endT = (c.chunk_end != null ? c.chunk_end : (c.end_seconds != null ? c.end_seconds : 0));
+          chip.innerHTML = `<strong>Chunk ${idx + 1}:</strong> ${startT.toFixed(1)}s to ${endT.toFixed(1)}s <button type="button" class="btn btn-secondary btn-sm" style="margin-left: 6px; padding: 1px 6px; font-size: 11px;">Inspect</button>`;
+          chip.style.cursor = "pointer";
+          chip.title = "Click to inspect this chunk excerpt and hear it fixed";
+          chip.addEventListener("click", () => {
+            seekToTime(startT);
+            renderWhyFlagged(data, {
+              type: "chunk",
+              start: startT,
+              end: Math.min(startT + 6.0, endT),
+              peak_z: 0.0,
+              severity: "chunk slice",
+              observed_value: null,
+              baseline_mean: null,
+              baseline_spread: null,
+              threshold: null,
+              z: 0.0,
+              check: true,
+              explanation: `Inspecting speech slice from Chunk ${idx + 1} (${startT.toFixed(1)}s to ${endT.toFixed(1)}s).`,
+            });
+          });
+          elements.chunkTimingsList.appendChild(chip);
+        });
+      } else {
+        elements.chunkTimingsSection.style.display = "none";
+      }
+    }
+
+    if (elements.transcriptDisclaimer) {
+      elements.transcriptDisclaimer.style.display = "block";
+    }
+  }
+
+  // 1c. Script Mix Strip (Correction #4)
+  renderScriptMix(data);
+  if (data.language_mode) {
+    setLanguageMode(data.language_mode);
   }
 
   // 2. Audio Player setup
@@ -876,6 +1038,65 @@ function renderDashboard(data) {
 
   // 7. Why It Was Flagged Card
   renderWhyFlagged(data);
+}
+
+/**
+ * Render the script mix strip (Devanagari vs Latin) for Hindi/Hinglish transcripts.
+ * Adheres strictly to Correction #4: computes directly from transcript tokens.
+ */
+function renderScriptMix(data) {
+  if (!elements.scriptMixSection) return;
+
+  const mix = data.script_mix;
+  const isIndic = data.language_mode === "hindi" || data.language_mode === "hinglish" || (mix && mix.devanagari_count > 0);
+
+  if (mix && mix.total_words > 0 && isIndic) {
+    elements.scriptMixSection.style.display = "block";
+    const devPct = Number(mix.devanagari_pct) || 0;
+    const latPct = Number(mix.latin_pct) || 0;
+
+    if (elements.scriptMixBadge) {
+      elements.scriptMixBadge.textContent = `${devPct}% Devanagari / ${latPct}% Latin`;
+    }
+
+    if (elements.scriptMixDevanagariBar) {
+      elements.scriptMixDevanagariBar.style.width = `${devPct}%`;
+      elements.scriptMixDevanagariBar.textContent = devPct >= 10 ? `Devanagari ${devPct}%` : (devPct > 0 ? `${devPct}%` : "");
+      elements.scriptMixDevanagariBar.title = `Devanagari: ${mix.devanagari_count} words (${devPct}%)`;
+    }
+
+    if (elements.scriptMixLatinBar) {
+      elements.scriptMixLatinBar.style.width = `${latPct}%`;
+      elements.scriptMixLatinBar.textContent = latPct >= 10 ? `Latin ${latPct}%` : (latPct > 0 ? `${latPct}%` : "");
+      elements.scriptMixLatinBar.title = `Latin: ${mix.latin_count} words (${latPct}%)`;
+    }
+
+    if (elements.scriptMixStatsText) {
+      const switchWord = mix.switch_count === 1 ? "switch" : "switches";
+      elements.scriptMixStatsText.textContent = 
+        `${mix.devanagari_count} Devanagari words (${devPct}%), ${mix.latin_count} Latin words (${latPct}%), ${mix.switch_count} script ${switchWord}.`;
+    }
+
+    if (elements.scriptMixSwitchesGroup && elements.scriptMixSwitchesList) {
+      if (mix.switches && mix.switches.length > 0) {
+        elements.scriptMixSwitchesGroup.style.display = "block";
+        elements.scriptMixSwitchesList.innerHTML = "";
+        mix.switches.forEach((s) => {
+          const chip = document.createElement("span");
+          chip.className = "script-switch-chip";
+          const fromText = s.from_script === "devanagari" ? "Dev" : "Lat";
+          const toText = s.to_script === "devanagari" ? "Dev" : "Lat";
+          chip.innerHTML = `<span><strong>${escapeHtml(s.word)}</strong></span><span class="switch-arrow">(${fromText} &rarr; ${toText})</span>`;
+          elements.scriptMixSwitchesList.appendChild(chip);
+        });
+      } else {
+        elements.scriptMixSwitchesGroup.style.display = "none";
+        elements.scriptMixSwitchesList.innerHTML = "";
+      }
+    }
+  } else {
+    elements.scriptMixSection.style.display = "none";
+  }
 }
 
 /**
@@ -1076,10 +1297,14 @@ function renderDeliveryRubric(data) {
       if (d.scored && d.score !== null && d.score !== undefined) {
         scoreDisplay = d.score.toFixed(1);
         barWidth = Math.max(0, Math.min(100, d.score));
+      } else if (!d.scored && d.reason && d.reason.includes("English only")) {
+        scoreDisplay = "English only";
       }
 
       let shortLine = "";
-      if (d.name === "Pace" || d.name === "Pitch variation") {
+      if (!d.scored && d.reason) {
+        shortLine = d.reason;
+      } else if (d.name === "Pace" || d.name === "Pitch variation") {
         const flagSec = (d.flagged_seconds !== null && d.flagged_seconds !== undefined)
           ? d.flagged_seconds.toFixed(1)
           : "0.0";
@@ -1575,16 +1800,41 @@ function renderRegionsTable(data) {
 /**
  * Render "Why It Was Flagged" Card showing exact numbers and formula.
  */
-function renderWhyFlagged(data) {
+function renderWhyFlagged(data, customRegion = null) {
   const flaws = data.flaw_regions || [];
-  if (flaws.length === 0) {
+  const selected = customRegion || (flaws.length > 0 ? (flaws[state.selectedRegionIndex] || flaws[0]) : null);
+
+  if (!selected) {
+    const defaultSlice = {
+      start: 0.0,
+      end: Math.min(4.0, data.duration || 4.0),
+      type: "audio slice",
+    };
     elements.whyFlaggedContainer.innerHTML = `
-      <div class="empty-state">No speech flaws detected. All metrics remained within standard deviations.</div>
+      <div class="empty-state" style="margin-bottom: var(--space-md);">No speech flaws detected. All metrics remained within standard deviations.</div>
+      <div class="region-speech-fix-card" id="regionSpeechFixCard">
+        <div class="region-speech-fix-title">
+          <span>What you said here</span>
+          <span class="region-speech-timing-badge" id="regionTimingBadge"></span>
+        </div>
+        <div class="region-speech-transcript" id="regionExcerptText">
+          <span style="color: var(--color-text-muted);">Fetching excerpt from Prisma STT...</span>
+        </div>
+        <div class="hear-fixed-row">
+          <button type="button" class="btn btn-secondary btn-sm" id="btnHearFixed" disabled>Hear it fixed</button>
+          <span class="model-voice-label">Model voice, not your voice</span>
+          <span id="hearFixedStatus" class="hear-fixed-status"></span>
+        </div>
+      </div>
     `;
+    const textEl = document.getElementById("regionExcerptText");
+    const timingEl = document.getElementById("regionTimingBadge");
+    const btnEl = document.getElementById("btnHearFixed");
+    const statusEl = document.getElementById("hearFixedStatus");
+    loadRegionExcerpt(data, defaultSlice, textEl, timingEl, btnEl, statusEl);
     return;
   }
 
-  const selected = flaws[state.selectedRegionIndex] || flaws[0];
   const unit = selected.unit || "";
   const obsStr = selected.observed_value !== null ? `${selected.observed_value} ${unit}` : "null";
   const baseMeanStr = selected.baseline_mean !== null ? `${selected.baseline_mean} ${unit}` : "null";
@@ -1594,9 +1844,9 @@ function renderWhyFlagged(data) {
   const winStartStr = selected.peak_window_start !== null ? `${selected.peak_window_start} s` : "null";
   const winEndStr = selected.peak_window_end !== null ? `${selected.peak_window_end} s` : "null";
 
-  const sign = selected.peak_z >= 0 ? "+" : "";
-  const peakZStr = `${sign}${selected.peak_z.toFixed(3)}`;
-  const zStr = `${sign}${selected.z.toFixed(3)}`;
+  const sign = (selected.peak_z != null && selected.peak_z >= 0) ? "+" : "";
+  const peakZStr = selected.peak_z != null ? `${sign}${selected.peak_z.toFixed(3)}` : "null";
+  const zStr = selected.z != null ? `${sign}${selected.z.toFixed(3)}` : "null";
 
   let nullReasonHtml = "";
   if (selected.null_reason) {
@@ -1651,7 +1901,133 @@ function renderWhyFlagged(data) {
       <strong>Grounded Explanation:</strong><br>
       ${selected.explanation}
     </div>
+
+    <!-- Stage 3: What you said here and Hear it fixed under each flag -->
+    <div class="region-speech-fix-card" id="regionSpeechFixCard">
+      <div class="region-speech-fix-title">
+        <span>What you said here</span>
+        <span class="region-speech-timing-badge" id="regionTimingBadge"></span>
+      </div>
+      <div class="region-speech-transcript" id="regionExcerptText">
+        <span style="color: var(--color-text-muted);">Fetching excerpt from Prisma STT...</span>
+      </div>
+      <div class="hear-fixed-row">
+        <button type="button" class="btn btn-secondary btn-sm" id="btnHearFixed" disabled>Hear it fixed</button>
+        <span class="model-voice-label">Model voice, not your voice</span>
+        <span id="hearFixedStatus" class="hear-fixed-status"></span>
+      </div>
+    </div>
   `;
+
+  const textEl = document.getElementById("regionExcerptText");
+  const timingEl = document.getElementById("regionTimingBadge");
+  const btnEl = document.getElementById("btnHearFixed");
+  const statusEl = document.getElementById("hearFixedStatus");
+  loadRegionExcerpt(data, selected, textEl, timingEl, btnEl, statusEl);
+}
+
+/**
+ * Stage 3: Fetch excerpt text for cut audio (1s before start to 1s after end, cap 8s).
+ */
+async function loadRegionExcerpt(data, region, textEl, timingEl, btnEl, statusEl) {
+  if (!textEl || !region) return;
+
+  const cutStart = Math.max(0, region.start - 1.0);
+  let cutEnd = region.end + 1.0;
+  if (data.duration && cutEnd > data.duration) cutEnd = data.duration;
+  if ((cutEnd - cutStart) > 8.0) cutEnd = cutStart + 8.0;
+
+  if (timingEl) {
+    timingEl.textContent = `(${cutStart.toFixed(2)}s to ${cutEnd.toFixed(2)}s, max 8s)`;
+  }
+
+  textEl.innerHTML = '<span style="color: var(--color-text-muted);">Fetching excerpt from Prisma STT...</span>';
+  if (btnEl) btnEl.disabled = true;
+
+  try {
+    const payload = {
+      audio_path: data.audio_file || "",
+      start: region.start,
+      end: region.end,
+      language_mode: data.language_mode || "hindi",
+    };
+    if (data.keyterms && Array.isArray(data.keyterms)) {
+      payload.keyterms = data.keyterms.join("\n");
+    }
+
+    const res = await fetch("/api/region_text", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `HTTP ${res.status}`);
+    }
+
+    const resData = await res.json();
+    const excerpt = resData.text || "(no speech detected in this slice)";
+    textEl.textContent = excerpt;
+
+    if (btnEl) {
+      btnEl.disabled = !resData.text;
+      btnEl.onclick = async () => {
+        await playHearItFixed(excerpt, data.language_mode || "hindi", btnEl, statusEl);
+      };
+    }
+  } catch (err) {
+    textEl.innerHTML = `<span style="color: var(--color-danger);">${escapeHtml(err.message)}</span>`;
+  }
+}
+
+/**
+ * Stage 3: Send text to Timbre and play it, labelled "Model voice, not your voice".
+ */
+async function playHearItFixed(text, langMode, btnEl, statusEl) {
+  if (!text) return;
+  if (btnEl) btnEl.disabled = true;
+  if (statusEl) statusEl.textContent = "Synthesizing with Timbre...";
+
+  try {
+    const lang = (langMode === "hindi" || langMode === "hinglish") ? "hi-IN" : "en-IN";
+    const res = await fetch("/api/speak", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: text,
+        language: lang,
+        language_mode: langMode,
+        voice: "Shivani",
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `HTTP ${res.status}`);
+    }
+
+    const blob = await res.blob();
+    const audioUrl = URL.createObjectURL(blob);
+    const audio = new Audio(audioUrl);
+
+    if (statusEl) statusEl.textContent = "Playing...";
+    audio.onended = () => {
+      if (statusEl) statusEl.textContent = "";
+      if (btnEl) btnEl.disabled = false;
+      URL.revokeObjectURL(audioUrl);
+    };
+    audio.onerror = () => {
+      if (statusEl) statusEl.textContent = "Playback error";
+      if (btnEl) btnEl.disabled = false;
+      URL.revokeObjectURL(audioUrl);
+    };
+
+    await audio.play();
+  } catch (err) {
+    if (statusEl) statusEl.textContent = err.message;
+    if (btnEl) btnEl.disabled = false;
+  }
 }
 
 /**
@@ -1776,6 +2152,92 @@ async function handleExplainClick() {
 }
 
 /**
+ * Handle "Listen to the tips" button click.
+ * Reads fixed practice tips from backend/tips.py in the selected language using Timbre TTS.
+ * Audio is cached by SHA-256 of text, language and voice.
+ * Labeled: "Model voice, not your voice".
+ */
+async function handleListenTipsClick() {
+  if (!state.data) {
+    alert("Please analyze an audio clip first to view and hear practice tips.");
+    return;
+  }
+
+  const buttons = [elements.btnListenTipsMain, elements.btnListenTips].filter(Boolean);
+  buttons.forEach((b) => {
+    b.disabled = true;
+    b.dataset.origText = b.textContent;
+    b.textContent = "Loading tips audio...";
+  });
+
+  try {
+    // If explanation report not yet loaded, load it so tips are visible on screen
+    if (!state.currentReport) {
+      await loadAndRenderReport(false);
+    }
+
+    const langMode = state.data.language_mode || state.languageMode || "english";
+    const payload = {
+      flaw_regions: state.data.flaw_regions || [],
+      language_mode: langMode,
+      voice: "Shivani",
+      format: "json",
+    };
+
+    const res = await fetch("/api/tips/speak", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    if (!data.audio_url) {
+      throw new Error("No audio URL returned for tips");
+    }
+
+    if (elements.explanationCard) {
+      elements.explanationCard.style.display = "block";
+    }
+
+    const container = elements.tipsAudioPlayerContainer;
+    if (container) {
+      container.innerHTML = "";
+      container.style.display = "block";
+
+      const row = document.createElement("div");
+      row.className = "tips-audio-player-row";
+
+      const audio = document.createElement("audio");
+      audio.controls = true;
+      audio.src = data.audio_url;
+      audio.autoplay = true;
+
+      const badge = document.createElement("span");
+      badge.className = "model-voice-label";
+      badge.textContent = "Model voice, not your voice";
+
+      row.appendChild(audio);
+      row.appendChild(badge);
+      container.appendChild(row);
+
+      container.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  } catch (err) {
+    console.error("Failed to play tips audio:", err);
+    alert("Could not load tips audio: " + err.message);
+  } finally {
+    buttons.forEach((b) => {
+      b.disabled = false;
+      b.textContent = b.dataset.origText || "Listen to the tips";
+    });
+  }
+}
+
+/**
  * Prefetch report for precomputed example so click is instantaneous.
  */
 async function prefetchExampleReport(exampleId) {
@@ -1819,6 +2281,7 @@ async function loadAndRenderReport(scrollToCard = false) {
       example_id: state.currentExample,
       duration: state.data.duration,
       mode: state.data.mode,
+      language_mode: state.data.language_mode || state.languageMode || "english",
       transcript_source: state.data.transcript_source,
       flaw_regions: state.data.flaw_regions || [],
     };

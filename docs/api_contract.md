@@ -502,3 +502,162 @@ The explanation service converts raw measurement numbers and flagged regions int
 ### Fallback Guarantee
 If LLM credentials are unset, the provider returns an error, the call exceeds the 30-second timeout, or any extracted number fails ground-truth verification, the endpoint returns the deterministic template report with `source: "template"`.
 
+---
+
+## Indic Language Support (Hindi and Hinglish)
+
+Laya supports Hindi and Hinglish speech analysis powered by Gnani Prisma v3.0 STT and Timbre TTS.
+
+### Indic Behavior in `POST /api/analyze`
+
+* **Language Modes**: `"hindi"` (language code `hi-IN`) and `"hinglish"` (language code `hi-IN,en-IN`), using `format: "codemix"`.
+* **Chunking**: Input audio is divided into chunks of at most 25.0 seconds.
+* **Keyterms**: Defaults (`["Laya", "Gnani", "Prisma", "Timbre"]`) are always merged with optional user keyterms.
+* **Timing Granularity**: Prisma returns no per-word timestamps. In Hindi and Hinglish analysis responses, per-word start and end times are omitted (`words` contains `[{"word": token}]`). Timings are strictly chunk-level under `chunks` (`chunk_start`, `chunk_end`, `chunk_duration`).
+* **Script Mix**: Classified directly from transcript tokens into Devanagari and Latin script percentages and transition positions (never using detected language code).
+* **Flaw Detectors**: Hindi and Hinglish run only the pitch variation detector. Pace and pause checks are English only (`pace_pause_note: "Pace and pause checks are English only."`).
+* **Rubric Scoring**: The delivery rubric scores only the dimension that ran (Pitch variation). Pace and Pauses are marked unscored (`reason: "Pace and pause checks are English only."`), and the overall score reflects Pitch variation (`overall_note: "Overall uses 1 of 4 dimensions: Pitch variation. Pace and pause checks are English only."`).
+
+---
+
+## Region Speech Excerpt (`POST /api/region_text`)
+
+Extracts and transcribes a focused speech interval around a detected flaw region for coaching inspection.
+
+### Endpoint: `POST /api/region_text`
+
+**Operational Rules**:
+1. Cuts audio from 1.0 s before `start` to 1.0 s after `end`.
+2. Caps total cut duration at 8.0 s maximum.
+3. Transcribes cut audio using Gnani Prisma v3.0 REST with keyterms.
+4. Caches transcript by SHA-256 hash of the cut clip audio bytes plus the language mode.
+5. Deletes all temporary audio files immediately after use.
+
+**Request Payload (JSON or Form Data)**:
+```json
+{
+  "audio_path": "scratch/test_hi.wav",
+  "start": 5.2,
+  "end": 7.8,
+  "language_mode": "hindi",
+  "keyterms": "Laya\nDevTools"
+}
+```
+
+* `audio_path` (`string`, optional): Relative or absolute path to WAV audio on server.
+* `audio_file` (`UploadFile`, optional): Audio file upload when client has no server-side file path.
+* `start` (`float`, required): Flaw start timestamp in seconds.
+* `end` (`float`, required): Flaw end timestamp in seconds.
+* `language_mode` (`string`, optional): `"hindi"`, `"hinglish"`, or `"english"` (default `"hindi"`).
+* `keyterms` (`string`, optional): Newline-delimited custom recognition terms.
+
+**Response Payload (`application/json`)**:
+```json
+{
+  "success": true,
+  "text": "नमस्ते यह लया के लिए एक परीक्षण है",
+  "start": 4.2,
+  "end": 8.8,
+  "duration": 4.6,
+  "language_mode": "hindi",
+  "cached": false,
+  "cache_key": "a1b2c3d4..."
+}
+```
+
+---
+
+## Speech Synthesis (`POST /api/speak` and `GET /api/speak`)
+
+Synthesizes reference pronunciation using Gnani Timbre REST TTS for comparison against flagged regions.
+
+### Endpoint: `POST /api/speak` (also available via `GET /api/speak`)
+
+**Operational Rules**:
+1. Caches synthesized WAV audio by SHA-256 hash of text plus language and voice.
+2. True duration is measured strictly via ffprobe (never from the WAV header).
+3. Temporary conversion files are deleted immediately after use.
+4. Output is explicitly labeled `"Model voice, not your voice"`.
+
+**Request Payload (JSON or Form Data)**:
+```json
+{
+  "text": "नमस्ते यह लया के लिए एक परीक्षण है",
+  "language": "hi-IN",
+  "language_mode": "hindi",
+  "voice": "Shivani",
+  "format": "audio"
+}
+```
+
+* `text` (`string`, required): Text to synthesize.
+* `language` (`string`, optional): ISO language code (e.g. `"hi-IN"` or `"en-IN"`).
+* `language_mode` (`string`, optional): `"hindi"`, `"hinglish"`, or `"english"`.
+* `voice` (`string`, optional): Model voice name (default `"Shivani"`).
+* `format` (`string`, optional): `"audio"` (returns WAV stream) or `"json"` (returns metadata with audio URL).
+
+**Response (Audio Mode, Default)**:
+* Content-Type: `audio/wav`
+* Headers:
+  * `X-Model-Voice: Model voice, not your voice`
+  * `X-Cached: true | false`
+  * `Accept-Ranges: bytes`
+
+**Response (JSON Mode)**:
+```json
+{
+  "status": "ok",
+  "audio_url": "/api/audio?path=scratch/cache/speak/a1b2c3d4....wav",
+  "duration": 3.68,
+  "cached": true,
+  "cache_key": "a1b2c3d4...",
+  "label": "Model voice, not your voice"
+}
+```
+
+---
+
+## Practice Tips Speech Synthesis (`POST /api/tips/speak` and `GET /api/tips/speak`)
+
+Synthesizes fixed practice tips from `backend/tips.py` in the selected language using Gnani Timbre TTS.
+
+### Endpoint: `POST /api/tips/speak` (also available via `GET /api/tips/speak`)
+
+**Operational Rules**:
+1. No AI model writes advice at run time. Tips come directly from the fixed tables (unreviewed by a native speaker) in `backend/tips.py` (`PRACTICE_TIPS_TABLE` for English, `PRACTICE_TIPS_TABLE_HI` for Hindi).
+2. For Hindi, short plain Hindi versions of the same fixed tips are used, with the same meaning and direction as the English tips.
+3. Audio is cached by SHA-256 hash of text, language, and voice under `scratch/cache/speak/<hash>.wav`.
+4. Output audio carries the explicit header and label: `"Model voice, not your voice"`.
+5. True duration is measured strictly via ffprobe (never from the WAV header).
+
+**Request Payload (JSON)**:
+```json
+{
+  "flaw_regions": [],
+  "language_mode": "hindi",
+  "voice": "Shivani",
+  "format": "json"
+}
+```
+
+* `flaw_regions` (`array[object]`, optional): List of detected flaw regions to look up targeted tips for.
+* `language_mode` (`string`, optional): `"english"`, `"hindi"`, or `"hinglish"` (defaults to `"english"`).
+* `voice` (`string`, optional): Timbre voice model (default `"Shivani"`).
+* `format` (`string`, optional): `"json"` or `"audio"` (default `"audio"`).
+* `text` (`string`, optional): Optional override text to synthesize.
+
+**Response (JSON Mode)**:
+```json
+{
+  "status": "ok",
+  "audio_url": "/api/audio?path=scratch/cache/speak/e5f6g7h8....wav",
+  "text": "हर वाक्य के मुख्य शब्द पर ज़ोर दें और उस पर अपनी आवाज़ उठाएं। ...",
+  "duration": 12.45,
+  "cached": true,
+  "cache_key": "e5f6g7h8...",
+  "language": "hi-IN",
+  "voice": "Shivani",
+  "label": "Model voice, not your voice"
+}
+```
+
