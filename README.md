@@ -184,7 +184,51 @@ Provide your provider endpoint URL, your API key, and the model identifier.
 
 ## 6b. Gnani integration
 
-For English speech, you can choose between Whisper (default) or Gnani Prisma to generate the initial transcript, which is then cleaned and aligned using WhisperX forced alignment. The word error rate measurements reported for this option were evaluated on two LibriVox clips only.
+### 1. What it adds
+- Prisma v3.0 speech-to-text for Hindi and Hinglish transcripts.
+- Timbre v3.0 text-to-speech for reading fixed practice tips out loud, labelled "Model voice, not your voice".
+- Language selector on the record and upload panels (English, Hindi, Hinglish).
+- Optional Prisma v3.0 transcript choice for English audio.
+- Retake comparison card to compare two recordings of the same speech.
+
+### 2. How it works, briefly
+- Audio chunking: Audio is cut into chunks of 25 seconds or less before calling the Prisma v3.0 REST endpoint. Timing is chunk-level only, because Prisma returns no per-word timestamps.
+- Indic detectors: Hindi and Hinglish run only the pitch variation detector. Pace and pause checks are English-only. The delivery rubric scores only the dimension that ran (pitch variation).
+- Script mix: The script mix bar is counted directly from the words in the transcript (Devanagari vs Latin characters), not from the API detected language field.
+- English with Prisma: The Prisma text is cleaned (lowercased, punctuation removed except internal apostrophes, spaces collapsed), and then WhisperX forced alignment finds the word timestamps. A caveat note is shown: "Transcript from Gnani Prisma; timing found by forced alignment."
+- Retake compare: Two takes can be compared only when language, mode, passage id, and duration (within 20 percent) match, and word similarity is at least 0.6. Flaws from take 1 are reported strictly as "still flagged" or "not flagged in take 2". New flags in take 2 are reported as "new in take 2". It never says "fixed" or "improved".
+
+### 3. What was measured
+- English transcription: Tested on two clean LibriVox clips (librivox_01.wav and librivox_02.wav), totaling 522 reference words. Whisper base.en had a word error rate of 8.05 percent (27 substitutions, 12 deletions, 3 insertions). Prisma v3.0 with en-IN had a word error rate of 10.92 percent (33 substitutions, 22 deletions, 2 insertions). Whisper stays the default.
+- Why Prisma had more errors here: Part of the gap came from number formatting (Prisma wrote digits like "1730" and "1153" where the reference text had words like "seventeen thirty" and "eleven fifty three"), which edit distance counts as one substitution and multiple deletions. Another part came from 9 words dropped right across the 25-second chunk boundary in clip 01. Because this was tested on two clips only, we make no general claim about overall accuracy.
+- Hindi and Hinglish: Tested on two real recordings from one speaker (test_hi.wav and test_hinglish.wav). Prisma got most words right, and adding keyterms stopped the model from mishearing the project name "Laya". We did not compute a formal accuracy percentage for Hindi because we do not have a large labeled dataset for it yet.
+
+### 4. Known limits
+- Very small test data: Tested on clips from a single speaker.
+- No Hindi word-level timing: Prisma returns no timestamps per word, so Hindi timing is chunk-level only.
+- No Hindi pace or pause detection: Speaking rate and pause baselines are calibrated for English only.
+- Hindi tips unreviewed: The Hindi tips in backend/tips.py were translated and checked by the author, not by an independent native speaker.
+- Timbre audio header: Timbre WAV headers report a false container duration (over 40,000 seconds in some streaming headers), so true duration is measured with ffprobe.
+- Chunk boundaries: Fixed 25-second cuts can split a sentence in the middle, causing words near the cut to be dropped.
+
+### 5. Setup
+Store your API key in backend/.env. Never commit this file to git.
+
+Variable names:
+```env
+GNANI_API_KEY=
+```
+Optional variables for the NVIDIA explanation layer:
+```env
+LLM_BASE_URL=
+LLM_API_KEY=
+LLM_MODEL=
+```
+
+Run the server with the virtual environment Python:
+```powershell
+.venv\Scripts\python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000 --reload
+```
 
 ## 7. The dataset
 
