@@ -110,6 +110,45 @@ def get_timbre_duration_ffprobe(audio_path: Union[str, Path]) -> float:
             return 0.0
 
 
+def clean_prisma_text(text: str) -> Tuple[str, bool]:
+    """Clean Prisma text before alignment.
+
+    Rules:
+    - lowercase
+    - remove punctuation except apostrophes inside words (e.g. it's, don't)
+    - collapse spaces
+    - detects whether cleaned text contains digits (does not guess or expand silently)
+
+    Returns:
+        (cleaned_text, has_digits)
+    """
+    if not text:
+        return "", False
+
+    # 1. Lowercase
+    t = text.lower()
+
+    # 2. Normalize smart single quotes / apostrophes to standard ascii apostrophe
+    t = t.replace("’", "'").replace("‘", "'").replace("`", "'")
+
+    # 3. Replace apostrophes that are NOT inside words (i.e. not between letters a-z) with space
+    t = re.sub(r"(?<![a-z])'|'(?![a-z])", " ", t)
+
+    # 4. Remove all punctuation except apostrophes inside words and digits/letters/whitespace
+    t = re.sub(r"[^a-z0-9'\s]", " ", t)
+
+    # 5. Re-check in case a non-alphanumeric removal left an apostrophe adjacent to a boundary
+    t = re.sub(r"(?<![a-z])'|'(?![a-z])", " ", t)
+
+    # 6. Collapse spaces
+    cleaned = " ".join(t.split())
+
+    # 7. Check if digits exist
+    has_digits = bool(re.search(r"\d", cleaned))
+
+    return cleaned, has_digits
+
+
 def classify_word_script(word: str) -> str:
     """Classify a word as 'devanagari', 'latin', or 'other'.
 
@@ -415,10 +454,17 @@ def transcribe_audio_gnani(
             "script_mix": compute_script_mix(""),
         }
 
-    # Set parameters per Correction #3
-    is_hindi = language_mode.lower() == "hindi"
-    language_code = "hi-IN" if is_hindi else "hi-IN,en-IN"
-    format_style = "codemix"
+    # Set parameters: Stage B English Prisma uses language_code "en-IN", format "codemix", model prisma-v3.0
+    mode = language_mode.lower()
+    if mode == "english":
+        language_code = "en-IN"
+        format_style = "codemix"
+    elif mode == "hindi":
+        language_code = "hi-IN"
+        format_style = "codemix"
+    else:  # hinglish
+        language_code = "hi-IN,en-IN"
+        format_style = "codemix"
 
     keyterms = merge_keyterms(custom_keyterms)
 
@@ -483,7 +529,7 @@ def transcribe_audio_gnani(
             "words": all_words,
             "script_mix": script_mix,
             "chunks": chunk_reports,
-            "language_mode": "hindi" if is_hindi else "hinglish",
+            "language_mode": mode,
             "language_code": language_code,
             "format": format_style,
             "keyterms": keyterms,

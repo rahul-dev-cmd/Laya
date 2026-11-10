@@ -56,6 +56,7 @@ from fastapi.staticfiles import StaticFiles
 from backend.chat import router as chat_router
 from backend.gnani_stt import (
     DEFAULT_KEYTERMS,
+    clean_prisma_text,
     compute_script_mix,
     extract_region_audio,
     get_region_text,
@@ -368,6 +369,7 @@ async def run_analysis(
     transcript_source: Optional[str] = Form(None, description="Transcript provenance label: provided, auto, edited"),
     language_mode: str = Form("english", description="Language mode: english, hindi, hinglish"),
     keyterms: Optional[str] = Form(None, description="Newline-delimited user keyterms for Hindi/Hinglish"),
+    stt_engine: str = Form("whisper", description="STT engine: whisper (default) or gnani_prisma"),
 ):
     """Run full analysis pipeline on uploaded audio and transcript.
     
@@ -449,7 +451,9 @@ async def run_analysis(
             ref_path.write_bytes(ref_bytes)
 
         is_indic = language_mode.lower() in ("hindi", "hinglish")
+        is_english_prisma = (language_mode.lower() == "english") and (stt_engine.lower() in ("gnani_prisma", "prisma"))
         gnani_chunks = []
+        prisma_has_digits = False
 
         if is_indic and not txt_path:
             # Transcribe via Gnani STT with chunking (<= 25s) and keyterms
@@ -516,6 +520,30 @@ async def run_analysis(
                 c_idx += 1
             gnani_chunks = chunk_list
 
+        elif is_english_prisma:
+            # Stage B: English transcript from Gnani Prisma
+            if not transcript_text:
+                gnani_res = transcribe_audio_gnani(
+                    wav_path=converted_wav,
+                    language_mode="english",
+                    custom_keyterms=keyterms,
+                )
+                if not gnani_res.get("success"):
+                    raise HTTPException(
+                        status_code=502,
+                        detail=f"Gnani STT transcription failed: {gnani_res.get('error')}"
+                    )
+                raw_prisma_text = gnani_res.get("transcript", "")
+                gnani_chunks = gnani_res.get("chunks", [])
+                transcript_source = "auto"
+            else:
+                raw_prisma_text = transcript_text
+
+            cleaned_prisma_text, prisma_has_digits = clean_prisma_text(raw_prisma_text)
+            candidate_path = temp_dir / f"transcript_{secrets.token_hex(8)}.txt"
+            candidate_path.write_text(cleaned_prisma_text, encoding="utf-8")
+            txt_path = candidate_path
+
         # 6. Run pipeline analysis
         result = analyze(
             audio_wav=converted_wav,
@@ -567,6 +595,17 @@ async def run_analysis(
 
                 rubric["overall"] = pitch_score
                 rubric["overall_note"] = "Overall uses 1 of 4 dimensions: Pitch variation. Pace and pause checks are English only."
+        elif is_english_prisma:
+            result["stt_engine"] = "gnani_prisma"
+            result["prisma_caveat"] = "Transcript from Gnani Prisma; timing found by forced alignment."
+            if prisma_has_digits:
+                result["numbers_note"] = "The transcript contains numbers, which can affect timing."
+            else:
+                result["numbers_note"] = None
+        else:
+            result["stt_engine"] = "whisper"
+            result["prisma_caveat"] = None
+            result["numbers_note"] = None
 
         return JSONResponse(result)
     except HTTPException:
@@ -583,7 +622,7 @@ async def run_analysis(
 @app.post("/api/transcribe-gnani")
 async def transcribe_gnani_endpoint(
     audio_file: UploadFile = File(..., description="Audio file for Gnani STT"),
-    language_mode: str = Form("hinglish", description="Language mode: hindi or hinglish"),
+    language_mode: str = Form("hinglish", description="Language mode: english, hindi or hinglish"),
     keyterms: Optional[str] = Form(None, description="Optional user keyterms (one per line)"),
 ):
     """Direct STT transcription via Gnani Prisma v3.0 REST with chunking (<= 25s)."""

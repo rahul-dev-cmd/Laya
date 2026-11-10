@@ -182,6 +182,10 @@ Provide your provider endpoint URL, your API key, and the model identifier.
 - Security: Never commit `backend/.env` to git. The `.env` file is listed in `.gitignore` to prevent leaking keys.
 - Fallback: If `backend/.env` is empty, if the provider fails or times out, or if the model hallucinates numbers not in the data, Laya automatically rejects the response and falls back to a deterministic template explanation with source set to `"template"`.
 
+## 6b. Gnani integration
+
+For English speech, you can choose between Whisper (default) or Gnani Prisma to generate the initial transcript, which is then cleaned and aligned using WhisperX forced alignment. The word error rate measurements reported for this option were evaluated on two LibriVox clips only.
+
 ## 7. The dataset
 
 The dataset contains public-domain audio recordings taken from LibriVox, paired with clean transcripts, word alignments, and synthetic flaw ladders.

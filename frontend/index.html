@@ -79,9 +79,18 @@
         <div class="form-group" style="margin-bottom: var(--space-sm);">
           <label class="form-label">Language Mode</label>
           <div class="lang-pill-row" id="recordLangPillRow">
-            <button type="button" class="lang-pill-btn active" data-lang="english" id="btnRecLangEnglish">English (Whisper)</button>
+            <button type="button" class="lang-pill-btn active" data-lang="english" id="btnRecLangEnglish">English</button>
             <button type="button" class="lang-pill-btn" data-lang="hinglish" id="btnRecLangHinglish">Hinglish (Prisma v3)</button>
             <button type="button" class="lang-pill-btn" data-lang="hindi" id="btnRecLangHindi">Hindi (हिन्दी)</button>
+          </div>
+        </div>
+
+        <!-- English STT Engine Choice: Stage B -->
+        <div id="recordEnglishEngineGroup" class="form-group" style="margin-bottom: var(--space-sm);">
+          <label class="form-label">Transcript from</label>
+          <div class="lang-pill-row">
+            <button type="button" class="lang-pill-btn active" data-engine="whisper" id="btnRecEngineWhisper">Whisper (default)</button>
+            <button type="button" class="lang-pill-btn" data-engine="gnani_prisma" id="btnRecEnginePrisma">Gnani Prisma</button>
           </div>
         </div>
 
@@ -140,11 +149,21 @@
           <div class="form-group" style="margin-bottom: var(--space-sm);">
             <label class="form-label">Language Mode</label>
             <div class="lang-pill-row">
-              <button type="button" class="lang-pill-btn active" data-lang="english" id="btnLangEnglish">English (Whisper)</button>
+              <button type="button" class="lang-pill-btn active" data-lang="english" id="btnLangEnglish">English</button>
               <button type="button" class="lang-pill-btn" data-lang="hinglish" id="btnLangHinglish">Hinglish (Prisma v3)</button>
               <button type="button" class="lang-pill-btn" data-lang="hindi" id="btnLangHindi">Hindi (हिन्दी)</button>
             </div>
             <input type="hidden" id="languageModeInput" name="language_mode" value="english">
+          </div>
+
+          <!-- English STT Engine Choice: Stage B -->
+          <div id="uploadEnglishEngineGroup" class="form-group" style="margin-bottom: var(--space-sm);">
+            <label class="form-label">Transcript from</label>
+            <div class="lang-pill-row">
+              <button type="button" class="lang-pill-btn active" data-engine="whisper" id="btnUploadEngineWhisper">Whisper (default)</button>
+              <button type="button" class="lang-pill-btn" data-engine="gnani_prisma" id="btnUploadEnginePrisma">Gnani Prisma</button>
+            </div>
+            <input type="hidden" id="sttEngineInput" name="stt_engine" value="whisper">
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm);">
@@ -223,6 +242,13 @@
         <textarea id="transcriptReviewText" class="form-textarea" rows="4"></textarea>
         <!-- Correction #6: plain line under transcript -->
         <div id="transcriptDisclaimer" class="transcript-disclaimer-line">Transcript is automatic and can contain mistakes. You can edit it.</div>
+        <!-- Stage B: Prisma Caveat and Numbers Note -->
+        <div id="prismaCaveatLine" style="display: none; font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: 4px;">
+          Transcript from Gnani Prisma; timing found by forced alignment.
+        </div>
+        <div id="numbersNoteLine" style="display: none; font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: 4px;">
+          The transcript contains numbers, which can affect timing.
+        </div>
         <!-- Chunk Timings for Hindi and Hinglish (no word-level timings) -->
         <div id="chunkTimingsSection" style="display: none; margin-top: var(--space-sm);">
           <div style="font-size: var(--font-size-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin-bottom: 4px;">

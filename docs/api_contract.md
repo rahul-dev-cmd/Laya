@@ -508,6 +508,18 @@ If LLM credentials are unset, the provider returns an error, the call exceeds th
 
 Laya supports Hindi and Hinglish speech analysis powered by Gnani Prisma v3.0 STT and Timbre TTS.
 
+### English STT Option: Whisper vs Gnani Prisma (Stage B)
+
+In addition to the default Whisper pipeline, users can choose Gnani Prisma as the STT engine for English audio:
+
+* **Parameter**: `stt_engine` (`"whisper"` [default] or `"gnani_prisma"`).
+* **Prisma Configuration**: Model `prisma-v3.0`, language code `en-IN`, format `codemix`, chunking $\le 25.0$ s, and default keyterms (`["Laya", "Gnani", "Prisma", "Timbre"]`). Chunks are joined into a single transcript.
+* **Text Normalization**: Before alignment, Prisma text is lowercased, punctuation is removed except internal word apostrophes (`it's`, `don't`), and whitespace is collapsed. Numbers are not expanded silently.
+* **Numbers Note**: If the cleaned text contains digits, the response includes `numbers_note: "The transcript contains numbers, which can affect timing."`
+* **Timing & Detectors**: Forced word alignment is performed on the cleaned text using WhisperX, and all standard detectors (pitch, rate, pauses) run on that timeline.
+* **Caveat Line**: The response attaches `prisma_caveat: "Transcript from Gnani Prisma; timing found by forced alignment."` and `stt_engine: "gnani_prisma"`.
+* **Default Preservation**: When `stt_engine` is omitted or set to `"whisper"`, the original Whisper transcription pipeline runs unchanged.
+
 ### Indic Behavior in `POST /api/analyze`
 
 * **Language Modes**: `"hindi"` (language code `hi-IN`) and `"hinglish"` (language code `hi-IN,en-IN`), using `format: "codemix"`.

@@ -103,6 +103,15 @@ const elements = {
   btnRecLangEnglish: document.getElementById("btnRecLangEnglish"),
   btnRecLangHinglish: document.getElementById("btnRecLangHinglish"),
   btnRecLangHindi: document.getElementById("btnRecLangHindi"),
+  recordEnglishEngineGroup: document.getElementById("recordEnglishEngineGroup"),
+  uploadEnglishEngineGroup: document.getElementById("uploadEnglishEngineGroup"),
+  btnRecEngineWhisper: document.getElementById("btnRecEngineWhisper"),
+  btnRecEnginePrisma: document.getElementById("btnRecEnginePrisma"),
+  btnUploadEngineWhisper: document.getElementById("btnUploadEngineWhisper"),
+  btnUploadEnginePrisma: document.getElementById("btnUploadEnginePrisma"),
+  sttEngineInput: document.getElementById("sttEngineInput"),
+  prismaCaveatLine: document.getElementById("prismaCaveatLine"),
+  numbersNoteLine: document.getElementById("numbersNoteLine"),
   recordIndicKeytermsGroup: document.getElementById("recordIndicKeytermsGroup"),
   recordKeytermsInput: document.getElementById("recordKeytermsInput"),
   languageModeInput: document.getElementById("languageModeInput"),
@@ -278,6 +287,20 @@ function setupEventListeners() {
     btn.addEventListener("click", () => {
       const mode = btn.getAttribute("data-lang");
       setLanguageMode(mode);
+    });
+  });
+
+  // STT engine selection in both upload and record panels (Stage B)
+  [
+    elements.btnRecEngineWhisper,
+    elements.btnRecEnginePrisma,
+    elements.btnUploadEngineWhisper,
+    elements.btnUploadEnginePrisma,
+  ].forEach((btn) => {
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      const engine = btn.getAttribute("data-engine");
+      setSttEngine(engine);
     });
   });
 
@@ -643,6 +666,8 @@ async function handleAnalyzeRecording() {
   if (effectiveKeyterms) {
     formData.append("keyterms", effectiveKeyterms);
   }
+  const sttEngine = (elements.sttEngineInput && elements.sttEngineInput.value) || "whisper";
+  formData.append("stt_engine", sttEngine);
 
   if (elements.btnAnalyzeRecording) elements.btnAnalyzeRecording.disabled = true;
   if (elements.recordUploadStatus) elements.recordUploadStatus.textContent = "Running forced alignment and flaw detection...";
@@ -706,6 +731,7 @@ function setLanguageMode(mode) {
   });
 
   const isIndic = mode === "hindi" || mode === "hinglish";
+  const isEnglish = mode === "english";
   if (elements.whisperModelGroup) {
     elements.whisperModelGroup.style.display = isIndic ? "none" : "grid";
   }
@@ -715,6 +741,35 @@ function setLanguageMode(mode) {
   if (elements.recordIndicKeytermsGroup) {
     elements.recordIndicKeytermsGroup.style.display = isIndic ? "block" : "none";
   }
+  if (elements.recordEnglishEngineGroup) {
+    elements.recordEnglishEngineGroup.style.display = isEnglish ? "block" : "none";
+  }
+  if (elements.uploadEnglishEngineGroup) {
+    elements.uploadEnglishEngineGroup.style.display = isEnglish ? "block" : "none";
+  }
+}
+
+/**
+ * Switch STT engine between Whisper (default) and Gnani Prisma for English.
+ */
+function setSttEngine(engine) {
+  if (elements.sttEngineInput) {
+    elements.sttEngineInput.value = engine;
+  }
+  const buttons = [
+    elements.btnRecEngineWhisper,
+    elements.btnRecEnginePrisma,
+    elements.btnUploadEngineWhisper,
+    elements.btnUploadEnginePrisma,
+  ];
+  buttons.forEach((btn) => {
+    if (!btn) return;
+    if (btn.getAttribute("data-engine") === engine) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
 }
 
 /**
@@ -776,6 +831,8 @@ async function handleUploadSubmit(e) {
   if (effectiveKeyterms) {
     formData.append("keyterms", effectiveKeyterms);
   }
+  const sttEngine = (elements.sttEngineInput && elements.sttEngineInput.value) || "whisper";
+  formData.append("stt_engine", sttEngine);
 
   elements.btnSubmitAnalyze.disabled = true;
   const isIndic = langMode === "hindi" || langMode === "hinglish";
@@ -825,6 +882,7 @@ async function handleRerun() {
 
   const rerunLangMode = (state.data && state.data.language_mode) || (elements.languageModeInput ? elements.languageModeInput.value : "english");
   formData.append("language_mode", rerunLangMode);
+  formData.append("stt_engine", (elements.sttEngineInput && elements.sttEngineInput.value) || "whisper");
   if (elements.keytermsInput && elements.keytermsInput.value.trim()) {
     formData.append("keyterms", elements.keytermsInput.value.trim());
   }
@@ -1045,6 +1103,28 @@ function renderDashboard(data) {
 
     if (elements.transcriptDisclaimer) {
       elements.transcriptDisclaimer.style.display = "block";
+    }
+
+    if (elements.prismaCaveatLine) {
+      if (data.prisma_caveat) {
+        elements.prismaCaveatLine.textContent = data.prisma_caveat;
+        elements.prismaCaveatLine.style.display = "block";
+      } else {
+        elements.prismaCaveatLine.style.display = "none";
+      }
+    }
+
+    if (elements.numbersNoteLine) {
+      if (data.numbers_note) {
+        elements.numbersNoteLine.textContent = data.numbers_note;
+        elements.numbersNoteLine.style.display = "block";
+      } else {
+        elements.numbersNoteLine.style.display = "none";
+      }
+    }
+
+    if (data.stt_engine) {
+      setSttEngine(data.stt_engine);
     }
   }
 
