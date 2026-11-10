@@ -65,6 +65,7 @@ from backend.gnani_stt import (
 )
 from backend.report import router as report_router
 from backend.tips import get_practice_tips_for_regions, get_tips_speech_text
+from backend.compare import compare_takes
 from src.pipeline.analyze import analyze, warmup_whisper_model
 
 app = FastAPI(
@@ -866,6 +867,48 @@ def tips_speak_get_endpoint(
             "Accept-Ranges": "bytes",
         },
     )
+
+
+@app.post("/api/compare")
+async def compare_endpoint(request: Request):
+    """Compare two speech analysis results (take 1 and take 2).
+
+    Validates that both inputs are valid analysis result objects.
+    """
+    content_type = request.headers.get("content-type", "")
+    if "application/json" not in content_type:
+        raise HTTPException(status_code=400, detail="Content-Type must be application/json.")
+
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body.")
+
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=400, detail="Request body must be a JSON object.")
+
+    take1 = body.get("take1")
+    take2 = body.get("take2")
+
+    def is_valid_analysis_result(obj: Any) -> bool:
+        if not isinstance(obj, dict):
+            return False
+        if "duration" not in obj or not isinstance(obj.get("duration"), (int, float)):
+            return False
+        if "flaw_regions" not in obj or not isinstance(obj.get("flaw_regions"), list):
+            return False
+        if "rubric" not in obj or not isinstance(obj.get("rubric"), dict):
+            return False
+        return True
+
+    if not is_valid_analysis_result(take1) or not is_valid_analysis_result(take2):
+        raise HTTPException(
+            status_code=400,
+            detail="Both take1 and take2 must be valid analysis result objects containing duration, flaw_regions, and rubric."
+        )
+
+    res = compare_takes(take1, take2)
+    return JSONResponse(res)
 
 
 # Mount static assets if frontend folder has extra files

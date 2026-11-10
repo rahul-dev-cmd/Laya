@@ -61,9 +61,17 @@
       </section>
 
       <!-- Card 2: Record Speech -->
-      <section class="card">
+      <section class="card" id="recordSpeechCard">
         <h2 class="card-title">Record Speech</h2>
         
+        <!-- Retake indicator banner -->
+        <div id="retakeBanner" class="retake-banner" style="display: none;">
+          <div class="retake-banner-text">
+            Retake for: <strong id="retakeClipName"></strong>
+          </div>
+          <button id="btnClearRetake" class="btn btn-secondary btn-xs" type="button">Clear retake</button>
+        </div>
+
         <!-- Error box for blocked mic / lack of support -->
         <div id="recordErrorBox" class="record-error-box" style="display: none;"></div>
 
@@ -395,6 +403,7 @@
         <div class="explanation-btn-row">
           <button id="btnExplainReport" class="btn btn-secondary btn-sm" type="button">Explain in simple words</button>
           <button id="btnListenTipsMain" class="btn btn-secondary btn-sm" type="button">Listen to the tips</button>
+          <button id="btnRecordRetake" class="btn btn-secondary btn-sm" type="button">Record a retake</button>
           <span id="explainLoadingSpinner" class="explain-spinner" style="display: none;">Loading plain-language explanation...</span>
         </div>
       </section>
@@ -408,6 +417,68 @@
       </section>
 
     </div>
+
+    <!-- Take 1 and take 2 Card -->
+    <section id="compareCard" class="card compare-card" style="display: none;">
+      <div class="compare-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+        <h2 class="card-title" style="margin-bottom: 0;">Take 1 and take 2</h2>
+        <button id="btnClearRetakeCard" class="btn btn-secondary btn-xs" type="button">Clear retake</button>
+      </div>
+
+      <!-- Non-comparable message box -->
+      <div id="compareNotComparableBox" class="compare-not-comparable" style="display: none;">
+        <p id="compareNotComparableReason" class="compare-reason-text" style="margin: 0;"></p>
+      </div>
+
+      <!-- Comparable results container -->
+      <div id="compareContentContainer" style="display: none;">
+        <!-- Small table: rubric dimensions with take 1, take 2 and signed change; overall row -->
+        <div class="table-container" style="margin-bottom: var(--space-md);">
+          <table class="data-table" id="compareRubricTable">
+            <thead>
+              <tr>
+                <th>Dimension</th>
+                <th>Take 1</th>
+                <th>Take 2</th>
+                <th>Change</th>
+              </tr>
+            </thead>
+            <tbody id="compareRubricTableBody">
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Flag comparison section -->
+        <div class="compare-flags-section" style="margin-bottom: var(--space-md);">
+          <h3 class="explanation-subtitle">Flagged regions in Take 1</h3>
+          <div id="compareTake1FlagsList" class="compare-flags-list" style="margin-bottom: var(--space-sm);"></div>
+
+          <h3 class="explanation-subtitle">New flags in Take 2</h3>
+          <div id="compareTake2NewFlagsList" class="compare-flags-list"></div>
+        </div>
+
+        <!-- Indic Transcripts comparison (Hindi and Hinglish) -->
+        <div id="compareTranscriptsSection" class="compare-transcripts-section" style="display: none; margin-bottom: var(--space-md);">
+          <h3 class="explanation-subtitle">Transcripts</h3>
+          <div id="compareWordsDifferLabel" class="compare-words-differ-badge" style="margin-bottom: var(--space-xs); font-family: var(--font-family-mono); font-size: var(--font-size-sm); font-weight: 600;"></div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm);">
+            <div>
+              <div style="font-size: var(--font-size-xs); font-family: var(--font-family-mono); font-weight: 600; margin-bottom: 4px; text-transform: uppercase;">Take 1</div>
+              <div id="compareTranscript1Box" class="passage-text-box" style="white-space: pre-wrap;"></div>
+            </div>
+            <div>
+              <div style="font-size: var(--font-size-xs); font-family: var(--font-family-mono); font-weight: 600; margin-bottom: 4px; text-transform: uppercase;">Take 2</div>
+              <div id="compareTranscript2Box" class="passage-text-box" style="white-space: pre-wrap;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Method note in plain text -->
+        <div class="compare-method-note-block">
+          <p id="compareMethodNote" class="compare-method-note-text" style="font-size: var(--font-size-xs); color: var(--color-text-muted); line-height: 1.5; margin: 0;"></p>
+        </div>
+      </div>
+    </section>
 
     <!-- Plain Language Explanation Card -->
     <section id="explanationCard" class="card explanation-card" style="display: none;">

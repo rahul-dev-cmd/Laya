@@ -33,6 +33,8 @@ const state = {
   recordTimerInterval: null,
   lastRecordedBlob: null,
   lastPassageId: null,
+  take1: null,
+  take1ClipName: "",
 };
 
 // DOM element references
@@ -147,6 +149,24 @@ const elements = {
   chatInput: document.getElementById("chatInput"),
   btnSendChat: document.getElementById("btnSendChat"),
   chatStatusText: document.getElementById("chatStatusText"),
+  btnRecordRetake: document.getElementById("btnRecordRetake"),
+  retakeBanner: document.getElementById("retakeBanner"),
+  retakeClipName: document.getElementById("retakeClipName"),
+  btnClearRetake: document.getElementById("btnClearRetake"),
+  btnClearRetakeCard: document.getElementById("btnClearRetakeCard"),
+  compareCard: document.getElementById("compareCard"),
+  compareNotComparableBox: document.getElementById("compareNotComparableBox"),
+  compareNotComparableReason: document.getElementById("compareNotComparableReason"),
+  compareContentContainer: document.getElementById("compareContentContainer"),
+  compareRubricTableBody: document.getElementById("compareRubricTableBody"),
+  compareTake1FlagsList: document.getElementById("compareTake1FlagsList"),
+  compareTake2NewFlagsList: document.getElementById("compareTake2NewFlagsList"),
+  compareTranscriptsSection: document.getElementById("compareTranscriptsSection"),
+  compareWordsDifferLabel: document.getElementById("compareWordsDifferLabel"),
+  compareTranscript1Box: document.getElementById("compareTranscript1Box"),
+  compareTranscript2Box: document.getElementById("compareTranscript2Box"),
+  compareMethodNote: document.getElementById("compareMethodNote"),
+  recordSpeechCard: document.getElementById("recordSpeechCard"),
 };
 
 /**
@@ -284,6 +304,17 @@ function setupEventListeners() {
   }
   if (elements.btnListenTips) {
     elements.btnListenTips.addEventListener("click", handleListenTipsClick);
+  }
+
+  // Retake buttons
+  if (elements.btnRecordRetake) {
+    elements.btnRecordRetake.addEventListener("click", handleRecordRetake);
+  }
+  if (elements.btnClearRetake) {
+    elements.btnClearRetake.addEventListener("click", handleClearRetake);
+  }
+  if (elements.btnClearRetakeCard) {
+    elements.btnClearRetakeCard.addEventListener("click", handleClearRetake);
   }
 
   // Chat form submit
@@ -894,6 +925,13 @@ async function loadLaddersData() {
  */
 function renderDashboard(data) {
   if (!data) return;
+
+  // Trigger retake comparison if take 1 is stored in memory
+  if (state.take1 && data !== state.take1) {
+    checkAndRenderComparison(state.take1, data);
+  } else if (!state.take1 && elements.compareCard) {
+    elements.compareCard.style.display = "none";
+  }
 
   // Reset explanation state
   state.currentReport = null;
@@ -2234,6 +2272,243 @@ async function handleListenTipsClick() {
       b.disabled = false;
       b.textContent = b.dataset.origText || "Listen to the tips";
     });
+  }
+}
+
+/**
+ * Handle "Record a retake" button click.
+ * Stores current analysis as Take 1 in page memory and returns to recording panel.
+ */
+function handleRecordRetake() {
+  if (!state.data) {
+    alert("Please analyze a recording or example first before recording a retake.");
+    return;
+  }
+  // Store take 1 in page memory (not localStorage, not server, no audio kept)
+  state.take1 = state.data;
+
+  let name = "";
+  if (state.selectedPassage && state.selectedPassage.title) {
+    name = state.selectedPassage.title;
+  } else if (state.currentExample) {
+    name = state.currentExample;
+  } else {
+    const fileAudioInput = document.getElementById("fileAudio");
+    if (fileAudioInput && fileAudioInput.files && fileAudioInput.files.length > 0) {
+      name = fileAudioInput.files[0].name;
+    } else {
+      name = "Speech Take 1";
+    }
+  }
+  state.take1ClipName = name;
+
+  if (elements.retakeBanner && elements.retakeClipName) {
+    elements.retakeBanner.style.display = "flex";
+    elements.retakeClipName.textContent = name;
+  }
+
+  // Scroll to record speech panel
+  if (elements.recordSpeechCard) {
+    elements.recordSpeechCard.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+/**
+ * Handle "Clear retake" button click.
+ * Removes Take 1 from page memory and hides comparison card.
+ */
+function handleClearRetake() {
+  state.take1 = null;
+  state.take1ClipName = "";
+  if (elements.retakeBanner) {
+    elements.retakeBanner.style.display = "none";
+  }
+  if (elements.compareCard) {
+    elements.compareCard.style.display = "none";
+  }
+}
+
+/**
+ * Send Take 1 and Take 2 to POST /api/compare and render comparison card.
+ */
+async function checkAndRenderComparison(take1, take2) {
+  if (!take1 || !take2) return;
+  try {
+    const res = await fetch("/api/compare", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ take1, take2 }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `HTTP ${res.status}`);
+    }
+    const comparison = await res.json();
+    renderComparisonCard(comparison);
+  } catch (err) {
+    console.error("Comparison error:", err);
+    if (elements.compareCard && elements.compareNotComparableBox && elements.compareNotComparableReason) {
+      elements.compareCard.style.display = "block";
+      elements.compareNotComparableBox.style.display = "block";
+      elements.compareNotComparableReason.textContent = "Could not compare takes: " + err.message;
+      if (elements.compareContentContainer) {
+        elements.compareContentContainer.style.display = "none";
+      }
+    }
+  }
+}
+
+/**
+ * Render the "Take 1 and take 2" card.
+ */
+function renderComparisonCard(comparison) {
+  if (!elements.compareCard) return;
+  elements.compareCard.style.display = "block";
+
+  if (!comparison.comparable) {
+    if (elements.compareNotComparableBox) {
+      elements.compareNotComparableBox.style.display = "block";
+      elements.compareNotComparableReason.textContent = comparison.reason || "Takes are not comparable.";
+    }
+    if (elements.compareContentContainer) {
+      elements.compareContentContainer.style.display = "none";
+    }
+    return;
+  }
+
+  if (elements.compareNotComparableBox) {
+    elements.compareNotComparableBox.style.display = "none";
+  }
+  if (elements.compareContentContainer) {
+    elements.compareContentContainer.style.display = "block";
+  }
+
+  // 1. Rubric dimensions with Take 1, Take 2, and signed change
+  if (elements.compareRubricTableBody) {
+    elements.compareRubricTableBody.innerHTML = "";
+
+    const dims = comparison.dimensions || [];
+    dims.forEach((d) => {
+      const tr = document.createElement("tr");
+
+      const tdName = document.createElement("td");
+      tdName.textContent = d.name;
+
+      const td1 = document.createElement("td");
+      td1.textContent = d.score_1 !== null ? Number(d.score_1).toFixed(1) : "-";
+
+      const td2 = document.createElement("td");
+      td2.textContent = d.score_2 !== null ? Number(d.score_2).toFixed(1) : "-";
+
+      const tdCh = document.createElement("td");
+      tdCh.textContent = d.signed_change || (d.change !== null ? (d.change > 0 ? `+${d.change.toFixed(1)}` : d.change.toFixed(1)) : "-");
+
+      tr.appendChild(tdName);
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      tr.appendChild(tdCh);
+      elements.compareRubricTableBody.appendChild(tr);
+    });
+
+    // Overall row
+    const ov = comparison.overall || {};
+    if (ov.overall_1 !== null || ov.overall_2 !== null) {
+      const trOv = document.createElement("tr");
+      trOv.style.fontWeight = "600";
+
+      const tdName = document.createElement("td");
+      tdName.textContent = "Overall";
+
+      const td1 = document.createElement("td");
+      td1.textContent = ov.overall_1 !== null ? Number(ov.overall_1).toFixed(1) : "-";
+
+      const td2 = document.createElement("td");
+      td2.textContent = ov.overall_2 !== null ? Number(ov.overall_2).toFixed(1) : "-";
+
+      const tdCh = document.createElement("td");
+      tdCh.textContent = ov.signed_change || (ov.overall_change !== null ? (ov.overall_change > 0 ? `+${ov.overall_change.toFixed(1)}` : ov.overall_change.toFixed(1)) : "-");
+
+      trOv.appendChild(tdName);
+      trOv.appendChild(td1);
+      trOv.appendChild(td2);
+      trOv.appendChild(tdCh);
+      elements.compareRubricTableBody.appendChild(trOv);
+    }
+  }
+
+  // 2. Take 1 flags: [start - end] type: still flagged / not flagged in take 2
+  if (elements.compareTake1FlagsList) {
+    elements.compareTake1FlagsList.innerHTML = "";
+    const t1Flags = comparison.take_1_flags || [];
+    if (t1Flags.length === 0) {
+      elements.compareTake1FlagsList.innerHTML = '<div class="empty-state">No flagged regions in Take 1.</div>';
+    } else {
+      t1Flags.forEach((f) => {
+        const item = document.createElement("div");
+        item.className = "compare-flag-item";
+
+        const textSpan = document.createElement("span");
+        textSpan.textContent = `[${f.start.toFixed(2)}s - ${f.end.toFixed(2)}s] ${f.type}`;
+
+        const statusSpan = document.createElement("span");
+        const isStill = f.status === "still flagged";
+        statusSpan.className = `compare-flag-status ${isStill ? "still" : "cleared"}`;
+        statusSpan.textContent = f.status;
+
+        item.appendChild(textSpan);
+        item.appendChild(statusSpan);
+        elements.compareTake1FlagsList.appendChild(item);
+      });
+    }
+  }
+
+  // 3. Take 2 new flags: [start - end] type: new in take 2
+  if (elements.compareTake2NewFlagsList) {
+    elements.compareTake2NewFlagsList.innerHTML = "";
+    const t2Flags = comparison.take_2_new_flags || [];
+    if (t2Flags.length === 0) {
+      elements.compareTake2NewFlagsList.innerHTML = '<div class="empty-state">No new flags in Take 2.</div>';
+    } else {
+      t2Flags.forEach((f) => {
+        const item = document.createElement("div");
+        item.className = "compare-flag-item";
+
+        const textSpan = document.createElement("span");
+        textSpan.textContent = `[${f.start.toFixed(2)}s - ${f.end.toFixed(2)}s] ${f.type}`;
+
+        const statusSpan = document.createElement("span");
+        statusSpan.className = "compare-flag-status new";
+        statusSpan.textContent = f.status;
+
+        item.appendChild(textSpan);
+        item.appendChild(statusSpan);
+        elements.compareTake2NewFlagsList.appendChild(item);
+      });
+    }
+  }
+
+  // 4. Indic transcripts side-by-side (Hindi and Hinglish)
+  if (elements.compareTranscriptsSection) {
+    const tr = comparison.transcripts;
+    if (tr) {
+      elements.compareTranscriptsSection.style.display = "block";
+      if (elements.compareWordsDifferLabel) {
+        elements.compareWordsDifferLabel.textContent = tr.label || `${tr.words_differ} words differ`;
+      }
+      if (elements.compareTranscript1Box) {
+        elements.compareTranscript1Box.textContent = tr.transcript_1 || "(Empty transcript)";
+      }
+      if (elements.compareTranscript2Box) {
+        elements.compareTranscript2Box.textContent = tr.transcript_2 || "(Empty transcript)";
+      }
+    } else {
+      elements.compareTranscriptsSection.style.display = "none";
+    }
+  }
+
+  // 5. Method note
+  if (elements.compareMethodNote) {
+    elements.compareMethodNote.textContent = comparison.method_note || "";
   }
 }
 
