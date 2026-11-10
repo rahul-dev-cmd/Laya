@@ -56,6 +56,7 @@ from fastapi.staticfiles import StaticFiles
 from backend.chat import router as chat_router
 from backend.gnani_stt import (
     DEFAULT_KEYTERMS,
+    clean_prisma_text,
     compute_script_mix,
     extract_region_audio,
     get_region_text,
@@ -65,6 +66,7 @@ from backend.gnani_stt import (
 )
 from backend.report import router as report_router
 from backend.tips import get_practice_tips_for_regions, get_tips_speech_text
+from backend.compare import compare_takes
 from src.pipeline.analyze import analyze, warmup_whisper_model
 
 app = FastAPI(
@@ -367,6 +369,7 @@ async def run_analysis(
     transcript_source: Optional[str] = Form(None, description="Transcript provenance label: provided, auto, edited"),
     language_mode: str = Form("english", description="Language mode: english, hindi, hinglish"),
     keyterms: Optional[str] = Form(None, description="Newline-delimited user keyterms for Hindi/Hinglish"),
+    stt_engine: str = Form("whisper", description="STT engine: whisper (default) or gnani_prisma"),
 ):
     """Run full analysis pipeline on uploaded audio and transcript.
     
@@ -448,7 +451,9 @@ async def run_analysis(
             ref_path.write_bytes(ref_bytes)
 
         is_indic = language_mode.lower() in ("hindi", "hinglish")
+        is_english_prisma = (language_mode.lower() == "english") and (stt_engine.lower() in ("gnani_prisma", "prisma"))
         gnani_chunks = []
+        prisma_has_digits = False
 
         if is_indic and not txt_path:
             # Transcribe via Gnani STT with chunking (<= 25s) and keyterms
@@ -515,6 +520,30 @@ async def run_analysis(
                 c_idx += 1
             gnani_chunks = chunk_list
 
+        elif is_english_prisma:
+            # Stage B: English transcript from Gnani Prisma
+            if not transcript_text:
+                gnani_res = transcribe_audio_gnani(
+                    wav_path=converted_wav,
+                    language_mode="english",
+                    custom_keyterms=keyterms,
+                )
+                if not gnani_res.get("success"):
+                    raise HTTPException(
+                        status_code=502,
+                        detail=f"Gnani STT transcription failed: {gnani_res.get('error')}"
+                    )
+                raw_prisma_text = gnani_res.get("transcript", "")
+                gnani_chunks = gnani_res.get("chunks", [])
+                transcript_source = "auto"
+            else:
+                raw_prisma_text = transcript_text
+
+            cleaned_prisma_text, prisma_has_digits = clean_prisma_text(raw_prisma_text)
+            candidate_path = temp_dir / f"transcript_{secrets.token_hex(8)}.txt"
+            candidate_path.write_text(cleaned_prisma_text, encoding="utf-8")
+            txt_path = candidate_path
+
         # 6. Run pipeline analysis
         result = analyze(
             audio_wav=converted_wav,
@@ -566,6 +595,17 @@ async def run_analysis(
 
                 rubric["overall"] = pitch_score
                 rubric["overall_note"] = "Overall uses 1 of 4 dimensions: Pitch variation. Pace and pause checks are English only."
+        elif is_english_prisma:
+            result["stt_engine"] = "gnani_prisma"
+            result["prisma_caveat"] = "Transcript from Gnani Prisma; timing found by forced alignment."
+            if prisma_has_digits:
+                result["numbers_note"] = "The transcript contains numbers, which can affect timing."
+            else:
+                result["numbers_note"] = None
+        else:
+            result["stt_engine"] = "whisper"
+            result["prisma_caveat"] = None
+            result["numbers_note"] = None
 
         return JSONResponse(result)
     except HTTPException:
@@ -582,7 +622,7 @@ async def run_analysis(
 @app.post("/api/transcribe-gnani")
 async def transcribe_gnani_endpoint(
     audio_file: UploadFile = File(..., description="Audio file for Gnani STT"),
-    language_mode: str = Form("hinglish", description="Language mode: hindi or hinglish"),
+    language_mode: str = Form("hinglish", description="Language mode: english, hindi or hinglish"),
     keyterms: Optional[str] = Form(None, description="Optional user keyterms (one per line)"),
 ):
     """Direct STT transcription via Gnani Prisma v3.0 REST with chunking (<= 25s)."""
@@ -866,6 +906,48 @@ def tips_speak_get_endpoint(
             "Accept-Ranges": "bytes",
         },
     )
+
+
+@app.post("/api/compare")
+async def compare_endpoint(request: Request):
+    """Compare two speech analysis results (take 1 and take 2).
+
+    Validates that both inputs are valid analysis result objects.
+    """
+    content_type = request.headers.get("content-type", "")
+    if "application/json" not in content_type:
+        raise HTTPException(status_code=400, detail="Content-Type must be application/json.")
+
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body.")
+
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=400, detail="Request body must be a JSON object.")
+
+    take1 = body.get("take1")
+    take2 = body.get("take2")
+
+    def is_valid_analysis_result(obj: Any) -> bool:
+        if not isinstance(obj, dict):
+            return False
+        if "duration" not in obj or not isinstance(obj.get("duration"), (int, float)):
+            return False
+        if "flaw_regions" not in obj or not isinstance(obj.get("flaw_regions"), list):
+            return False
+        if "rubric" not in obj or not isinstance(obj.get("rubric"), dict):
+            return False
+        return True
+
+    if not is_valid_analysis_result(take1) or not is_valid_analysis_result(take2):
+        raise HTTPException(
+            status_code=400,
+            detail="Both take1 and take2 must be valid analysis result objects containing duration, flaw_regions, and rubric."
+        )
+
+    res = compare_takes(take1, take2)
+    return JSONResponse(res)
 
 
 # Mount static assets if frontend folder has extra files

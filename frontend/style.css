@@ -1468,3 +1468,70 @@ textarea:focus-visible {
   font-family: var(--font-family-mono);
   color: var(--color-primary);
 }
+
+.retake-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  background-color: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  padding: var(--space-xs) var(--space-sm);
+  margin-bottom: var(--space-sm);
+  font-size: var(--font-size-sm);
+}
+
+.retake-banner-text strong {
+  color: var(--color-primary);
+}
+
+.compare-card {
+  margin-top: var(--space-md);
+}
+
+.compare-not-comparable {
+  background-color: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  padding: var(--space-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.compare-flags-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.compare-flag-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background-color: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family-mono);
+}
+
+.compare-flag-status {
+  font-weight: 600;
+}
+
+.compare-flag-status.still {
+  color: #b91c1c;
+}
+
+.compare-flag-status.cleared {
+  color: #15803d;
+}
+
+.compare-flag-status.new {
+  color: #b45309;
+}
+
+.compare-words-differ-badge {
+  color: var(--color-primary);
+}

@@ -508,6 +508,18 @@ If LLM credentials are unset, the provider returns an error, the call exceeds th
 
 Laya supports Hindi and Hinglish speech analysis powered by Gnani Prisma v3.0 STT and Timbre TTS.
 
+### English STT Option: Whisper vs Gnani Prisma (Stage B)
+
+In addition to the default Whisper pipeline, users can choose Gnani Prisma as the STT engine for English audio:
+
+* **Parameter**: `stt_engine` (`"whisper"` [default] or `"gnani_prisma"`).
+* **Prisma Configuration**: Model `prisma-v3.0`, language code `en-IN`, format `codemix`, chunking $\le 25.0$ s, and default keyterms (`["Laya", "Gnani", "Prisma", "Timbre"]`). Chunks are joined into a single transcript.
+* **Text Normalization**: Before alignment, Prisma text is lowercased, punctuation is removed except internal word apostrophes (`it's`, `don't`), and whitespace is collapsed. Numbers are not expanded silently.
+* **Numbers Note**: If the cleaned text contains digits, the response includes `numbers_note: "The transcript contains numbers, which can affect timing."`
+* **Timing & Detectors**: Forced word alignment is performed on the cleaned text using WhisperX, and all standard detectors (pitch, rate, pauses) run on that timeline.
+* **Caveat Line**: The response attaches `prisma_caveat: "Transcript from Gnani Prisma; timing found by forced alignment."` and `stt_engine: "gnani_prisma"`.
+* **Default Preservation**: When `stt_engine` is omitted or set to `"whisper"`, the original Whisper transcription pipeline runs unchanged.
+
 ### Indic Behavior in `POST /api/analyze`
 
 * **Language Modes**: `"hindi"` (language code `hi-IN`) and `"hinglish"` (language code `hi-IN,en-IN`), using `format: "codemix"`.
@@ -658,6 +670,72 @@ Synthesizes fixed practice tips from `backend/tips.py` in the selected language 
   "language": "hi-IN",
   "voice": "Shivani",
   "label": "Model voice, not your voice"
+}
+```
+
+---
+
+## Retake Comparison (`POST /api/compare`)
+
+Compares two speech analysis results (take 1 and take 2) to evaluate changes across recordings.
+
+### Endpoint: `POST /api/compare`
+
+**Operational Rules**:
+1. `comparable` is `false` if language differs, analysis mode differs (paired vs experimental), or duration differs by more than 20 percent. When not comparable, the plain reason is returned and deltas are not computed.
+2. For each rubric dimension scored in BOTH takes: computes `score_1`, `score_2`, and `change` (score_2 minus score_1, signed, one decimal).
+3. `overall_1`, `overall_2`, and `overall_change` are provided when both overall scores are present.
+4. Per detector (rate, pitch, pause): counts flagged regions and total flagged seconds in each take.
+5. Flag overlap tracking: for each take 1 flag, checks whether any take 2 flag of the same type overlaps by at least 50 percent of the shorter region. Reported strictly as `"still flagged"` or `"not flagged in take 2"`. Never uses words like "fixed" or "improved".
+6. New flags in take 2 that overlap nothing in take 1 are reported as `"new in take 2"`.
+7. For Hindi and Hinglish: returns both transcripts and the count of words that differ using difflib.
+8. Includes fixed method note: `"This compares two measurements from two recordings. A lower flagged time means the detectors flagged less in this take. It does not prove the delivery is better."`
+
+**Request Payload (JSON)**:
+```json
+{
+  "take1": { ... },
+  "take2": { ... }
+}
+```
+
+Both `take1` and `take2` must be valid analysis result objects containing `duration`, `flaw_regions`, and `rubric`.
+
+**Response (JSON)**:
+```json
+{
+  "comparable": true,
+  "method_note": "This compares two measurements from two recordings. A lower flagged time means the detectors flagged less in this take. It does not prove the delivery is better.",
+  "dimensions": [
+    {
+      "name": "Pitch variation",
+      "score_1": 92.0,
+      "score_2": 96.5,
+      "change": 4.5,
+      "signed_change": "+4.5"
+    }
+  ],
+  "overall": {
+    "overall_1": 92.0,
+    "overall_2": 96.5,
+    "overall_change": 4.5,
+    "signed_change": "+4.5"
+  },
+  "detectors": {
+    "rate": { "count_1": 0, "count_2": 0, "seconds_1": 0.0, "seconds_2": 0.0 },
+    "pitch": { "count_1": 1, "count_2": 1, "seconds_1": 2.4, "seconds_2": 1.2 },
+    "pause": { "count_1": 0, "count_2": 0, "seconds_1": 0.0, "seconds_2": 0.0 }
+  },
+  "take_1_flags": [
+    {
+      "type": "pitch",
+      "start": 1.2,
+      "end": 3.6,
+      "status": "still flagged"
+    }
+  ],
+  "take_2_new_flags": [],
+  "transcripts": null
 }
 ```
 
